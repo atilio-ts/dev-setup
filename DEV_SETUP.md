@@ -980,6 +980,13 @@ Two skill sources are active:
 - `vercel-react-native-skills`
 - `web-design-guidelines`
 
+**vercel-labs/agent-skills** — installed via `npx skills` from https://github.com/vercel-labs/agent-skills. Lives in `~/.agents/skills/`, symlinked into `~/.claude/skills/`. Active skills:
+- `vercel-composition-patterns`
+- `vercel-react-best-practices`
+- `vercel-react-native-skills`
+- `web-design-guidelines`
+- `deploy-to-vercel`
+
 #### Reinstall skills on new machine
 
 ```bash
@@ -989,6 +996,9 @@ claude plugins install gstack
 # jeffallan/claude-skills marketplace + plugin
 claude plugins marketplace add jeffallan/claude-skills
 claude plugins install fullstack-dev-skills@fullstack-dev-skills
+
+# vercel-labs/agent-skills (installs all 5, symlinked into ~/.claude/skills/)
+npx skills add vercel-labs/agent-skills --yes --global
 ```
 
 > The marketplace and enabledPlugins entries are already in `settings.json` — they will be applied when the file is copied.
@@ -1163,7 +1173,7 @@ spicetify upgrade    # update spicetify itself
 [ ] Copy ~/.claude/settings.json
 [ ] Copy ~/.claude/statusline-command.sh
 [ ] Create ~/.claude/hooks/ and copy pre-bash.sh + pre-websearch.sh
-[ ] Install Claude Code skills (see section 14 for commands)
+[ ] Install Claude Code skills: gstack + fullstack-dev-skills + vercel-labs/agent-skills (see section 14)
 [ ] Install and configure cachebro MCP server (see section 14)
 [ ] Seed user profile memory files under ~/.claude/projects/.../memory/
 [ ] Install remaining GUI apps (Obsidian, Postman, DBeaver, Redis Insight, etc.)
