@@ -54,5 +54,16 @@
       "Bash(git fetch*)",
       "Bash(git remote*)"
     ]
+  },
+  "enabledPlugins": {
+    "fullstack-dev-skills@fullstack-dev-skills": true
+  },
+  "extraKnownMarketplaces": {
+    "fullstack-dev-skills": {
+      "source": {
+        "source": "github",
+        "repo": "jeffallan/claude-skills"
+      }
+    }
   }
 }
