@@ -1,0 +1,30 @@
+# macOS
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Logs
+*.log
+logs/
+
+# Editor / IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# direnv
+.direnv/
+
+# OS temp files
+Thumbs.db
