@@ -146,6 +146,24 @@ defaults write com.apple.dock tilesize -int 66
 killall Dock
 ok "Dock configured (left, autohide, size 66)"
 
+# ─── Claude Code skills ───────────────────────────────────────────────────────
+step "Claude Code skills"
+if command -v claude &>/dev/null; then
+  claude plugins marketplace add jeffallan/claude-skills 2>/dev/null || true
+  claude plugins install fullstack-dev-skills@fullstack-dev-skills 2>/dev/null || true
+  ok "fullstack-dev-skills plugin installed"
+  npx skills add vercel-labs/agent-skills --yes --global 2>/dev/null || true
+  ok "vercel-labs/agent-skills installed"
+  warn "Install gstack manually: claude plugins install gstack"
+else
+  warn "Claude Code not found — install it first, then run skills setup"
+fi
+
+# ─── cachebro MCP ─────────────────────────────────────────────────────────────
+step "cachebro MCP"
+npx cachebro init 2>/dev/null || true
+ok "cachebro configured — restart Claude Code to activate"
+
 # ─── Done ────────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${GREEN}Setup complete.${NC} Remaining manual steps:"
@@ -153,8 +171,7 @@ echo "  • source ~/.zshrc  (or open a new terminal)"
 echo "  • p10k configure   (if font isn't rendering correctly)"
 echo "  • gh auth login"
 echo "  • atuin login"
-echo "  • Install Docker Desktop, JetBrains Toolbox, Rectangle, Maccy, Obsidian, Postman"
-echo "  • Install Claude Code skills: claude plugins install gstack"
-echo "  • Install and configure cachebro MCP server"
 echo "  • Install mise: curl https://mise.run | sh  →  mise install node@24.13.1"
-echo "  • Install Java JDKs (Corretto 21, 24) via mise or jenv"
+echo "  • Install Java JDKs (Corretto 21, 24): mise install java@corretto-21 java@corretto-24"
+echo "  • Install Docker Desktop, JetBrains Toolbox, Obsidian, Postman"
+echo "  • Install gstack skills: claude plugins install gstack"
