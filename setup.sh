@@ -125,6 +125,14 @@ else
   warn "Spotify or spicetify not found — skipping"
 fi
 
+# ─── asimov (Time Machine exclusions) ────────────────────────────────────────
+step "asimov"
+LAUNCHAGENTS_DIR="$HOME/Library/LaunchAgents"
+mkdir -p "$LAUNCHAGENTS_DIR"
+cp "$REPO/launchagents/homebrew.asimov.plist" "$LAUNCHAGENTS_DIR/homebrew.asimov.plist"
+launchctl load "$LAUNCHAGENTS_DIR/homebrew.asimov.plist" 2>/dev/null || true
+ok "asimov LaunchAgent installed and loaded"
+
 # ─── navi cheatsheets ────────────────────────────────────────────────────────
 step "navi"
 navi repo add denisidoro/cheats 2>/dev/null || true

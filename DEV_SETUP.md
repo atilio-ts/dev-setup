@@ -438,9 +438,7 @@ The config also contains **Conventional Commits git aliases** (`feat`, `fix`, `r
 
 ---
 
-## 6. Node.js — fnm + pnpm + bun
-
-> On the new machine use **mise** instead of fnm/nvm. Install the same Node version.
+## 6. Node.js — mise + pnpm + bun
 
 ### Current versions
 
@@ -448,79 +446,41 @@ The config also contains **Conventional Commits git aliases** (`feat`, `fix`, `r
 |------|---------|
 | Node.js | `v24.13.1` (default) |
 | npm | `11.8.0` |
-| pnpm | `10.29.3` |
+| pnpm | `10.12.4` |
 | bun | `1.3.10` |
 
-### With mise (new machine)
+### Setup with mise
 
 ```bash
 # Install mise
 curl https://mise.run | sh
-echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
+echo 'eval "$($HOME/.local/bin/mise activate zsh)"' >> ~/.zshrc
 
 # Install Node
 mise install node@24.13.1
 mise use --global node@24.13.1
 
 # Install pnpm globally
-npm install -g pnpm@10.29.3
+npm install -g pnpm
 
 # Install bun
 curl -fsSL https://bun.sh/install | bash
 ```
 
-### With fnm (current machine approach)
-
-```bash
-# fnm is installed via brew
-eval "$(fnm env --use-on-cd --shell zsh)"   # already in .zshrc
-
-fnm install 24.13.1
-fnm default 24.13.1
-```
-
 ---
 
-## 7. Java — jenv
+## 7. Java — mise
 
-> On the new machine, **mise** can also manage Java. Replicate the same versions.
+### Installed JDKs (Amazon Corretto via mise)
 
-### Installed JDKs (Amazon Corretto via jenv)
+| Version | Status |
+|---------|--------|
+| `corretto-21.0.10` | installed |
+| `corretto-24.0.2` | installed ← **global default** |
 
-| Version | Alias |
-|---------|-------|
-| 21.0.7 | `corretto64-21.0.7` |
-| 23.0.2 | `corretto64-23.0.2` |
-| 24.0.2 | `corretto64-24.0.2` ← **global default** |
-| 25.0.1 | `corretto64-25.0.1` |
+Also installed via brew: `openjdk@21` (21.0.10).
 
-Also installed via brew: `openjdk` (25.0.2), `openjdk@21` (21.0.10).
-
-### Setup with jenv
-
-```bash
-# Install jenv
-brew install jenv
-export PATH="$HOME/.jenv/bin:$PATH"
-eval "$(jenv init -)"   # already in .zshrc
-
-# Install Corretto JDKs (download from https://aws.amazon.com/corretto/)
-# Then register each:
-jenv add /path/to/jdk-21
-jenv add /path/to/jdk-23
-jenv add /path/to/jdk-24
-jenv add /path/to/jdk-25
-
-# Set global default
-jenv global corretto64-24.0.2
-
-# Enable plugins
-jenv enable-plugin export
-jenv enable-plugin maven
-jenv enable-plugin gradle
-```
-
-### With mise (new machine alternative)
+### Setup with mise
 
 ```bash
 mise install java@corretto-21
@@ -800,12 +760,17 @@ Install these manually from their websites or the Mac App Store:
 
 ### Time Machine — `asimov`
 
-`asimov` automatically excludes development dependency directories (like `node_modules`, `.build`, virtual envs) from Time Machine backups. It runs as a background service.
+`asimov` automatically excludes development dependency directories (like `node_modules`, `.build`, virtual envs) from Time Machine backups. It runs daily as a user-level LaunchAgent.
 
 ```bash
 brew install asimov
-sudo brew services start asimov
+
+# Copy the LaunchAgent plist (from this repo: launchagents/homebrew.asimov.plist)
+cp launchagents/homebrew.asimov.plist ~/Library/LaunchAgents/homebrew.asimov.plist
+launchctl load ~/Library/LaunchAgents/homebrew.asimov.plist
 ```
+
+> `sudo brew services start asimov` fails on macOS Sequoia (bootstrap domain error). The user-level LaunchAgent approach works without sudo.
 
 ### Minikube
 
@@ -992,9 +957,9 @@ Copy both files to `~/.claude/hooks/` on the new machine.
 
 ### Skills / Plugins
 
-Skills are symlinked under `~/.claude/skills/`. Two sources:
+Two skill sources are active:
 
-**From `gstack` (install via `claude plugins install gstack`):**
+**gstack** — installed under `~/.claude/skills/gstack/` (repo: github.com/garrytan/gstack):
 - `browse` — headless browser for QA
 - `gstack-upgrade` — upgrade gstack itself
 - `plan-ceo-review` — CEO-mode plan review
@@ -1005,11 +970,11 @@ Skills are symlinked under `~/.claude/skills/`. Two sources:
 - `setup-browser-cookies` — import browser cookies
 - `ship` — ship workflow (merge → test → PR)
 
-**From `~/.agents/skills/` (install via `claude plugins install <name>`):**
+**fullstack-dev-skills** — plugin from github.com/jeffallan/claude-skills, installed under `~/.agents/skills/`. Active skills:
 - `find-skills`
-- `java-spring-boot`
 - `nestjs-expert`
-- `typescript-best-practices`
+- `spring-boot-engineer`
+- `typescript-pro`
 - `vercel-composition-patterns`
 - `vercel-react-best-practices`
 - `vercel-react-native-skills`
@@ -1018,29 +983,36 @@ Skills are symlinked under `~/.claude/skills/`. Two sources:
 #### Reinstall skills on new machine
 
 ```bash
-# Install gstack skill suite
+# gstack suite (installs directly as files under ~/.claude/skills/)
 claude plugins install gstack
 
-# Install individual skills
-claude plugins install find-skills
-claude plugins install java-spring-boot
-claude plugins install nestjs-expert
-claude plugins install typescript-best-practices
-claude plugins install vercel-composition-patterns
-claude plugins install vercel-react-best-practices
-claude plugins install vercel-react-native-skills
-claude plugins install web-design-guidelines
+# jeffallan/claude-skills marketplace + plugin
+claude plugins marketplace add jeffallan/claude-skills
+claude plugins install fullstack-dev-skills@fullstack-dev-skills
 ```
+
+> The marketplace and enabledPlugins entries are already in `settings.json` — they will be applied when the file is copied.
 
 ### MCP Server — cachebro
 
-**cachebro** is a Claude Code MCP tool that caches file reads by content hash. On repeated reads it returns "unchanged" or a compact diff instead of the full file, saving significant tokens.
+**cachebro** (github.com/glommer/cachebro) is a Claude Code MCP tool that caches file reads by content hash. On repeated reads it returns "unchanged" or a compact diff instead of the full file, saving significant tokens.
 
-It is pre-authorized in `settings.json` (`mcp__cachebro__read_file`, `mcp__cachebro__read_files`). **Always use cachebro's `read_file` tool instead of the built-in Read tool** when reading files.
+It is pre-authorized in `settings.json` (`mcp__cachebro__read_file`, `mcp__cachebro__read_files`). The MCP server config lives in `~/.claude.json` (not `settings.json`) — it is added automatically by the init command.
 
-Install and configure cachebro on the new machine, then verify it appears in Claude Code as an MCP tool. Once available, the permissions in `settings.json` will auto-allow it.
+```bash
+npx cachebro init
+```
 
-> Check the cachebro repo/docs for the current install method — it may install as an npm package or Claude plugin.
+Then restart Claude Code. The `mcpServers` block it adds to `~/.claude.json`:
+
+```json
+"mcpServers": {
+  "cachebro": {
+    "command": "npx",
+    "args": ["cachebro", "serve"]
+  }
+}
+```
 
 ### Memory System
 
@@ -1174,16 +1146,13 @@ spicetify upgrade    # update spicetify itself
 [ ] Copy ~/.p10k.zsh  OR  run `p10k configure`
 [ ] Copy ~/.gitconfig (update name/email, keep delta + lfs config)
 [ ] Install iTerm2, set font to MesloLGS NF 15pt
-[ ] Install mise and set up Node 24.13.1
-[ ] Install pnpm 10.29.3 and bun 1.3.10
-[ ] Install Java JDKs (Corretto 21, 24 at minimum) via mise or jenv
+[ ] Install mise (curl https://mise.run | sh) and set up Node 24.13.1
+[ ] Install pnpm (npm install -g pnpm) and bun (curl -fsSL https://bun.sh/install | bash)
+[ ] Install Java JDKs via mise: mise install java@corretto-21 && mise install java@corretto-24
 [ ] Install Docker Desktop
-[ ] Install JetBrains Toolbox → IntelliJ IDEA, Rider, WebStorm
-[ ] Install VS Code, add 'code' to PATH, install extensions, enable Settings Sync
-[ ] Install Rectangle (launch on login, alternate shortcuts)
-[ ] Install Maccy (clipboard manager)
-[ ] Apply Dock settings (left, autohide, tilesize 66)
-[ ] Start asimov service: sudo brew services start asimov
+[ ] Install JetBrains Toolbox → IntelliJ IDEA, WebStorm
+[ ] Install VS Code, add 'code' to PATH (Cmd+Shift+P → Shell Command), install extensions or enable Settings Sync
+[ ] Install asimov LaunchAgent: cp launchagents/homebrew.asimov.plist ~/Library/LaunchAgents/ && launchctl load ~/Library/LaunchAgents/homebrew.asimov.plist
 [ ] Install Neovim + LazyVim
 [ ] Set atuin config: enter_accept = true, workspaces = true
 [ ] Log in: gh auth login, atuin login
@@ -1191,12 +1160,11 @@ spicetify upgrade    # update spicetify itself
 [ ] Install Spotify + run: spicetify backup apply + install Marketplace
 [ ] Install Claude Code (brew cask or npm)
 [ ] Create ~/.claude/CLAUDE.md (see section 14)
-[ ] Copy ~/.claude/settings.json (update username in paths)
+[ ] Copy ~/.claude/settings.json
 [ ] Copy ~/.claude/statusline-command.sh
 [ ] Create ~/.claude/hooks/ and copy pre-bash.sh + pre-websearch.sh
-[ ] Install Claude Code skills (gstack suite + individual skills)
-[ ] Install and configure cachebro MCP server
+[ ] Install Claude Code skills (see section 14 for commands)
+[ ] Install and configure cachebro MCP server (see section 14)
 [ ] Seed user profile memory files under ~/.claude/projects/.../memory/
-[ ] Set up dotfiles repo and push ~/Brewfile + all dotfiles to it
 [ ] Install remaining GUI apps (Obsidian, Postman, DBeaver, Redis Insight, etc.)
 ```
