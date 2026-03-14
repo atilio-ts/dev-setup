@@ -1,0 +1,229 @@
+{
+    //"terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "editor.fontSize": 18,
+    "workbench.iconTheme": "vscode-icons",
+    "explorer.confirmDelete": false,
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "vsicons.dontShowNewVersionMessage": true,
+    "editor.fontFamily": "Fira Code",
+    "editor.fontLigatures": true,
+    "liveServer.settings.CustomBrowser": "chrome",
+    "liveServer.settings.donotShowInfoMsg": true,
+    "editor.suggestSelection": "first",
+    "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+    "editor.linkedEditing": true,
+    "hediet.vscode-drawio.local-storage": "eyIuZHJhd2lvLWNvbmZpZyI6IntcImxhbmd1YWdlXCI6XCJcIixcImN1c3RvbUZvbnRzXCI6W10sXCJsaWJyYXJpZXNcIjpcImdlbmVyYWxcIixcImN1c3RvbUxpYnJhcmllc1wiOltdLFwicGx1Z2luc1wiOltdLFwicmVjZW50Q29sb3JzXCI6W10sXCJmb3JtYXRXaWR0aFwiOjI0MCxcImNyZWF0ZVRhcmdldFwiOmZhbHNlLFwicGFnZUZvcm1hdFwiOntcInhcIjowLFwieVwiOjAsXCJ3aWR0aFwiOjg1MCxcImhlaWdodFwiOjExMDB9LFwic2VhcmNoXCI6dHJ1ZSxcInNob3dTdGFydFNjcmVlblwiOnRydWUsXCJncmlkQ29sb3JcIjpcIiNkMGQwZDBcIixcImRhcmtHcmlkQ29sb3JcIjpcIiM2ZTZlNmVcIixcImF1dG9zYXZlXCI6dHJ1ZSxcInJlc2l6ZUltYWdlc1wiOm51bGwsXCJvcGVuQ291bnRlclwiOjAsXCJ2ZXJzaW9uXCI6MTgsXCJ1bml0XCI6MSxcImlzUnVsZXJPblwiOmZhbHNlLFwidWlcIjpcIlwifSJ9",
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[dart]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "editor.rulers": [
+            80
+        ],
+        "editor.selectionHighlight": false,
+        "editor.suggest.snippetsPreventQuickSuggestions": false,
+        "editor.suggestSelection": "first",
+        "editor.tabCompletion": "onlySnippets",
+        "editor.wordBasedSuggestions": "off"
+    },
+    "explorer.confirmDragAndDrop": false,
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "security.workspace.trust.untrustedFiles": "open",
+    "redhat.telemetry.enabled": false,
+    "workbench.startupEditor": "none",
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "terminal.integrated.confirmOnExit": "always",
+    "terminal.integrated.copyOnSelection": true,
+    "terminal.integrated.defaultLocation": "editor",
+    "npm.enableRunFromFolder": true,
+    "javascript.updateImportsOnFileMove.enabled": "always",
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs":"active",
+    "diffEditor.ignoreTrimWhitespace": false,
+    "prettier.tabWidth": 4,
+    "workbench.colorTheme": "Gatito Theme",
+    "workbench.editor.enablePreview": false,
+    "workbench.sideBar.location": "right",
+    "[python]": {
+        "editor.formatOnType": true
+    },
+    "codeium.enableConfig": {
+        "*": true,
+        "markdown": true,
+        "plaintext": true,
+        "properties": true,
+        "ignore": true
+    },
+    "workbench.tree.indent": 15,
+    "workbench.tree.renderIndentGuides": "always",
+    "workbench.colorCustomizations": {
+        "tree.indentGuidesStroke": "#05ef3c"
+    },
+    "sonarlint.rules": {
+        "typescript:S125": {
+            "level": "off"
+        }
+    },
+    "cSpell.userWords": [
+        "Atilio",
+        "AUTOINCREMENT",
+        "codepaths",
+        "DATETIME",
+        "DBSOURCE",
+        "Kethcum",
+        "Lenon",
+        "nextval",
+        "Nica",
+        "tsbuildinfo",
+        "Villalba"
+    ],
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "files.autoSave": "afterDelay",
+    "terminal.integrated.env.windows": {},
+    "console-ninja.featureSet": "Community",
+    "explorer.confirmPasteNative": false,
+    "terminal.integrated.env.osx": {},
+    "git.openRepositoryInParentFolders": "never",
+    "parallels-desktop.extension.path": "/Users/atilio/.parallels-desktop-vscode",
+    "parallels-desktop.prlctl.path": "/usr/local/bin/prlctl",
+    "parallels-desktop.git.path": "/usr/local/bin/git",
+    "parallels-desktop.brew.path": "/usr/local/bin/brew",
+    "aws.telemetry": false,
+    "amazonQ.telemetry": false,
+    "powershell.pester.codeLens": false,
+    "files.exclude": {
+        "**/.trunk/*actions/": true,
+        "**/.trunk/*logs/": true,
+        "**/.trunk/*notifications/": true,
+        "**/.trunk/*out/": true,
+        "**/.trunk/*plugins/": true
+    },
+    "files.watcherExclude": {
+        "**/.trunk/*actions/": true,
+        "**/.trunk/*logs/": true,
+        "**/.trunk/*notifications/": true,
+        "**/.trunk/*out/": true,
+        "**/.trunk/*plugins/": true
+    },
+    "editor.defaultFormatter": "trunk.io",
+    "terminal.integrated.commandsToSkipShell": [
+        "language-julia.interrupt"
+    ],
+    "julia.symbolCacheDownload": true,
+    "FSharp.suggestGitignore": false,
+    "java.editor.reloadChangedSources": "auto",
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "files.associations": {
+        "**/*.COBOL*{,/*}": "cobol",
+        "**/*.COB*{,/*}": "cobol",
+        "**/*.COBCOPY*{,/*}": "cobol",
+        "**/*.COPYBOOK*{,/*}": "cobol",
+        "**/*.COPY*{,/*}": "cobol",
+        "**/*.PL1*{,/*}": "pl1",
+        "**/*.PLI*{,/*}": "pl1",
+        "**/*.INC*{,/*}": "pl1",
+        "**/*.INCLUDE*{,/*}": "pl1",
+        "**/*.JCL*{,/*}": "jcl",
+        "**/*.ASM*{,/*}": "hlasm",
+        "**/*.ASSEMBLE*{,/*}": "hlasm",
+        "**/*.HLASM*{,/*}": "hlasm",
+        "**/*.HLA*{,/*}": "hlasm",
+        "**/*.MACLIB*{,/*}": "hlasm",
+        "**/*.DBD*{,/*}": "hlasm",
+        "**/*.MFS*{,/*}": "hlasm",
+        "**/*.PCB*{,/*}": "hlasm",
+        "**/*.EXEC*{,/*}": "rexx",
+        "**/*.REXX*{,/*}": "rexx",
+        "**/*.REXXINC*{,/*}": "rexx",
+        "*.rex": "rexx",
+        "*.rexx": "rexx",
+        "*.embeddedhtml": "html",
+        ".fantomasignore": "ignore"
+    },
+    "yaml.schemas": {
+        "file:///c%3A/Users/AJVG/.vscode/extensions/ibm.zopeneditor-5.3.0/resources/zapp-schema-1.3.0.json": [
+            "zapp.yaml"
+        ],
+        "file:///c%3A/Users/AJVG/.vscode/extensions/ibm.zopeneditor-5.3.0/resources/zcodeformat-schema-0.0.1.json": [
+            "zcodeformat.yaml"
+        ]
+    },
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "/zapp.json"
+            ],
+            "url": "file:///c%3A/Users/AJVG/.vscode/extensions/ibm.zopeneditor-5.3.0/resources/zapp-schema-1.3.0.json"
+        },
+        {
+            "fileMatch": [
+                "/zcodeformat.json"
+            ],
+            "url": "file:///c%3A/Users/AJVG/.vscode/extensions/ibm.zopeneditor-5.3.0/resources/zcodeformat-schema-0.0.1.json"
+        }
+    ],
+    "zopeneditor.JAVA_HOME": "C:\\JavaIBMCobol",
+    "zopeneditor.advancedCapabilities.enableRseApiActivationCheck": true,
+    "markdown-preview-enhanced.revealjsTheme": "night.css",
+    "zopeneditor.welcomePage.show": false,
+    "docker.extension.enableComposeLanguageServer": false,
+    "docker.extension.dockerEngineAvailabilityPrompt": false,
+    "security.promptForLocalFileProtocolHandling": false,
+    "workbench.secondarySideBar.defaultVisibility": "hidden",
+    "window.confirmSaveUntitledWorkspace": false,
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": false,
+        "markdown": true,
+        "scminput": false
+    },
+    "github.copilot.nextEditSuggestions.enabled": true,
+    "makefile.configureOnOpen": true,
+    "terminal.integrated.enableMultiLinePasteWarning": "never",
+    "terminal.external.osxExec": "iTerm.app",
+    "terminal.integrated.automationProfile.osx": {
+
+    },
+    "terminal.integrated.fontSize": 14,
+    "editor.mouseWheelZoom": true,
+    "julia.enableCrashReporter": false,
+    "sonarlint.automaticAnalysis": true,
+    "vs-kubernetes": {
+        "vs-kubernetes.suppress-helm-not-found-alerts": true,
+        "vscode-kubernetes.minikube-path-mac": "/Users/atilio/.vs-kubernetes/tools/minikube/darwin-arm64/minikube"
+    },
+    "[dockercompose]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2,
+        "editor.autoIndent": "advanced",
+        "editor.quickSuggestions": {
+            "other": true,
+            "comments": false,
+            "strings": true
+        },
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    },
+    "[github-actions-workflow]": {
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    },
+    "markdown-preview-enhanced.enablePreviewZenMode": true,
+    "chat.agent.maxRequests": 100,
+    "jdk.telemetry.enabled": false,
+    "gitlens.ai.model": "vscode",
+    "gitlens.ai.vscode.model": "copilot:gpt-4.1",
+    "claudeCode.preferredLocation": "panel",
+    "workbench.preferredHighContrastColorTheme": "Gatito Theme"
+}
