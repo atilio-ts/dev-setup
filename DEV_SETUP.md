@@ -449,7 +449,7 @@ The config also contains **Conventional Commits git aliases** (`feat`, `fix`, `r
 | Node.js | `v24.13.1` (default) |
 | npm | `11.8.0` |
 | pnpm | `10.29.3` |
-| bun | `1.3.6` |
+| bun | `1.3.10` |
 
 ### With mise (new machine)
 
@@ -1175,7 +1175,7 @@ spicetify upgrade    # update spicetify itself
 [ ] Copy ~/.gitconfig (update name/email, keep delta + lfs config)
 [ ] Install iTerm2, set font to MesloLGS NF 15pt
 [ ] Install mise and set up Node 24.13.1
-[ ] Install pnpm 10.29.3 and bun 1.3.6
+[ ] Install pnpm 10.29.3 and bun 1.3.10
 [ ] Install Java JDKs (Corretto 21, 24 at minimum) via mise or jenv
 [ ] Install Docker Desktop
 [ ] Install JetBrains Toolbox → IntelliJ IDEA, Rider, WebStorm
