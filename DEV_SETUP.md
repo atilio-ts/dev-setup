@@ -959,7 +959,7 @@ Copy both files to `~/.claude/hooks/` on the new machine.
 
 Two skill sources are active:
 
-**gstack** — installed under `~/.claude/skills/gstack/` (repo: github.com/garrytan/gstack):
+**gstack** — installed under `~/.claude/skills/gstack/` (repo: https://github.com/garrytan/gstack):
 - `browse` — headless browser for QA
 - `gstack-upgrade` — upgrade gstack itself
 - `plan-ceo-review` — CEO-mode plan review
@@ -970,7 +970,7 @@ Two skill sources are active:
 - `setup-browser-cookies` — import browser cookies
 - `ship` — ship workflow (merge → test → PR)
 
-**fullstack-dev-skills** — plugin from github.com/jeffallan/claude-skills, installed under `~/.agents/skills/`. Active skills:
+**fullstack-dev-skills** — plugin from https://github.com/jeffallan/claude-skills, installed under `~/.agents/skills/`. Active skills:
 - `find-skills`
 - `nestjs-expert`
 - `spring-boot-engineer`
@@ -995,7 +995,7 @@ claude plugins install fullstack-dev-skills@fullstack-dev-skills
 
 ### MCP Server — cachebro
 
-**cachebro** (github.com/glommer/cachebro) is a Claude Code MCP tool that caches file reads by content hash. On repeated reads it returns "unchanged" or a compact diff instead of the full file, saving significant tokens.
+**cachebro** (https://github.com/glommer/cachebro) is a Claude Code MCP tool that caches file reads by content hash. On repeated reads it returns "unchanged" or a compact diff instead of the full file, saving significant tokens.
 
 It is pre-authorized in `settings.json` (`mcp__cachebro__read_file`, `mcp__cachebro__read_files`). The MCP server config lives in `~/.claude.json` (not `settings.json`) — it is added automatically by the init command.
 
