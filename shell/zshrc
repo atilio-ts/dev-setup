@@ -1,0 +1,108 @@
+# Powerlevel10k instant prompt — must stay near the top
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# ARM Homebrew (Apple Silicon)
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# jenv
+export PATH="$HOME/.jenv/bin:$PATH"
+eval "$(jenv init -)"
+
+# Oh My Zsh
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="powerlevel10k/powerlevel10k"
+ZSH_COLORIZE_STYLE="colorful"
+
+# Docker CLI completions (must be before oh-my-zsh)
+fpath=(/Users/atilio/.docker/completions $fpath)
+
+plugins=(
+  git
+  aws
+  battery
+  branch
+  colored-man-pages
+  colorize
+  command-not-found
+  copyfile
+  docker
+  docker-compose
+  git-commit
+  git-extras
+  github
+  gitignore
+  gradle
+  iterm2
+  jira
+  jsontools
+  macos
+  mvn
+  node
+  npm
+  python
+  sudo
+  tldr
+  vscode
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+)
+
+source $ZSH/oh-my-zsh.sh
+
+# Powerlevel10k config
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# fnm (Node version manager — replaces nvm)
+eval "$(fnm env --use-on-cd --shell zsh)"
+
+# fzf shell integration
+source <(fzf --zsh)
+
+# zoxide (smart cd)
+eval "$(zoxide init zsh)"
+
+# pnpm
+export PNPM_HOME="/Users/atilio/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+[ -s "/Users/atilio/.bun/_bun" ] && source "/Users/atilio/.bun/_bun"
+
+# Default editor
+export EDITOR=nvim
+export VISUAL=nvim
+
+# Python — prefer 3.13 (3.14 is pre-release)
+export PATH="/opt/homebrew/opt/python@3.13/libexec/bin:$PATH"
+
+# PATH extras
+PATH=~/.console-ninja/.bin:$PATH
+export PATH=/Users/atilio/.opencode/bin:$PATH
+export PATH="$HOME/.local/bin:$PATH"
+
+# direnv
+eval "$(direnv hook zsh)"
+
+# atuin (shell history)
+eval "$(atuin init zsh)"
+
+# tirith
+eval "$(tirith init --shell zsh)"
+
+# navi (interactive cheatsheet — Ctrl+G)
+eval "$(navi widget zsh)"
+
+# Aliases — better defaults
+alias ls='eza --icons --group-directories-first'
+alias ll='eza -la --icons --group-directories-first --git'
+alias cat='bat --paging=never'
+alias watch='viddy'
+alias lg='lazygit'
+alias lzd='lazydocker'
