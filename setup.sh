@@ -154,7 +154,8 @@ if command -v claude &>/dev/null; then
   ok "fullstack-dev-skills plugin installed"
   npx skills add vercel-labs/agent-skills --yes --global 2>/dev/null || true
   ok "vercel-labs/agent-skills installed"
-  warn "Install gstack manually: claude plugins install gstack"
+  claude plugins install gstack 2>/dev/null || true
+  ok "gstack skills installed"
 else
   warn "Claude Code not found — install it first, then run skills setup"
 fi
@@ -174,4 +175,4 @@ echo "  • atuin login"
 echo "  • Install mise: curl https://mise.run | sh  →  mise install node@24.13.1"
 echo "  • Install Java JDKs (Corretto 21, 24): mise install java@corretto-21 java@corretto-24"
 echo "  • Install Docker Desktop, JetBrains Toolbox, Obsidian, Postman"
-echo "  • Install gstack skills: claude plugins install gstack"
+echo "  • VS Code: Cmd+Shift+P → 'Shell Command: Install code command in PATH'"
