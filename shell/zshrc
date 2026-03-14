@@ -6,10 +6,6 @@ fi
 # ARM Homebrew (Apple Silicon)
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# jenv
-export PATH="$HOME/.jenv/bin:$PATH"
-eval "$(jenv init -)"
-
 # Oh My Zsh
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
@@ -54,8 +50,8 @@ source $ZSH/oh-my-zsh.sh
 # Powerlevel10k config
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# fnm (Node version manager — replaces nvm)
-eval "$(fnm env --use-on-cd --shell zsh)"
+# mise (version manager — Node, Java, etc.)
+eval "$($HOME/.local/bin/mise activate zsh)"
 
 # fzf shell integration
 source <(fzf --zsh)
