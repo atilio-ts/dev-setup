@@ -1,0 +1,48 @@
+" ── Basics ──────────────────────────────────────────────────────────────────
+set nocompatible
+filetype plugin indent on
+syntax on
+set encoding=utf-8
+
+" ── Appearance ───────────────────────────────────────────────────────────────
+set number
+set relativenumber
+set cursorline
+set colorcolumn=120
+set laststatus=2
+set ruler
+set showcmd
+set showmode
+set wildmenu
+set scrolloff=8
+colorscheme habamax
+
+" ── Editing ──────────────────────────────────────────────────────────────────
+set backspace=indent,eol,start
+set expandtab
+set tabstop=4
+set shiftwidth=4
+set autoindent
+set smartindent
+set mouse=a
+set clipboard=unnamed
+
+" ── Search ───────────────────────────────────────────────────────────────────
+set hlsearch
+set incsearch
+set ignorecase
+set smartcase
+
+" ── Files ────────────────────────────────────────────────────────────────────
+set noswapfile
+set nobackup
+set autoread
+
+" ── Key remaps ───────────────────────────────────────────────────────────────
+" jj exits insert mode (easier than Escape)
+inoremap jj <Esc>
+" Clear search highlight with Enter
+nnoremap <CR> :nohlsearch<CR>
+" Save with Ctrl+S
+nnoremap <C-s> :w<CR>
+inoremap <C-s> <Esc>:w<CR>a

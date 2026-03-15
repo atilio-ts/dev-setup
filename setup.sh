@@ -72,6 +72,18 @@ cp "$REPO/nvim/lazy-lock.json" "$HOME/.config/nvim/lazy-lock.json"
 cp "$REPO/nvim/lua/config/"*.lua "$HOME/.config/nvim/lua/config/"
 ok "Neovim config copied"
 
+# ─── nano ────────────────────────────────────────────────────────────────────
+step "nano"
+cp "$REPO/nano/nanorc" "$HOME/.nanorc"
+mkdir -p "$HOME/.nano"
+cp "$REPO/nano/typescript.nanorc" "$HOME/.nano/typescript.nanorc"
+ok "nano config and TypeScript syntax copied"
+
+# ─── vim ─────────────────────────────────────────────────────────────────────
+step "vim"
+cp "$REPO/vim/vimrc" "$HOME/.vimrc"
+ok "vim config copied"
+
 # ─── Atuin ───────────────────────────────────────────────────────────────────
 step "Atuin"
 mkdir -p "$HOME/.config/atuin"
