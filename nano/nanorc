@@ -1,0 +1,36 @@
+## Appearance
+set linenumbers
+set numbercolor yellow,normal
+set titlecolor brightwhite,blue
+set statuscolor brightwhite,green
+set errorcolor brightwhite,red
+set selectedcolor brightwhite,magenta
+set stripecolor ,yellow
+
+## Editor behaviour
+set autoindent
+set tabsize 2
+set tabstospaces
+set softwrap
+set atblanks
+set mouse
+set constantshow
+set smarthome
+set zap
+
+## Search
+set casesensitive
+
+## History & undo
+set historylog
+set positionlog
+
+## Brackets
+set matchbrackets "(<[{)>]}"
+
+## Syntax highlighting — bundled
+include "/opt/homebrew/share/nano/*.nanorc"
+include "/opt/homebrew/share/nano/extra/*.nanorc"
+
+## Syntax highlighting — user-defined
+include "~/.nano/typescript.nanorc"

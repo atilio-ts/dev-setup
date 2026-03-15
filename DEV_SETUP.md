@@ -1,6 +1,6 @@
 # Developer Setup — Atilio Villalba
 
-> Last updated: 2026-03-14
+> Last updated: 2026-03-15
 > Goal: replicate this exact environment on a new macOS (Apple Silicon) machine from scratch.
 
 ---
@@ -15,12 +15,15 @@
 6. [Node.js — fnm + pnpm + bun](#6-nodejs--fnm--pnpm--bun)
 7. [Java — jenv](#7-java--jenv)
 8. [Neovim (LazyVim)](#8-neovim-lazyvim)
-9. [Docker](#9-docker)
-10. [JetBrains IDEs](#10-jetbrains-ides)
-11. [VS Code](#11-vs-code)
-12. [iTerm2](#12-iterm2)
-13. [macOS Apps & System Config](#13-macos-apps--system-config)
-14. [Claude Code](#14-claude-code)
+9. [Terminal Editors — nano & vim](#9-terminal-editors--nano--vim)
+10. [Docker](#10-docker)
+11. [JetBrains IDEs](#11-jetbrains-ides)
+12. [VS Code](#12-vs-code)
+13. [iTerm2](#13-iterm2)
+14. [macOS Apps & System Config](#14-macos-apps--system-config)
+15. [Claude Code](#15-claude-code)
+16. [Spicetify](#16-spicetify)
+17. [Claude Code Stats](#17-claude-code-stats)
 
 ---
 
@@ -167,6 +170,20 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting ~/.oh-my-zsh/cust
 ```
 
 > Both plugins are also available as brew formulas (`brew install zsh-autosuggestions`), but the Oh My Zsh plugin versions are used here — loaded via the `plugins=()` array in `.zshrc`. Don't mix both sources.
+
+### `~/.zprofile`
+
+Runs before `.zshrc` on login shells. Only one line — initializes Homebrew so it's available to everything that follows:
+
+```zsh
+eval "$(/opt/homebrew/bin/brew shellenv)"
+```
+
+Copy to new machine:
+
+```bash
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' > ~/.zprofile
+```
 
 ### `~/.zshrc`
 
@@ -434,6 +451,22 @@ logs/
 Thumbs.db
 ```
 
+### `~/.config/git/ignore`
+
+A second global gitignore (separate from `~/.gitignore_global`) used for tool-specific patterns that shouldn't live in the main file:
+
+```
+**/.claude/settings.local.json
+```
+
+Register it with git:
+
+```bash
+git config --global core.excludesfile ~/.config/git/ignore
+```
+
+> Both `~/.gitignore_global` and `~/.config/git/ignore` are active simultaneously — git checks both. The `.config/git/ignore` path is git's XDG default location and is picked up automatically on some systems without explicit registration.
+
 The config also contains **Conventional Commits git aliases** (`feat`, `fix`, `refactor`, `docs`, `style`, `test`, `perf`, `build`, `ci`, `chore`, `wip`, `rev`) that accept `-s <scope>` and `-a` (attention/breaking) flags. These come from the `git-commit` Oh My Zsh plugin setup — copy the `[alias]` section from the old `~/.gitconfig` directly.
 
 ---
@@ -539,7 +572,97 @@ The config is a **stock LazyVim install** with no custom plugin overrides (the `
 
 ---
 
-## 9. Docker
+## 9. Terminal Editors — nano & vim
+
+Both `nano` and `vim` are available for quick terminal edits. `nvim` (LazyVim) is the primary editor for real work; these cover fast one-liners, server edits, or situations where nvim isn't available.
+
+### nano
+
+**Install:** `brew install nano` (already in Brewfile)
+
+Config lives at `~/.nanorc`. A custom TypeScript syntax file lives at `~/.nano/typescript.nanorc`.
+
+#### `~/.nanorc`
+
+```
+## Appearance
+set linenumbers
+set numbercolor yellow,normal
+set titlecolor brightwhite,blue
+set statuscolor brightwhite,green
+set errorcolor brightwhite,red
+set selectedcolor brightwhite,magenta
+set stripecolor ,yellow
+
+## Editor behaviour
+set autoindent
+set tabsize 2
+set tabstospaces
+set softwrap
+set atblanks
+set mouse
+set constantshow
+set smarthome
+set zap
+
+## Search
+set casesensitive
+
+## History & undo
+set historylog
+set positionlog
+
+## Brackets
+set matchbrackets "(<[{)>]}"
+
+## Syntax highlighting — bundled
+include "/opt/homebrew/share/nano/*.nanorc"
+include "/opt/homebrew/share/nano/extra/*.nanorc"
+
+## Syntax highlighting — user-defined
+include "~/.nano/typescript.nanorc"
+```
+
+#### `~/.nano/typescript.nanorc`
+
+Custom syntax highlighting for `.ts` and `.tsx` files. Covers: keywords, built-in types, common built-ins, decorators, strings (including template literals), numbers (decimal + hex), line/block comments, and JSX tags.
+
+Restore on a new machine:
+
+```bash
+mkdir -p ~/.nano
+cp nano/nanorc ~/.nanorc
+cp nano/typescript.nanorc ~/.nano/typescript.nanorc
+```
+
+---
+
+### vim
+
+**Install:** Ships with macOS at `/usr/bin/vim` — no extra install needed. The system vim is used (no Homebrew override).
+
+Config lives at `~/.vimrc`.
+
+#### `~/.vimrc`
+
+| Section | Settings |
+|---------|---------|
+| Basics | `nocompatible`, filetype plugin/indent, syntax on, `utf-8` |
+| Appearance | Line numbers + relative numbers, cursor line, color column at 120, `habamax` colorscheme, `laststatus=2`, wildmenu, `scrolloff=8` |
+| Editing | 4-space tabs (`expandtab`), `autoindent`, `smartindent`, mouse enabled, clipboard = system (`unnamed`) |
+| Search | `hlsearch`, `incsearch`, `ignorecase`, `smartcase` |
+| Files | `noswapfile`, `nobackup`, `autoread` |
+| Key remaps | `jj` → `<Esc>` in insert mode · `<CR>` → `:nohlsearch` · `Ctrl+S` → `:w` |
+
+Restore on a new machine:
+
+```bash
+cp vim/vimrc ~/.vimrc
+```
+
+---
+
+## 10. Docker
 
 **Docker Desktop** is used (not Docker Engine standalone).
 
@@ -556,7 +679,7 @@ fpath=(/Users/atilio/.docker/completions $fpath)
 
 ---
 
-## 10. JetBrains IDEs
+## 11. JetBrains IDEs
 
 Installed via **JetBrains Toolbox** (recommended for managing updates):
 
@@ -571,7 +694,7 @@ https://www.jetbrains.com/toolbox-app/
 
 ---
 
-## 11. VS Code
+## 12. VS Code
 
 Installed at `/Applications/Visual Studio Code.app`. The `code` CLI is not in PATH — fix that first:
 
@@ -673,7 +796,7 @@ code --install-extension ziyasal.vscode-open-in-github
 
 ---
 
-## 12. iTerm2
+## 13. iTerm2
 
 iTerm2 is the primary terminal emulator (`/Applications/iTerm.app`).
 
@@ -703,64 +826,342 @@ brew install --cask iterm2
 
 iTerm2 settings can be exported from **Preferences → General → Preferences → Load preferences from a custom folder**. Export the plist from the old machine and import on the new one, or reconfigure manually using the values above.
 
+### iTermAI
+
+A companion AI assistant window that runs alongside iTerm2. Installed separately as `/Applications/iTermAI.app` (v1.1). Config lives at `~/.config/iterm2/` (symlinked to `~/Library/Application Support/iTerm2`).
+
+Download from https://iterm2.com/ — iTermAI ships as a separate download from the main iTerm2 app. No additional configuration needed beyond install.
+
 ---
 
-## 13. macOS Apps & System Config
+## 14. macOS Apps & System Config
 
-### Window Management
+### System Preferences
 
-| App | Purpose | Config |
-|-----|---------|--------|
-| **Rectangle** | Keyboard-driven window snapping | Launch on login, `allowAnyShortcut = true`, `alternateDefaultShortcuts = true`, cursor moves across displays |
-| **Maccy** | Clipboard manager | Default config |
+All commands below can be run as a block on a new machine to restore settings. Requires logging out or killing the relevant process (noted inline) to take effect.
 
-Both launch on login. Install:
+#### Appearance
 
 ```bash
-# Rectangle — open source window manager
-brew install --cask rectangle
+# Dark mode
+defaults write NSGlobalDomain AppleInterfaceStyle -string "Dark"
 
-# Maccy — clipboard history
-brew install --cask maccy
+# Graphite highlight color
+defaults write NSGlobalDomain AppleHighlightColor -string "0.847059 0.847059 0.862745 Graphite"
+
+# Always show scrollbars
+defaults write NSGlobalDomain AppleShowScrollBars -string "Always"
+
+# Show all file extensions in Finder
+defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 ```
 
-### Dock
+#### Trackpad
 
 ```bash
-# Position on the left, auto-hide, tile size 66
-defaults write com.apple.dock orientation left
+# Disable tap to click
+defaults write com.apple.AppleMultitouchTrackpad Clicking -bool false
+
+# Tracking speed (0–3, default 1 — set to 0.875, slightly below medium)
+defaults write NSGlobalDomain com.apple.trackpad.scaling -float 0.875
+
+# Disable natural (reverse) scrolling
+defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
+
+# Click pressure: medium (0 = light, 1 = medium, 2 = firm)
+defaults write com.apple.AppleMultitouchTrackpad FirstClickThreshold -int 1
+defaults write com.apple.AppleMultitouchTrackpad SecondClickThreshold -int 1
+```
+
+#### Keyboard
+
+```bash
+# Key repeat rate: 2 (fastest usable — range 1–15, lower = faster)
+defaults write NSGlobalDomain KeyRepeat -int 2
+
+# Delay before repeat starts: 15 (short — range 15–120, lower = shorter)
+defaults write NSGlobalDomain InitialKeyRepeat -int 15
+
+# Disable auto-correct, smart quotes, smart dashes
+defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
+defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
+defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
+```
+
+#### Finder
+
+```bash
+# Show path bar and status bar
+defaults write com.apple.finder ShowPathbar -bool true
+defaults write com.apple.finder ShowStatusBar -bool true
+
+# Default view: list view
+defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
+
+# New Finder windows open to home folder
+defaults write com.apple.finder NewWindowTarget -string "PfHm"
+defaults write com.apple.finder NewWindowTargetPath -string "file://${HOME}/"
+
+killall Finder
+```
+
+#### Dock
+
+```bash
+# Left side, auto-hide, size 66, hide recent apps
+defaults write com.apple.dock orientation -string "left"
 defaults write com.apple.dock autohide -bool true
 defaults write com.apple.dock tilesize -int 66
+defaults write com.apple.dock show-recents -bool false
+
 killall Dock
 ```
 
-### Productivity & Communication Apps
+#### Mission Control
 
-Install these manually from their websites or the Mac App Store:
+```bash
+# Don't rearrange Spaces based on recent use
+defaults write com.apple.dock mru-spaces -bool false
 
-| App | Purpose |
-|-----|---------|
-| Obsidian | Notes / knowledge base |
-| Postman | API testing |
-| DBeaver | Universal database GUI |
-| Redis Insight | Redis GUI |
-| OpenVPN Connect | VPN client |
-| Mattermost | Team chat |
-| AnythingLLM | Local LLM interface |
-| OpenCode | AI coding in terminal |
-| Sublime Text | Lightweight text editor |
-| KeyStore Explorer | JKS / keystore management |
-| GitHub Desktop | Git GUI |
-| Logi Options+ | Logitech mouse/keyboard config |
-| VLC | Media player |
-| Telegram / WhatsApp | Messaging |
-| Zoom | Video calls |
-| Rectangle | Window management (see above) |
-| Maccy | Clipboard manager (see above) |
+# When switching to an app, switch to its Space
+defaults write NSGlobalDomain AppleSpacesSwitchOnActivate -bool true
+
+killall Dock
+```
+
+#### Accessibility
+
+```bash
+# Reduce motion (disables parallax and animated transitions)
+defaults write com.apple.universalaccess reduceMotion -bool true
+
+# Reduce transparency (solid backgrounds in menu bar, Dock, sidebars)
+defaults write com.apple.universalaccess reduceTransparency -bool true
+```
+
+#### Energy
+
+```bash
+# Never sleep (display and system) — useful on a MacBook used as desktop
+sudo pmset -a sleep 0
+sudo pmset -a displaysleep 0
+sudo pmset -a disksleep 10
+sudo pmset -a powernap 1
+```
+
+> These settings are machine-state only and don't persist to a plist — re-run `pmset` after setup.
+
+#### Mouse
+
+```bash
+# Tracking speed
+defaults write NSGlobalDomain com.apple.mouse.scaling -float 1
+
+# Disable natural scrolling for mouse (already disabled via trackpad setting above)
+defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
+```
+
+---
+
+### Displays
+
+| Display | Resolution | Notes |
+|---------|-----------|-------|
+| Primary | 1920 × 1080 (1080p) | Main display |
+| Secondary | 1080 × 1920 (portrait) | Rotated secondary monitor |
+
+---
+
+### Menu Bar Apps
+
+#### Itsycal `v0.15.10` — `brew install --cask itsycal`
+
+Compact calendar in the menu bar. Replaces the system clock date display.
+
+| Setting | Value |
+|---------|-------|
+| Show day of week in icon | yes |
+| Show month in icon | yes |
+| Show events | 7 days ahead |
+| Icon type | date-based |
+
+No restore command needed — configure manually after install. Connect calendars via System Settings → Internet Accounts.
+
+#### Stats `v2.12.4` — `brew install --cask stats`
+
+System resource monitor in the menu bar. Launch at login enabled, telemetry disabled.
+
+**Enabled modules and widgets:**
+
+| Module | Widget |
+|--------|--------|
+| CPU | mini |
+| RAM | mini |
+| Disk | mini |
+| Network | speed |
+| Battery | battery + mini |
+
+Battery low-level notification is active. No high-level notification set. Configure by opening Stats → each module's settings panel.
+
+#### FineTune `v1.0` — manual install from https://www.finetuneapp.com
+
+System-wide audio equalizer. Runs as a menu bar app and applies per-app EQ profiles over macOS's audio stack. No config files to back up — EQ presets are stored internally by the app.
+
+---
+
+### Window Management & Clipboard
+
+#### Rectangle `v0.92` — `brew install --cask rectangle`
+
+Keyboard-driven window snapping and tiling.
+
+| Setting | Value |
+|---------|-------|
+| Launch at login | yes |
+| `allowAnyShortcut` | true |
+| `alternateDefaultShortcuts` | true — uses Spectacle-compatible shortcuts |
+| `moveCursorAcrossDisplays` | true |
+| `hideMenubarIcon` | true |
+| Double-click title bar | maximize |
+| Auto-update | enabled |
+
+Apply with:
+
+```bash
+defaults write com.knollsoft.Rectangle allowAnyShortcut -bool true
+defaults write com.knollsoft.Rectangle alternateDefaultShortcuts -bool true
+defaults write com.knollsoft.Rectangle moveCursorAcrossDisplays -bool true
+defaults write com.knollsoft.Rectangle launchOnLogin -bool true
+defaults write com.knollsoft.Rectangle hideMenubarIcon -bool true
+```
+
+#### Maccy `v2.5.1` — `brew install --cask maccy`
+
+Clipboard history manager. Popup shortcut: `Cmd+Shift+V`.
+
+| Setting | Value |
+|---------|-------|
+| Launch at login | yes |
+| Popup shortcut | `Cmd+Shift+V` |
+| Paste by default | yes (single click pastes) |
+| Remove formatting by default | yes |
+| Show search bar | yes |
+| Show title | yes |
+| Show footer | yes |
+| Suppress clear alert | yes |
+| Show in status bar | no (icon hidden) |
+| Supported types | plain text, images (PNG/TIFF), HTML, RTF, file URLs |
+| Ignored types | 1Password, KeeWeb, TypeIt4Me (password manager clipboards) |
+
+Apply:
+
+```bash
+defaults write org.p0deje.Maccy pasteByDefault -bool true
+defaults write org.p0deje.Maccy removeFormattingByDefault -bool true
+defaults write org.p0deje.Maccy suppressClearAlert -bool true
+defaults write org.p0deje.Maccy showInStatusBar -bool false
+```
+
+---
+
+### App Maintenance
+
+#### AppCleaner `v3.6.8` — `brew install --cask appcleaner`
+
+Removes apps and all their associated files (preferences, caches, support files). Enable **SmartDelete** in Preferences to automatically prompt for cleanup whenever you drag an app to the Trash.
+
+No automated config — open the app, go to Preferences → SmartDelete → enable.
+
+---
+
+### Developer Tools
+
+#### Postman `v11.86.1` — https://www.postman.com/downloads/
+
+API development and testing client. Collections and environments sync automatically through a Postman account — sign in after install to restore workspaces.
+
+#### DBeaver Community `v25.3.5` — https://dbeaver.io/download/
+
+Universal database GUI. Supports PostgreSQL, MySQL, SQLite, Oracle, SQL Server, and more.
+
+Config and connection data live at `~/Library/DBeaverData/workspace6/`. No automated restore — reconnect to databases manually after install. Connection passwords are stored in the system keychain.
+
+#### Redis Insight `v2.70.1` — https://redis.io/redis-insight/
+
+Redis GUI for browsing keys, running commands, and profiling. Config at `~/Library/Application Support/RedisInsight/config.json`.
+
+| Setting | Value |
+|---------|-------|
+| Window size | 1300 × 860 px |
+
+Databases are stored in the app's internal config — re-add connections manually after install.
+
+#### Obsidian `v1.12.4` — https://obsidian.md/
+
+Markdown-based knowledge management and note-taking. Vaults are plain folders of `.md` files — back them up separately (e.g., iCloud, Dropbox, or a dedicated git repo). No Obsidian-specific config to restore beyond re-opening the vault folder.
+
+#### Sublime Text `Build 4200` — https://www.sublimetext.com/
+
+Lightweight editor used for quick file viewing and edits that don't warrant opening a full IDE. No custom packages installed — used out of the box.
+
+#### KeyStore Explorer `v5.5.3` — https://keystore-explorer.org/
+
+GUI for managing Java keystores, truststores, and certificates (JKS, PKCS12). No config to restore — open `.jks` / `.p12` files directly.
+
+#### GitHub Desktop `v3.5.4` — https://desktop.github.com/
+
+Git GUI for visual diffs, branch management, and PR workflows. Sign in with GitHub account after install to restore repository access.
+
+---
+
+### Communication
+
+| App | Version | Install | Notes |
+|-----|---------|---------|-------|
+| Zoom | 6.1.6 | https://zoom.us/download | Work video calls |
+| Microsoft Teams | 26032.605 | https://www.microsoft.com/teams | Work meetings |
+| Telegram | 12.5 | Mac App Store or https://telegram.org | Messaging |
+| WhatsApp | 26.9.75 | Mac App Store or https://www.whatsapp.com | Messaging |
+
+---
+
+### Remote Access
+
+| App | Version | Install | Notes |
+|-----|---------|---------|-------|
+| OpenVPN Connect | 3.8.1 | https://openvpn.net/client/ | VPN — import `.ovpn` profile after install |
+| Windows App | 11.3.3 | Mac App Store | Microsoft Remote Desktop — add PC connections manually |
+
+---
+
+### Media
+
+| App | Version | Install | Notes |
+|-----|---------|---------|-------|
+| VLC | 3.0.21 | `brew install --cask vlc` | Universal media player |
+| Stremio | — | https://www.stremio.com/downloads | Streaming platform — sign in to restore add-ons |
+
+---
+
+### Other Utilities
+
+#### macOS InstantView `v3.22` — https://www.smi-inc.com/
+
+Display management driver for SMI (Silicon Motion) external displays. Enables extended/mirror mode for monitors connected over USB-C/DisplayLink. Install from the SMI website; no configuration needed beyond connecting the display.
+
+#### iTermAI `v1.1` — companion to iTerm2
+
+Standalone AI assistant window that integrates with the iTerm2 terminal. Installed separately from iTerm2 itself.
+
+#### Pinta `v2.1.2` — https://www.pinta-project.com/ or Mac App Store
+
+Simple raster image editor (similar to MS Paint). Used for quick image annotations and crops. No configuration needed.
+
+---
 
 ### Time Machine — `asimov`
 
-`asimov` automatically excludes development dependency directories (like `node_modules`, `.build`, virtual envs) from Time Machine backups. It runs daily as a user-level LaunchAgent.
+`asimov` automatically excludes development dependency directories (`node_modules`, `.build`, virtual envs, etc.) from Time Machine backups. Runs daily as a user-level LaunchAgent.
 
 ```bash
 brew install asimov
@@ -771,6 +1172,8 @@ launchctl load ~/Library/LaunchAgents/homebrew.asimov.plist
 ```
 
 > `sudo brew services start asimov` fails on macOS Sequoia (bootstrap domain error). The user-level LaunchAgent approach works without sudo.
+
+---
 
 ### Minikube
 
@@ -785,7 +1188,7 @@ The kubectl context is named `minikube` and is set as the current context automa
 
 ---
 
-## 14. Claude Code
+## 15. Claude Code
 
 ### Install
 
@@ -1094,7 +1497,7 @@ These feedback memories apply broadly and should be seeded manually or will rebu
 
 ---
 
-## 15. Spicetify
+## 16. Spicetify
 
 Spicetify is a CLI tool that customizes the Spotify client (themes, extensions, custom apps). It's installed via brew and runs on top of the Spotify desktop app.
 
@@ -1143,6 +1546,74 @@ spicetify upgrade    # update spicetify itself
 
 ---
 
+## 17. Claude Code Stats
+
+A local analytics tool that parses Claude Code session transcripts and generates an interactive HTML dashboard showing usage, token consumption, and hypothetical API costs. Runs as a background cron job, updating every 10 minutes.
+
+**Repo:** https://github.com/AeternaLabsHQ/claude-code-stats
+
+### Install
+
+```bash
+git clone https://github.com/AeternaLabsHQ/claude-code-stats.git ~/Projects/Personal/claude-code-stats
+cd ~/Projects/Personal/claude-code-stats
+```
+
+No external dependencies — Python 3.8+ (standard library only).
+
+### Configure
+
+```bash
+cp config.example.json config.json
+```
+
+Edit `config.json` to set your subscription plan details:
+
+```json
+{
+  "language": "en",
+  "plan_history": [
+    {
+      "plan": "Max",
+      "start": "2026-01-23",
+      "end": null,
+      "cost_eur": 87.61,
+      "cost_usd": 93.00,
+      "billing_day": 23
+    }
+  ]
+}
+```
+
+- `end: null` means the plan is currently active
+- `billing_day` defines the cost cycle boundary (day of month billing resets)
+- `migration` block available to import data from a previous machine (see repo README)
+
+> ⚠️ The dashboard contains sensitive data (conversations, file paths, source code). Keep `public/` local — do not deploy or share it.
+
+### Run manually
+
+```bash
+python3 extract_stats.py
+open public/index.html
+```
+
+### Automate with cron
+
+```bash
+crontab -e
+```
+
+Add:
+
+```
+*/10 * * * * cd /Users/atilio/Projects/Personal/claude-code-stats && python3 extract_stats.py 2>&1 >> update.log
+```
+
+This keeps the dashboard up to date in the background. Open `public/index.html` in any browser to view — it reads `dashboard_data.json` which is regenerated on each run.
+
+---
+
 ## Appendix: Quick Replication Checklist
 
 ```
@@ -1164,6 +1635,8 @@ spicetify upgrade    # update spicetify itself
 [ ] Install VS Code, add 'code' to PATH (Cmd+Shift+P → Shell Command), install extensions or enable Settings Sync
 [ ] Install asimov LaunchAgent: cp launchagents/homebrew.asimov.plist ~/Library/LaunchAgents/ && launchctl load ~/Library/LaunchAgents/homebrew.asimov.plist
 [ ] Install Neovim + LazyVim
+[ ] Copy nano config: cp nano/nanorc ~/.nanorc && mkdir -p ~/.nano && cp nano/typescript.nanorc ~/.nano/typescript.nanorc
+[ ] Copy vim config: cp vim/vimrc ~/.vimrc
 [ ] Set atuin config: enter_accept = true, workspaces = true
 [ ] Log in: gh auth login, atuin login
 [ ] Run: navi repo add denisidoro/cheats
@@ -1176,5 +1649,18 @@ spicetify upgrade    # update spicetify itself
 [ ] Install Claude Code skills: gstack + fullstack-dev-skills + vercel-labs/agent-skills (see section 14)
 [ ] Install and configure cachebro MCP server (see section 14)
 [ ] Seed user profile memory files under ~/.claude/projects/.../memory/
-[ ] Install remaining GUI apps (Obsidian, Postman, DBeaver, Redis Insight, etc.)
+[ ] Apply macOS system preferences (see section 14 — Appearance, Trackpad, Keyboard, Finder, Dock, Mission Control, Accessibility, Energy)
+[ ] brew install --cask rectangle maccy appcleaner itsycal stats vlc
+[ ] Apply Rectangle defaults (see section 14)
+[ ] Apply Maccy defaults (see section 14)
+[ ] AppCleaner: Preferences → SmartDelete → enable
+[ ] Install manually: FineTune, Postman, DBeaver, Redis Insight, Obsidian, KeyStore Explorer, GitHub Desktop, Sublime Text
+[ ] Install manually: Zoom, Microsoft Teams, Mattermost, Telegram, WhatsApp
+[ ] Install manually: OpenVPN Connect (import .ovpn profile), Windows App
+[ ] Install manually: macOS InstantView, iTermAI, Stremio, Pinta
+[ ] Sign in to: GitHub Desktop, Postman, Zoom, Telegram, WhatsApp
+[ ] Clone claude-code-stats: git clone https://github.com/AeternaLabsHQ/claude-code-stats ~/Projects/Personal/claude-code-stats
+[ ] Configure claude-code-stats: cp config.example.json config.json → edit plan_history
+[ ] Set up cron job: */10 * * * * cd ~/Projects/Personal/claude-code-stats && python3 extract_stats.py 2>&1 >> update.log
+[ ] Create ~/.config/git/ignore with **/.claude/settings.local.json → git config --global core.excludesfile ~/.config/git/ignore
 ```

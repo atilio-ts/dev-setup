@@ -1,0 +1,28 @@
+syntax "typescript" "\.tsx?$"
+
+# Keywords
+color brightcyan "\<(abstract|as|async|await|break|case|catch|class|const|continue|debugger|declare|default|delete|do|else|enum|export|extends|finally|for|from|function|get|if|implements|import|in|instanceof|interface|keyof|let|module|namespace|new|of|override|package|private|protected|public|readonly|return|set|static|super|switch|this|throw|try|type|typeof|undefined|var|void|while|with|yield)\>"
+
+# Built-in types
+color brightgreen "\<(any|boolean|never|null|number|object|string|symbol|unknown|void)\>"
+
+# Common built-ins
+color green "\<(Array|Boolean|console|Date|Error|Function|JSON|Map|Math|Number|Object|Promise|RegExp|Set|String|Symbol|setTimeout|setInterval|clearTimeout|clearInterval)\>"
+
+# Decorators
+color brightyellow "@[A-Za-z_][A-Za-z0-9_]*"
+
+# Strings
+color yellow "(\"([^\"\\]|\\.)*\"|'([^'\\]|\\.)*'|`([^`\\]|\\.)*`)"
+
+# Numbers
+color cyan "\<[0-9]+(\.[0-9]+)?\>"
+color cyan "\<0x[0-9A-Fa-f]+\>"
+
+# Comments
+color brightblack "//.*$"
+color brightblack start="/\*" end="\*/"
+
+# JSX tags
+color magenta "</?[A-Za-z][A-Za-z0-9.]*"
+color magenta "/?>|>"
