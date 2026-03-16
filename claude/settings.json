@@ -56,13 +56,20 @@
     "command": "bash /Users/atilio/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
-    "fullstack-dev-skills@fullstack-dev-skills": true
+    "fullstack-dev-skills@fullstack-dev-skills": true,
+    "everything-claude-code@everything-claude-code": true
   },
   "extraKnownMarketplaces": {
     "fullstack-dev-skills": {
       "source": {
         "source": "github",
         "repo": "jeffallan/claude-skills"
+      }
+    },
+    "everything-claude-code": {
+      "source": {
+        "source": "github",
+        "repo": "affaan-m/everything-claude-code"
       }
     }
   }
