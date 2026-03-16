@@ -1561,8 +1561,8 @@ A local analytics tool that parses Claude Code session transcripts and generates
 ### Install
 
 ```bash
-git clone https://github.com/AeternaLabsHQ/claude-code-stats.git ~/Projects/Personal/claude-code-stats
-cd ~/Projects/Personal/claude-code-stats
+git clone https://github.com/AeternaLabsHQ/claude-code-stats.git ~/Projects/Github/claude-code-stats
+cd ~/Projects/Github/claude-code-stats
 ```
 
 No external dependencies — Python 3.8+ (standard library only).
@@ -1613,7 +1613,7 @@ crontab -e
 Add:
 
 ```
-*/10 * * * * cd /Users/atilio/Projects/Personal/claude-code-stats && python3 extract_stats.py 2>&1 >> update.log
+*/10 * * * * cd /Users/atilio/Projects/Github/claude-code-stats && python3 extract_stats.py 2>&1 >> update.log
 ```
 
 This keeps the dashboard up to date in the background. Open `public/index.html` in any browser to view — it reads `dashboard_data.json` which is regenerated on each run.
@@ -1665,8 +1665,8 @@ This keeps the dashboard up to date in the background. Open `public/index.html` 
 [ ] Install manually: OpenVPN Connect (import .ovpn profile), Windows App
 [ ] Install manually: macOS InstantView, iTermAI, Stremio, Pinta
 [ ] Sign in to: GitHub Desktop, Postman, Zoom, Telegram, WhatsApp
-[ ] Clone claude-code-stats: git clone https://github.com/AeternaLabsHQ/claude-code-stats ~/Projects/Personal/claude-code-stats
+[ ] Clone claude-code-stats: git clone https://github.com/AeternaLabsHQ/claude-code-stats ~/Projects/Github/claude-code-stats
 [ ] Configure claude-code-stats: cp config.example.json config.json → edit plan_history
-[ ] Set up cron job: */10 * * * * cd ~/Projects/Personal/claude-code-stats && python3 extract_stats.py 2>&1 >> update.log
+[ ] Set up cron job: */10 * * * * cd ~/Projects/Github/claude-code-stats && python3 extract_stats.py 2>&1 >> update.log
 [ ] Create ~/.config/git/ignore with **/.claude/settings.local.json → git config --global core.excludesfile ~/.config/git/ignore
 ```
