@@ -1360,7 +1360,7 @@ Copy both files to `~/.claude/hooks/` on the new machine.
 
 ### Skills / Plugins
 
-Two skill sources are active:
+The following skill sources are active:
 
 **gstack** — installed under `~/.claude/skills/gstack/` (repo: https://github.com/garrytan/gstack):
 - `browse` — headless browser for QA
@@ -1390,6 +1390,8 @@ Two skill sources are active:
 - `web-design-guidelines`
 - `deploy-to-vercel`
 
+**everything-claude-code** — marketplace plugin from https://github.com/affaan-m/everything-claude-code. A performance optimization system with 16 agents, 65+ skills, and 40+ commands evolved from 10+ months of intensive Claude Code use. Covers agent harness construction, language-specific patterns (Go, Python, Kotlin, Swift, Django, Spring Boot, etc.), TDD workflows, security reviews, session management, and more.
+
 #### Reinstall skills on new machine
 
 ```bash
@@ -1402,6 +1404,10 @@ claude plugins install fullstack-dev-skills@fullstack-dev-skills
 
 # vercel-labs/agent-skills (installs all 5, symlinked into ~/.claude/skills/)
 npx skills add vercel-labs/agent-skills --yes --global
+
+# everything-claude-code marketplace + plugin (run these as slash commands inside Claude Code)
+# /plugin marketplace add affaan-m/everything-claude-code
+# /plugin install everything-claude-code@everything-claude-code
 ```
 
 > The marketplace and enabledPlugins entries are already in `settings.json` — they will be applied when the file is copied.
@@ -1646,7 +1652,7 @@ This keeps the dashboard up to date in the background. Open `public/index.html` 
 [ ] Copy ~/.claude/settings.json
 [ ] Copy ~/.claude/statusline-command.sh
 [ ] Create ~/.claude/hooks/ and copy pre-bash.sh + pre-websearch.sh
-[ ] Install Claude Code skills: gstack + fullstack-dev-skills + vercel-labs/agent-skills (see section 14)
+[ ] Install Claude Code skills: gstack + fullstack-dev-skills + vercel-labs/agent-skills + everything-claude-code (see section 14)
 [ ] Install and configure cachebro MCP server (see section 14)
 [ ] Seed user profile memory files under ~/.claude/projects/.../memory/
 [ ] Apply macOS system preferences (see section 14 — Appearance, Trackpad, Keyboard, Finder, Dock, Mission Control, Accessibility, Energy)
