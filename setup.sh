@@ -145,6 +145,12 @@ cp "$REPO/launchagents/homebrew.asimov.plist" "$LAUNCHAGENTS_DIR/homebrew.asimov
 launchctl load "$LAUNCHAGENTS_DIR/homebrew.asimov.plist" 2>/dev/null || true
 ok "asimov LaunchAgent installed and loaded"
 
+# ─── brew upgrade on login ───────────────────────────────────────────────────
+step "brew upgrade LaunchAgent"
+cp "$REPO/launchagents/com.atilio.brew-upgrade.plist" "$LAUNCHAGENTS_DIR/com.atilio.brew-upgrade.plist"
+launchctl load "$LAUNCHAGENTS_DIR/com.atilio.brew-upgrade.plist" 2>/dev/null || true
+ok "brew upgrade LaunchAgent installed and loaded"
+
 # ─── navi cheatsheets ────────────────────────────────────────────────────────
 step "navi"
 navi repo add denisidoro/cheats 2>/dev/null || true
