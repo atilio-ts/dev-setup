@@ -183,6 +183,32 @@ step "cachebro MCP"
 npx cachebro init 2>/dev/null || true
 ok "cachebro configured — restart Claude Code to activate"
 
+# ─── claude-code-stats ───────────────────────────────────────────────────────
+step "claude-code-stats"
+STATS_DIR="$HOME/Projects/Github/claude-code-stats"
+if [ ! -d "$STATS_DIR" ]; then
+  mkdir -p "$HOME/Projects/Github"
+  git clone https://github.com/AeternaLabsHQ/claude-code-stats "$STATS_DIR"
+  ok "claude-code-stats cloned"
+else
+  ok "claude-code-stats already cloned"
+fi
+
+if [ ! -f "$STATS_DIR/config.json" ]; then
+  cp "$STATS_DIR/config.example.json" "$STATS_DIR/config.json"
+  ok "config.json created from example — update display_name and plan_history"
+else
+  ok "config.json already exists"
+fi
+
+CRON_JOB="*/10 * * * * cd $STATS_DIR && python3 extract_stats.py 2>&1 >> update.log"
+if ! crontab -l 2>/dev/null | grep -qF "claude-code-stats"; then
+  (crontab -l 2>/dev/null; echo "$CRON_JOB") | crontab -
+  ok "cron job installed (every 10 min)"
+else
+  ok "cron job already installed"
+fi
+
 # ─── Done ────────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${GREEN}Setup complete.${NC} Remaining manual steps:"
