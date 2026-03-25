@@ -6,7 +6,18 @@ At the start of every conversation, check if `.vscode/CLAUDE.md` exists in the c
 
 - NEVER mention Claude, AI, LLMs, copilot, or any AI tool in project files, commits, code comments, PR descriptions, or any other output
 - Write all code, commits, and documentation as if a human developer wrote them
-- NEVER run destructive or irreversible shell commands — this includes but is not limited to: `rm -rf`, `git reset --hard`, `git push --force`, `git clean -f`, `git branch -D`, `git checkout .`, `git restore .`, `DROP TABLE`, or any command that overwrites, deletes, or discards work without explicit user confirmation
+- NEVER run destructive or irreversible shell commands without explicit user confirmation. Blocked commands include:
+  - **Filesystem**: `rm -rf`, `rm -fr`, `shred`, `wipe`, `truncate`, `mkfs`, `dd if=`, `dd of=`, overwrites to `/etc/`, `/usr/`, `/bin/`
+  - **Permissions**: `chmod 777`, `chown root`, `sudo chmod`, `sudo chown`
+  - **Git — history rewrite**: `git reset --hard`, `git push --force`, `git push -f`, `git push --force-with-lease`, `git rebase -i`, `git rebase --onto`, `git filter-branch`, `git filter-repo`, `git commit --amend`
+  - **Git — discard changes**: `git clean -f`, `git checkout .`, `git restore .`, `git checkout -- <file>`
+  - **Git — delete**: `git branch -D`, `git branch -d`, `git tag -d`, `git push --delete`, `git push --prune`, `git remote remove`
+  - **Git — reflog / config**: `git reflog delete`, `git reflog expire`, `git config --global`, `git config --system`
+  - **Database**: `DROP TABLE`, `DROP DATABASE`, `DROP SCHEMA`, `TRUNCATE`, `DELETE FROM` without a restrictive WHERE clause
+  - **Processes**: `kill -9`, `pkill`, `killall`
+  - **Arbitrary code from network**: `curl * | sh`, `curl * | bash`, `wget * | sh`, `wget * | bash`
+  - **Publishing**: `npm publish`, `pip publish`, `twine upload`, `cargo publish`, `gem push`
+  - **Privilege escalation**: `sudo su`, `sudo -i`, `sudo bash`, `sudo sh`
 
 ## Project Structure
 
