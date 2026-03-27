@@ -178,6 +178,26 @@ else
   warn "Claude Code not found — install it first, then run skills setup"
 fi
 
+# ─── Personal Claude skills ───────────────────────────────────────────────────
+step "Personal Claude skills (atilio-ts/claude-skills)"
+CLAUDE_SKILLS_DIR="$HOME/Projects/Personal/claude-skills"
+if [ ! -d "$CLAUDE_SKILLS_DIR" ]; then
+  mkdir -p "$HOME/Projects/Personal"
+  git clone https://github.com/atilio-ts/claude-skills "$CLAUDE_SKILLS_DIR"
+  ok "claude-skills repo cloned"
+else
+  ok "claude-skills repo already present"
+fi
+
+mkdir -p "$HOME/.claude/skills"
+for skill_dir in "$CLAUDE_SKILLS_DIR"/*/; do
+  skill_name="$(basename "$skill_dir")"
+  if [ -f "$skill_dir/SKILL.md" ]; then
+    cp "$skill_dir/SKILL.md" "$HOME/.claude/skills/${skill_name}.md"
+    ok "skill '${skill_name}' installed"
+  fi
+done
+
 # ─── cachebro MCP ─────────────────────────────────────────────────────────────
 step "cachebro MCP"
 npx cachebro init 2>/dev/null || true
