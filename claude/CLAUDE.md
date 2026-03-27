@@ -26,7 +26,7 @@ At the start of every conversation, check if `.vscode/CLAUDE.md` exists in the c
 
 ## Commit Message Guidelines
 
-Always follow the Conventional Commits specification:
+Follow Conventional Commits with the project-specific rules below.
 
 ### Format
 
@@ -38,25 +38,24 @@ Always follow the Conventional Commits specification:
 [optional footer(s)]
 ```
 
-### Rules
+### Line length rules
 
-- The first line (type + description) must not exceed 50 characters
-- The description must immediately follow the colon and a single space
-- Leave a blank line between the description and the body
-- Body and footers are optional; use them when extra context is needed
-- NEVER include "Co-Authored-By" or any AI attribution in footers
+- First line (type + description): max **50 characters**
+- Body bullet points: max **80 characters** each
+- Never wrap a bullet with an indented continuation — split into a new bullet instead
 
 ### When writing a commit message
 
-1. Always run `git log` to read the full commit history — not just one line, but the complete messages including bodies and footers
-2. Extract the team's real formatting patterns from that history (capitalization, scope usage, body style, footer conventions, etc.)
-3. Use those patterns as the primary style guide, falling back to the Conventional Commits format below only where the history gives no signal
+1. Always run `git log` to read the full commit history including bodies and footers
+2. Extract the team's real formatting patterns from that history
+3. Use those patterns as the primary style guide, falling back to these rules only where the history gives no signal
 4. Never mention Claude, AI, copilot, or any AI tool in the message
+5. NEVER include "Co-Authored-By" or any AI attribution in footers
 
 ### Types
 
-- `feat` — a new feature (MINOR in semver)
-- `fix` — a bug fix (PATCH in semver)
+- `feature` — a new feature (use `feature`, NOT `feat`)
+- `fix` — a bug fix
 - `refactor` — code change that neither fixes a bug nor adds a feature
 - `docs` — documentation changes only
 - `style` — formatting, whitespace, missing semicolons (no logic change)
@@ -68,24 +67,25 @@ Always follow the Conventional Commits specification:
 
 ### Breaking Changes
 
-- Append `!` after the type/scope: `feat!: drop support for Node 8`
+- Append `!` after the type/scope: `feature!: drop support for Node 8`
 - Or add `BREAKING CHANGE: <description>` in the footer
 
 ### Examples
 
 ```
-feat(auth): add OAuth2 login support
+feature(auth): add OAuth2 login support
 
 fix: prevent race condition on request queue
 
-refactor(api): extract response handler to service
+feature: wire tokenizer skip into workflow
 
-docs: update setup instructions in README
+- CybersourceTokenizerDriver skips when brand is disabled
+- returns DriverResult.skipped() instead of NOT_UPDATED per presentment
+- CheckContinue supports next-step-when-skipped to route on skip
 
-feat!: remove deprecated v1 endpoints
+feature!: remove deprecated v1 endpoints
 
-fix(cart): correct total calculation on discount
-BREAKING CHANGE: discount field now expects a decimal
+BREAKING CHANGE: /api/v1/presentments removed, use /api/v2
 ```
 
 ## Memory
