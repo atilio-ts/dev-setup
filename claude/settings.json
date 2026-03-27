@@ -1,5 +1,127 @@
 {
+  "enabledPlugins": {
+    "everything-claude-code@everything-claude-code": true,
+    "fullstack-dev-skills@fullstack-dev-skills": true
+  },
+  "extraKnownMarketplaces": {
+    "everything-claude-code": {
+      "source": {
+        "repo": "affaan-m/everything-claude-code",
+        "source": "github"
+      }
+    },
+    "fullstack-dev-skills": {
+      "source": {
+        "repo": "jeffallan/claude-skills",
+        "source": "github"
+      }
+    }
+  },
+  "hooks": {
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/hooks/run-with-flags.js\" \"pre:compact\" \"scripts/hooks/pre-compact.js\" \"standard,strict\"",
+            "type": "command"
+          }
+        ],
+        "matcher": "*"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "bash /Users/atilio/.claude/hooks/pre-bash.sh",
+            "timeout": 5,
+            "type": "command"
+          }
+        ],
+        "matcher": "Bash"
+      },
+      {
+        "hooks": [
+          {
+            "command": "bash /Users/atilio/.claude/hooks/pre-websearch.sh",
+            "timeout": 10,
+            "type": "command"
+          }
+        ],
+        "matcher": "WebSearch"
+      },
+      {
+        "hooks": [
+          {
+            "command": "bash /Users/atilio/.claude/skills/strategic-compact/suggest-compact.sh",
+            "type": "command"
+          }
+        ],
+        "matcher": "Edit"
+      },
+      {
+        "hooks": [
+          {
+            "command": "bash /Users/atilio/.claude/skills/strategic-compact/suggest-compact.sh",
+            "type": "command"
+          }
+        ],
+        "matcher": "Write"
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "async": true,
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/hooks/run-with-flags.js\" \"session:end:marker\" \"scripts/hooks/session-end-marker.js\" \"minimal,standard,strict\"",
+            "timeout": 10,
+            "type": "command"
+          }
+        ],
+        "matcher": "*"
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "bash -lc 'input=$(cat); for root in \"${CLAUDE_PLUGIN_ROOT:-}\" \"$HOME/.claude/plugins/everything-claude-code\" \"$HOME/.claude/plugins/everything-claude-code@everything-claude-code\" \"$HOME/.claude/plugins/marketplace/everything-claude-code\"; do if [ -n \"$root\" ] && [ -f \"$root/scripts/hooks/run-with-flags.js\" ]; then printf \"%s\" \"$input\" | node \"$root/scripts/hooks/run-with-flags.js\" \"session:start\" \"scripts/hooks/session-start.js\" \"minimal,standard,strict\"; exit $?; fi; done; for parent in \"$HOME/.claude/plugins\" \"$HOME/.claude/plugins/marketplace\"; do if [ -d \"$parent\" ]; then candidate=$(find \"$parent\" -maxdepth 2 -type f -path \"*/scripts/hooks/run-with-flags.js\" 2>/dev/null | head -n 1); if [ -n \"$candidate\" ]; then root=$(dirname \"$(dirname \"$(dirname \"$candidate\")\")\"); printf \"%s\" \"$input\" | node \"$root/scripts/hooks/run-with-flags.js\" \"session:start\" \"scripts/hooks/session-start.js\" \"minimal,standard,strict\"; exit $?; fi; fi; done; echo \"[SessionStart] WARNING: could not resolve ECC plugin root; skipping session-start hook\" >&2; printf \"%s\" \"$input\"; exit 0'",
+            "type": "command"
+          }
+        ],
+        "matcher": "*"
+      }
+    ]
+  },
   "permissions": {
+    "allow": [
+      "mcp__cachebro__read_file",
+      "mcp__cachebro__read_files",
+      "Read",
+      "Glob",
+      "Grep",
+      "WebFetch",
+      "WebSearch",
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(which *)",
+      "Bash(bat *)",
+      "Bash(eza *)",
+      "Bash(ls *)",
+      "Bash(tree *)",
+      "Bash(fd *)",
+      "Bash(rg *)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git status*)",
+      "Bash(git show*)",
+      "Bash(git branch*)",
+      "Bash(git fetch*)",
+      "Bash(git remote*)",
+      "Bash(curl *)"
+    ],
     "deny": [
       "Bash(git reset --hard*)",
       "Bash(git push --force*)",
@@ -54,132 +176,10 @@
       "Bash(wipe *)",
       "Bash(mkfs*)",
       "Bash(truncate *)"
-    ],
-    "allow": [
-      "mcp__cachebro__read_file",
-      "mcp__cachebro__read_files",
-      "Read",
-      "Glob",
-      "Grep",
-      "WebFetch",
-      "WebSearch",
-      "Bash(cat *)",
-      "Bash(head *)",
-      "Bash(tail *)",
-      "Bash(which *)",
-      "Bash(bat *)",
-      "Bash(eza *)",
-      "Bash(ls *)",
-      "Bash(tree *)",
-      "Bash(fd *)",
-      "Bash(rg *)",
-      "Bash(git log*)",
-      "Bash(git diff*)",
-      "Bash(git status*)",
-      "Bash(git show*)",
-      "Bash(git branch*)",
-      "Bash(git fetch*)",
-      "Bash(git remote*)",
-      "Bash(curl *)"
-    ]
-  },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash /Users/atilio/.claude/hooks/pre-bash.sh",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "WebSearch",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash /Users/atilio/.claude/hooks/pre-websearch.sh",
-            "timeout": 10
-          }
-        ]
-      },
-      {
-        "matcher": "Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash /Users/atilio/.claude/skills/strategic-compact/suggest-compact.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash /Users/atilio/.claude/skills/strategic-compact/suggest-compact.sh"
-          }
-        ]
-      }
-    ],
-    "PreCompact": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/hooks/run-with-flags.js\" \"pre:compact\" \"scripts/hooks/pre-compact.js\" \"standard,strict\""
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash -lc 'input=$(cat); for root in \"${CLAUDE_PLUGIN_ROOT:-}\" \"$HOME/.claude/plugins/everything-claude-code\" \"$HOME/.claude/plugins/everything-claude-code@everything-claude-code\" \"$HOME/.claude/plugins/marketplace/everything-claude-code\"; do if [ -n \"$root\" ] && [ -f \"$root/scripts/hooks/run-with-flags.js\" ]; then printf \"%s\" \"$input\" | node \"$root/scripts/hooks/run-with-flags.js\" \"session:start\" \"scripts/hooks/session-start.js\" \"minimal,standard,strict\"; exit $?; fi; done; for parent in \"$HOME/.claude/plugins\" \"$HOME/.claude/plugins/marketplace\"; do if [ -d \"$parent\" ]; then candidate=$(find \"$parent\" -maxdepth 2 -type f -path \"*/scripts/hooks/run-with-flags.js\" 2>/dev/null | head -n 1); if [ -n \"$candidate\" ]; then root=$(dirname \"$(dirname \"$(dirname \"$candidate\")\")\"); printf \"%s\" \"$input\" | node \"$root/scripts/hooks/run-with-flags.js\" \"session:start\" \"scripts/hooks/session-start.js\" \"minimal,standard,strict\"; exit $?; fi; fi; done; echo \"[SessionStart] WARNING: could not resolve ECC plugin root; skipping session-start hook\" >&2; printf \"%s\" \"$input\"; exit 0'"
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/hooks/run-with-flags.js\" \"session:end:marker\" \"scripts/hooks/session-end-marker.js\" \"minimal,standard,strict\"",
-            "async": true,
-            "timeout": 10
-          }
-        ]
-      }
     ]
   },
   "statusLine": {
-    "type": "command",
-    "command": "bash /Users/atilio/.claude/statusline-command.sh"
-  },
-  "enabledPlugins": {
-    "fullstack-dev-skills@fullstack-dev-skills": true,
-    "everything-claude-code@everything-claude-code": true
-  },
-  "extraKnownMarketplaces": {
-    "fullstack-dev-skills": {
-      "source": {
-        "source": "github",
-        "repo": "jeffallan/claude-skills"
-      }
-    },
-    "everything-claude-code": {
-      "source": {
-        "source": "github",
-        "repo": "affaan-m/everything-claude-code"
-      }
-    }
+    "command": "bash /Users/atilio/.claude/statusline-command.sh",
+    "type": "command"
   }
 }

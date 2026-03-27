@@ -1,6 +1,6 @@
 # Developer Setup — Atilio Villalba
 
-> Last updated: 2026-03-15
+> Last updated: 2026-03-27
 > Goal: replicate this exact environment on a new macOS (Apple Silicon) machine from scratch.
 
 ---
@@ -1202,120 +1202,26 @@ npm install -g @anthropic-ai/claude-code
 
 Create `~/.claude/CLAUDE.md` on the new machine with the following rules (the `.vscode/CLAUDE.md` project convention is specific to this machine and should not be carried over):
 
-```markdown
-# Global Claude Code Rules
+See `claude/CLAUDE.md` in this repo — copy it verbatim to `~/.claude/CLAUDE.md` on the new machine.
 
-## General Rules
-
-- NEVER mention Claude, AI, LLMs, copilot, or any AI tool in project files, commits,
-  code comments, PR descriptions, or any other output
-- Write all code, commits, and documentation as if a human developer wrote them
-- NEVER run destructive or irreversible shell commands — this includes but is not limited
-  to: `rm -rf`, `git reset --hard`, `git push --force`, `git clean -f`, `git branch -D`,
-  `git checkout .`, `git restore .`, `DROP TABLE`, or any command that overwrites, deletes,
-  or discards work without explicit user confirmation
-
-## Commit Message Guidelines
-
-Always follow the Conventional Commits specification:
-
-### Format
-<type>[optional scope]: <description>
-
-[optional body]
-
-[optional footer(s)]
-
-### Rules
-- The first line (type + description) must not exceed 50 characters
-- Leave a blank line between the description and the body
-- NEVER include "Co-Authored-By" or any AI attribution in footers
-
-### When writing a commit message
-1. Always run `git log` to read the full commit history
-2. Extract the team's real formatting patterns from that history
-3. Use those patterns as the primary style guide, falling back to Conventional Commits
-
-### Types
-feat, fix, refactor, docs, style, test, perf, build, ci, chore
-
-## Memory
-
-- At the start of every conversation, check the project memory file if one exists
-- Update memory after resolving non-obvious bugs, making architectural decisions,
-  or discovering patterns that will recur
-- Keep entries concise and factual — no speculation, no session-specific state
-
-## Code Style
-
-- Follow SOLID principles, clean code practices, and appropriate design patterns
-- Do NOT add excessive or multi-line explanatory comments
-- Only comment when logic is truly non-obvious
-- Never add comments like "// Step 1:", "// Step 2:", or "// This method does X"
-```
+Key rules it enforces:
+- Never mention AI tools in any output (code, commits, docs, PRs)
+- Never run destructive commands without explicit confirmation (full blocked list inside)
+- Commit type is `feature` (not `feat`), max 50 chars first line, max 80 chars per body bullet
+- Always read `git log` before writing a commit message
+- Memory system: check project memory at conversation start, update after architectural decisions
 
 ### Settings — `~/.claude/settings.json`
 
-```json
-{
-  "statusLine": {
-    "type": "command",
-    "command": "bash /Users/atilio/.claude/statusline-command.sh"
-  },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash /Users/atilio/.claude/hooks/pre-bash.sh",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "WebSearch",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash /Users/atilio/.claude/hooks/pre-websearch.sh",
-            "timeout": 10
-          }
-        ]
-      }
-    ]
-  },
-  "permissions": {
-    "allow": [
-      "mcp__cachebro__read_file",
-      "mcp__cachebro__read_files",
-      "Read",
-      "Glob",
-      "Grep",
-      "WebFetch",
-      "WebSearch",
-      "Bash(cat *)",
-      "Bash(head *)",
-      "Bash(tail *)",
-      "Bash(which *)",
-      "Bash(bat *)",
-      "Bash(eza *)",
-      "Bash(ls *)",
-      "Bash(tree *)",
-      "Bash(fd *)",
-      "Bash(rg *)",
-      "Bash(git log*)",
-      "Bash(git diff*)",
-      "Bash(git status*)",
-      "Bash(git show*)",
-      "Bash(git branch*)",
-      "Bash(git fetch*)",
-      "Bash(git remote*)"
-    ]
-  }
-}
-```
+See `claude/settings.json` in this repo — copy it verbatim to `~/.claude/settings.json`, then update the username in all hardcoded paths (`/Users/atilio/` → `/Users/<username>/`).
+
+Key blocks it contains:
+- `statusLine` — wires the custom statusline script
+- `permissions.allow` — pre-approves read-only tools and safe git/bash commands (includes `Bash(curl *)`)
+- `permissions.deny` — blocks all destructive commands at the permission layer
+- `hooks.PreToolUse` — Bash safety hook, WebSearch approval prompt, strategic-compact suggestion on Edit/Write
+- `hooks.PreCompact`, `SessionStart`, `SessionEnd` — everything-claude-code plugin lifecycle hooks
+- `enabledPlugins` + `extraKnownMarketplaces` — fullstack-dev-skills and everything-claude-code marketplace plugins
 
 > Update the username in all paths before copying.
 
@@ -1392,6 +1298,11 @@ The following skill sources are active:
 
 **everything-claude-code** — marketplace plugin from https://github.com/affaan-m/everything-claude-code. A performance optimization system with 16 agents, 65+ skills, and 40+ commands evolved from 10+ months of intensive Claude Code use. Covers agent harness construction, language-specific patterns (Go, Python, Kotlin, Swift, Django, Spring Boot, etc.), TDD workflows, security reviews, session management, and more.
 
+**Personal skills** — stored at https://github.com/atilio-ts/claude-skills and installed under `~/.claude/skills/`. These are custom-built skills not available in any marketplace:
+
+- `/commit` — generates conventional commit messages by reading git diff and project history
+- `/estimate` — produces a technical analysis and effort estimation document (Spanish or English) for features or system changes, choosing automatically between flat decomposition, component-by-component revision, or full PERT with risk multipliers based on complexity
+
 #### Reinstall skills on new machine
 
 ```bash
@@ -1408,6 +1319,12 @@ npx skills add vercel-labs/agent-skills --yes --global
 # everything-claude-code marketplace + plugin (run these as slash commands inside Claude Code)
 # /plugin marketplace add affaan-m/everything-claude-code
 # /plugin install everything-claude-code@everything-claude-code
+
+# personal skills (from https://github.com/atilio-ts/claude-skills)
+git clone https://github.com/atilio-ts/claude-skills /tmp/claude-skills
+for dir in /tmp/claude-skills/*/; do
+  [ -f "$dir/SKILL.md" ] && cp -r "$dir" ~/.claude/skills/
+done
 ```
 
 > The marketplace and enabledPlugins entries are already in `settings.json` — they will be applied when the file is copied.
