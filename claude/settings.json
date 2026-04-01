@@ -1,8 +1,4 @@
 {
-  "autoUpdatesChannel": "stable",
-  "env": {
-    "NO_UPDATE_NOTIFIER": "1"
-  },
   "enabledPlugins": {
     "everything-claude-code@everything-claude-code": true,
     "fullstack-dev-skills@fullstack-dev-skills": true
@@ -181,6 +177,10 @@
       "Bash(mkfs*)",
       "Bash(truncate *)"
     ]
+  },
+  "autoUpdatesChannel": "stable",
+  "env": {
+    "NO_UPDATE_NOTIFIER": "1"
   },
   "statusLine": {
     "command": "bash /Users/atilio/.claude/statusline-command.sh",
