@@ -193,8 +193,8 @@ mkdir -p "$HOME/.claude/skills"
 for skill_dir in "$CLAUDE_SKILLS_DIR"/*/; do
   skill_name="$(basename "$skill_dir")"
   if [ -f "$skill_dir/SKILL.md" ]; then
-    cp "$skill_dir/SKILL.md" "$HOME/.claude/skills/${skill_name}.md"
-    ok "skill '${skill_name}' installed"
+    ln -sfn "$skill_dir" "$HOME/.claude/skills/${skill_name}"
+    ok "skill '${skill_name}' linked"
   fi
 done
 
