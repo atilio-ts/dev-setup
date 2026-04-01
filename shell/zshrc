@@ -1,3 +1,5 @@
+MAILCHECK=0
+
 # Powerlevel10k instant prompt — must stay near the top
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
@@ -88,9 +90,6 @@ eval "$(direnv hook zsh)"
 
 # atuin (shell history)
 eval "$(atuin init zsh)"
-
-# tirith
-eval "$(tirith init --shell zsh)"
 
 # navi (interactive cheatsheet — Ctrl+G)
 eval "$(navi widget zsh)"
