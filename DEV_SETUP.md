@@ -1300,7 +1300,7 @@ The following skill sources are active:
 
 **Personal skills** — stored at https://github.com/atilio-ts/claude-skills and installed under `~/.claude/skills/`. These are custom-built skills not available in any marketplace:
 
-- `/commit` — generates conventional commit messages by reading git diff and project history
+- `/commit-message` — generates conventional commit messages by reading git diff and project history
 - `/estimate` — produces a technical analysis and effort estimation document (Spanish or English) for features or system changes, choosing automatically between flat decomposition, component-by-component revision, or full PERT with risk multipliers based on complexity
 
 #### Reinstall skills on new machine
