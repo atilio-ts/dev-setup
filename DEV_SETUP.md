@@ -1,6 +1,6 @@
 # Developer Setup — Atilio Villalba
 
-> Last updated: 2026-03-27
+> Last updated: 2026-04-07
 > Goal: replicate this exact environment on a new macOS (Apple Silicon) machine from scratch.
 
 ---
@@ -1268,62 +1268,124 @@ Copy both files to `~/.claude/hooks/` on the new machine.
 
 The following skill sources are active:
 
-**gstack** — installed under `~/.claude/skills/gstack/` (repo: https://github.com/garrytan/gstack):
-- `browse` — headless browser for QA
-- `gstack-upgrade` — upgrade gstack itself
-- `plan-ceo-review` — CEO-mode plan review
-- `plan-eng-review` — Eng manager-mode plan review
-- `qa` — systematic QA testing
-- `retro` — weekly engineering retrospective
-- `review` — pre-landing PR review
-- `setup-browser-cookies` — import browser cookies
-- `ship` — ship workflow (merge → test → PR)
+**gstack** — installed under `~/.claude/skills/gstack/` (repo: https://github.com/garrytan/gstack).
+Active sub-skills: `autoplan`, `benchmark`, `careful`, `checkpoint`, `codex`, `document-release`,
+`freeze`, `health`, `investigate`, `learn`, `openclaw`, `pair-agent`, `plan-ceo-review`,
+`plan-eng-review`, `qa`, `qa-only`, `retro`, `review`, `unfreeze`
 
-**fullstack-dev-skills** — plugin from https://github.com/jeffallan/claude-skills, installed under `~/.agents/skills/`. Active skills:
-- `find-skills`
-- `nestjs-expert`
-- `spring-boot-engineer`
-- `typescript-pro`
-- `vercel-composition-patterns`
+Symlinked from `~/.claude/skills/`: `plan-ceo-review`, `plan-eng-review`, `qa`, `retro`, `review`
+
+> Deleted sub-skills (not needed): design-*, browse, gstack-upgrade, setup-browser-cookies, ship,
+> canary, cso, guard, devex-review, plan-devex-review, land-and-deploy, setup-deploy, office-hours
+
+**fullstack-dev-skills** — plugin from marketplace. Install via Claude Code plugin system.
+Active skills (33): `api-designer`, `architecture-designer`, `cloud-architect`, `code-documenter`,
+`code-reviewer`, `csharp-developer`, `database-optimizer`, `debugging-wizard`, `devops-engineer`,
+`dotnet-core-expert`, `embedded-systems`, `fullstack-guardian`, `game-developer`, `java-architect`,
+`javascript-pro`, `legacy-modernizer`, `microservices-architect`, `monitoring-expert`, `nestjs-expert`,
+`nextjs-developer`, `postgres-pro`, `prompt-engineer`, `react-expert`, `react-native-expert`,
+`secure-code-guardian`, `security-reviewer`, `spring-boot-engineer`, `sql-pro`, `sre-engineer`,
+`terraform-engineer`, `test-master`, `typescript-pro`, `websocket-engineer`
+
+**vercel-labs/agent-skills** — installed via `npx skills` CLI from https://github.com/vercel-labs/agent-skills.
+Lives in `~/.agents/skills/`, symlinked into `~/.claude/skills/`. Active skills:
 - `vercel-react-best-practices`
+- `vercel-composition-patterns`
 - `vercel-react-native-skills`
 - `web-design-guidelines`
 
-**vercel-labs/agent-skills** — installed via `npx skills` from https://github.com/vercel-labs/agent-skills. Lives in `~/.agents/skills/`, symlinked into `~/.claude/skills/`. Active skills:
-- `vercel-composition-patterns`
-- `vercel-react-best-practices`
-- `vercel-react-native-skills`
-- `web-design-guidelines`
-- `deploy-to-vercel`
+**caveman** — installed via `npx skills` CLI from https://github.com/JuliusBrussee/caveman.
+Lives in `~/.agents/skills/`, symlinked into `~/.claude/skills/`. Skills:
+- `caveman` — ultra-compressed output mode (~65-75% token reduction)
+- `caveman-compress` — compresses CLAUDE.md/memory files (~45% input token reduction)
 
-**everything-claude-code** — marketplace plugin from https://github.com/affaan-m/everything-claude-code. A performance optimization system with 16 agents, 65+ skills, and 40+ commands evolved from 10+ months of intensive Claude Code use. Covers agent harness construction, language-specific patterns (Go, Python, Kotlin, Swift, Django, Spring Boot, etc.), TDD workflows, security reviews, session management, and more.
+**everything-claude-code** — marketplace plugin. Active skills (28): `agentic-engineering`,
+`ai-first-engineering`, `api-design`, `article-writing`, `autonomous-loops`, `blueprint`,
+`carrier-relationship-management`, `claude-api`, `continuous-agent-loop`, `cost-aware-llm-pipeline`,
+`database-migrations`, `deep-research`, `deployment-patterns`, `docker-patterns`, `e2e-testing`,
+`enterprise-agent-ops`, `eval-harness`, `frontend-patterns`, `jpa-patterns`, `market-research`,
+`plankton-code-quality`, `postgres-patterns`, `prompt-optimizer`, `regex-vs-llm-structured-text`,
+`search-first`, `security-review`, `security-scan`, `springboot-security`
 
-**Personal skills** — stored at https://github.com/atilio-ts/claude-skills and installed under `~/.claude/skills/`. These are custom-built skills not available in any marketplace:
+**coderabbit** — marketplace plugin. Skills: `autofix`, `code-review`
 
-- `/commit-message` — generates conventional commit messages by reading git diff and project history
-- `/estimate` — produces a technical analysis and effort estimation document (Spanish or English) for features or system changes, choosing automatically between flat decomposition, component-by-component revision, or full PERT with risk multipliers based on complexity
+**Personal skills** — stored at https://github.com/atilio-ts/claude-skills, cloned to
+`~/Projects/Personal/claude-skills/` and symlinked into `~/.claude/skills/`:
+
+- `commit-message` — generates conventional commit messages reading git diff and project history
+- `estimate` — technical analysis and effort estimation (Spanish/English), auto-selects decomposition strategy
+- `user-story` — writes user stories and Jira tasks
+- `sync-configuration` — syncs dev-setup and claude-skills repos with the live machine state
+- `update-skills` — updates all installed skills and plugins (vercel-labs, caveman, Claude plugins)
 
 #### Reinstall skills on new machine
 
 ```bash
-# gstack suite (installs directly as files under ~/.claude/skills/)
-claude plugins install gstack
+# 1. gstack (installs as plugin, lives under ~/.claude/skills/gstack/)
+claude plugin install gstack
 
-# jeffallan/claude-skills marketplace + plugin
-claude plugins marketplace add jeffallan/claude-skills
-claude plugins install fullstack-dev-skills@fullstack-dev-skills
+# After install, delete unused sub-skills:
+GSTACK="$HOME/.claude/skills/gstack"
+for skill in design-consultation design-html design-review design-shotgun plan-design-review \
+  browse open-gstack-browser office-hours land-and-deploy setup-deploy ship \
+  canary cso guard devex-review plan-devex-review gstack-upgrade; do
+  rm -rf "$GSTACK/$skill"
+done
+# Remove symlinks that pointed to deleted sub-skills:
+rm -f ~/.claude/skills/{browse,gstack-upgrade,setup-browser-cookies,ship}
 
-# vercel-labs/agent-skills (installs all 5, symlinked into ~/.claude/skills/)
-npx skills add vercel-labs/agent-skills --yes --global
+# 2. Claude plugins (run inside Claude Code or via CLI)
+claude plugin marketplace add jeffallan/claude-skills
+claude plugin install fullstack-dev-skills@fullstack-dev-skills
+claude plugin install everything-claude-code@everything-claude-code
+claude plugin install coderabbit@claude-plugins-official
 
-# everything-claude-code marketplace + plugin (run these as slash commands inside Claude Code)
-# /plugin marketplace add affaan-m/everything-claude-code
-# /plugin install everything-claude-code@everything-claude-code
+# After installing fullstack-dev-skills, delete unused skills:
+BASE_FS="$HOME/.claude/plugins/cache/fullstack-dev-skills/fullstack-dev-skills/$(ls ~/.claude/plugins/cache/fullstack-dev-skills/fullstack-dev-skills/)/skills"
+for skill in angular-architect atlassian-mcp chaos-engineer cli-developer cpp-pro django-expert \
+  fastapi-expert fine-tuning-expert flutter-expert golang-pro graphql-architect kotlin-specialist \
+  kubernetes-specialist laravel-specialist mcp-developer ml-pipeline pandas-pro php-pro \
+  playwright-expert python-pro rag-architect rails-expert react-native-expert rust-engineer \
+  salesforce-developer shopify-expert spark-engineer spec-miner swift-expert the-fool \
+  vue-expert vue-expert-js wordpress-pro feature-forge; do
+  rm -rf "$BASE_FS/$skill"
+done
 
-# personal skills (from https://github.com/atilio-ts/claude-skills)
-git clone https://github.com/atilio-ts/claude-skills /tmp/claude-skills
-for dir in /tmp/claude-skills/*/; do
-  [ -f "$dir/SKILL.md" ] && cp -r "$dir" ~/.claude/skills/
+# After installing everything-claude-code, delete unused skills:
+BASE_ECC="$HOME/.claude/plugins/cache/everything-claude-code/everything-claude-code/$(ls ~/.claude/plugins/cache/everything-claude-code/everything-claude-code/)/skills"
+for skill in android-clean-architecture coding-standards compose-multiplatform-patterns configure-ecc \
+  content-engine content-hash-cache-pattern continuous-learning continuous-learning-v2 \
+  cpp-coding-standards cpp-testing crosspost customs-trade-compliance django-patterns django-security \
+  django-tdd django-verification dmux-workflows energy-procurement fal-ai-media \
+  foundation-models-on-device frontend-patterns frontend-slides golang-patterns golang-testing \
+  inventory-demand-planning investor-materials investor-outreach iterative-retrieval \
+  java-coding-standards kotlin-coroutines-flows kotlin-exposed-patterns kotlin-ktor-patterns \
+  kotlin-patterns kotlin-testing liquid-glass-design logistics-exception-management nanoclaw-repl \
+  nutrient-document-processing perl-patterns perl-security perl-testing production-scheduling \
+  project-guidelines-example python-patterns python-testing quality-nonconformance \
+  ralphinho-rfc-pipeline returns-reverse-logistics skill-stocktake springboot-patterns springboot-tdd \
+  springboot-verification strategic-compact swift-actor-persistence swift-concurrency-6-2 \
+  swift-protocol-di-testing swiftui-patterns tdd-workflow verification-loop video-editing \
+  videodb visa-doc-translate x-api agent-harness-construction backend-patterns; do
+  rm -rf "$BASE_ECC/$skill"
+done
+
+# 3. vercel-labs/agent-skills (installs to ~/.agents/skills/, symlinked into ~/.claude/skills/)
+npx skills add vercel-labs/agent-skills -g -s vercel-react-best-practices
+npx skills add vercel-labs/agent-skills -g -s vercel-composition-patterns
+npx skills add vercel-labs/agent-skills -g -s vercel-react-native-skills
+npx skills add vercel-labs/agent-skills -g -s web-design-guidelines
+
+# 4. caveman (installs to ~/.agents/skills/, symlinked into ~/.claude/skills/)
+npx skills add JuliusBrussee/caveman -g
+# Create symlinks for Claude Code:
+ln -sf ../../.agents/skills/caveman ~/.claude/skills/caveman
+ln -sf ../../.agents/skills/caveman-compress ~/.claude/skills/caveman-compress
+
+# 5. Personal skills (clone repo and create symlinks)
+git clone https://github.com/atilio-ts/claude-skills ~/Projects/Personal/claude-skills
+for skill in commit-message estimate user-story sync-configuration update-skills; do
+  ln -sf ~/Projects/Personal/claude-skills/$skill ~/.claude/skills/$skill
 done
 ```
 
