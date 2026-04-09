@@ -197,6 +197,7 @@
     "terminal.integrated.automationProfile.osx": {
 
     },
+    "terminal.integrated.fontFamily": "MesloLGS NF",
     "terminal.integrated.fontSize": 14,
     "editor.mouseWheelZoom": true,
     "julia.enableCrashReporter": false,
