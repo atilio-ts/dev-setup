@@ -1,7 +1,8 @@
 {
   "enabledPlugins": {
     "everything-claude-code@everything-claude-code": true,
-    "fullstack-dev-skills@fullstack-dev-skills": true
+    "fullstack-dev-skills@fullstack-dev-skills": true,
+    "coderabbit@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "everything-claude-code": {
