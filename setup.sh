@@ -168,12 +168,47 @@ ok "Dock configured (left, autohide, size 66)"
 step "Claude Code skills"
 if command -v claude &>/dev/null; then
   claude plugins marketplace add jeffallan/claude-skills 2>/dev/null || true
-  claude plugins install fullstack-dev-skills@fullstack-dev-skills 2>/dev/null || true
+  claude plugin install fullstack-dev-skills@fullstack-dev-skills 2>/dev/null || true
   ok "fullstack-dev-skills plugin installed"
+  claude plugin install everything-claude-code@everything-claude-code 2>/dev/null || true
+  ok "everything-claude-code plugin installed"
+  claude plugin install coderabbit@claude-plugins-official 2>/dev/null || true
+  ok "coderabbit plugin installed"
   npx skills add vercel-labs/agent-skills --yes --global 2>/dev/null || true
   ok "vercel-labs/agent-skills installed"
   claude plugins install gstack 2>/dev/null || true
   ok "gstack skills installed"
+
+  # Remove unused skills from fullstack-dev-skills
+  FDS="$HOME/.claude/plugins/marketplaces/fullstack-dev-skills/skills"
+  for skill in atlassian-mcp cli-developer cpp-pro django-expert embedded-systems \
+    fastapi-expert flutter-expert golang-pro graphql-architect kotlin-specialist \
+    laravel-specialist pandas-pro php-pro playwright-expert rag-architect \
+    rails-expert rust-engineer salesforce-developer shopify-expert swift-expert \
+    vue-expert vue-expert-js wordpress-pro; do
+    rm -r "$FDS/$skill" 2>/dev/null && echo "  removed fds: $skill" || true
+  done
+  ok "unused fullstack-dev-skills skills removed"
+
+  # Remove unused skills from everything-claude-code
+  ECC="$HOME/.claude/plugins/marketplaces/everything-claude-code/skills"
+  for skill in claude-api clickhouse-io content-engine cpp-coding-standards cpp-testing \
+    crosspost django-patterns django-security django-tdd django-verification dmux-workflows \
+    fal-ai-media golang-patterns golang-testing kotlin-coroutines-flows kotlin-exposed-patterns \
+    kotlin-ktor-patterns kotlin-patterns kotlin-testing liquid-glass-design perl-patterns \
+    perl-security perl-testing plankton-code-quality ralphinho-rfc-pipeline \
+    returns-reverse-logistics swift-actor-persistence swift-concurrency-6-2 \
+    swift-protocol-di-testing swiftui-patterns visa-doc-translate x-api; do
+    rm -r "$ECC/$skill" 2>/dev/null && echo "  removed ecc: $skill" || true
+  done
+  ok "unused everything-claude-code skills removed"
+
+  # Remove unused everything-claude-code commands
+  ECC_CMD="$HOME/.claude/plugins/marketplaces/everything-claude-code/commands"
+  for cmd in go-build go-review go-test kotlin-build kotlin-review kotlin-test python-review; do
+    rm "$ECC_CMD/$cmd.md" 2>/dev/null && echo "  removed cmd: $cmd" || true
+  done
+  ok "unused everything-claude-code commands removed"
 else
   warn "Claude Code not found — install it first, then run skills setup"
 fi
