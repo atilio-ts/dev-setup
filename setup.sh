@@ -176,6 +176,8 @@ if command -v claude &>/dev/null; then
   ok "everything-claude-code plugin installed"
   claude plugin install coderabbit@claude-plugins-official 2>/dev/null || true
   ok "coderabbit plugin installed"
+  npx claude-mem install 2>/dev/null || true
+  ok "claude-mem plugin installed"
   npx skills add vercel-labs/agent-skills --yes --global 2>/dev/null || true
   ok "vercel-labs/agent-skills installed"
   claude plugins install gstack 2>/dev/null || true
@@ -234,6 +236,16 @@ for skill_dir in "$CLAUDE_SKILLS_DIR"/*/; do
     ok "skill '${skill_name}' linked"
   fi
 done
+
+# ─── graphify ────────────────────────────────────────────────────────────────
+step "graphify"
+if command -v pipx &>/dev/null; then
+  pipx install graphifyy 2>/dev/null || true
+  graphify install 2>/dev/null || true
+  ok "graphify installed and skill registered"
+else
+  warn "pipx not found — install via 'brew install pipx', then run: pipx install graphifyy && graphify install"
+fi
 
 # ─── cachebro MCP ─────────────────────────────────────────────────────────────
 step "cachebro MCP"
