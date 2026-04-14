@@ -109,14 +109,16 @@ fi
 
 # ─── Claude Code ─────────────────────────────────────────────────────────────
 step "Claude Code"
-mkdir -p "$HOME/.claude/hooks"
+mkdir -p "$HOME/.claude/hooks" "$HOME/.claude/agents" "$HOME/.claude/rules"
 cp "$REPO/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
 cp "$REPO/claude/settings.json" "$HOME/.claude/settings.json"
 cp "$REPO/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh"
 cp "$REPO/claude/hooks/pre-bash.sh" "$HOME/.claude/hooks/pre-bash.sh"
 cp "$REPO/claude/hooks/pre-websearch.sh" "$HOME/.claude/hooks/pre-websearch.sh"
 chmod +x "$HOME/.claude/statusline-command.sh" "$HOME/.claude/hooks/"*.sh
-ok "Claude Code config and hooks copied"
+cp "$REPO/claude/agents/"*.md "$HOME/.claude/agents/"
+cp -r "$REPO/claude/rules/." "$HOME/.claude/rules/"
+ok "Claude Code config, hooks, agents, and rules copied"
 warn "Update username paths in ~/.claude/settings.json"
 
 # Seed user profile memory
