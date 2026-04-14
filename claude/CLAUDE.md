@@ -103,3 +103,6 @@ BREAKING CHANGE: /api/v1/presentments removed, use /api/v2
 - Only comment when logic is truly non-obvious
 - Never add comments like "// Step 1:", "// Step 2:", or "// This method does X"
 - No comments that could suggest AI-generated code
+# graphify
+- **graphify** (`~/.claude/skills/graphify/SKILL.md`) - any input to knowledge graph. Trigger: `/graphify`
+When the user types `/graphify`, invoke the Skill tool with `skill: "graphify"` before doing anything else.
