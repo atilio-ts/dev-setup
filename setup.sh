@@ -176,8 +176,6 @@ if command -v claude &>/dev/null; then
   ok "everything-claude-code plugin installed"
   claude plugin install coderabbit@claude-plugins-official 2>/dev/null || true
   ok "coderabbit plugin installed"
-  npx claude-mem install 2>/dev/null || true
-  ok "claude-mem plugin installed"
   npx skills add vercel-labs/agent-skills --yes --global 2>/dev/null || true
   ok "vercel-labs/agent-skills installed"
   claude plugins install gstack 2>/dev/null || true
