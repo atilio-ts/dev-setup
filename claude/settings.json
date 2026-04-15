@@ -170,8 +170,7 @@
   "enabledPlugins": {
     "everything-claude-code@everything-claude-code": true,
     "fullstack-dev-skills@fullstack-dev-skills": true,
-    "coderabbit@claude-plugins-official": true,
-    "claude-mem@thedotmack": true
+    "coderabbit@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "everything-claude-code": {
@@ -184,12 +183,6 @@
       "source": {
         "source": "github",
         "repo": "jeffallan/claude-skills"
-      }
-    },
-    "thedotmack": {
-      "source": {
-        "source": "github",
-        "repo": "thedotmack/claude-mem"
       }
     }
   },
