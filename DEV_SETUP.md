@@ -1,6 +1,6 @@
 # Developer Setup — Atilio Villalba
 
-> Last updated: 2026-04-07
+> Last updated: 2026-04-14
 > Goal: replicate this exact environment on a new macOS (Apple Silicon) machine from scratch.
 
 ---
@@ -66,7 +66,7 @@ This installs all formulas and casks at once. To update the Brewfile after insta
 brew bundle dump --file=~/Brewfile --force
 ```
 
-> **Note:** `brew bundle dump` only captures explicitly installed packages, not those installed as dependencies. The manual formula list below is the authoritative reference — use it to cross-check after a bundle restore. Known gaps in the Brewfile: `python@3.13`, `python@3.14`, `tmux`, `bash`, `gradle-completion`, `openjdk` (25).
+> **Note:** `brew bundle dump` only captures explicitly installed packages, not those installed as dependencies. The manual formula list below is the authoritative reference — use it to cross-check after a bundle restore. Known gaps in the Brewfile: `python@3.14`, `tmux`, `bash`, `gradle-completion`, `openjdk`.
 
 ### Formulas
 
@@ -113,13 +113,13 @@ brew install \
   openjdk \
   openjdk@21 \
   overmind \
+  pipx \
   powerlevel10k \
   python@3.13 \
   python@3.14 \
   ripgrep \
   spicetify-cli \
   telnet \
-  tirith \
   tmux \
   tokei \
   trash \
@@ -269,8 +269,8 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 export EDITOR=nvim
 export VISUAL=nvim
 
-# Python — prefer 3.13 (3.14 is pre-release)
-export PATH="/opt/homebrew/opt/python@3.13/libexec/bin:$PATH"
+# Python
+export PATH="/opt/homebrew/opt/python@3.14/libexec/bin:$PATH"
 
 # PATH extras
 PATH=~/.console-ninja/.bin:$PATH
@@ -282,9 +282,6 @@ eval "$(direnv hook zsh)"
 
 # atuin (shell history)
 eval "$(atuin init zsh)"
-
-# tirith
-eval "$(tirith init --shell zsh)"
 
 # navi (interactive cheatsheet — Ctrl+G)
 eval "$(navi widget zsh)"
@@ -349,7 +346,6 @@ Or copy the existing `~/.p10k.zsh` file directly from the old machine — it is 
 | `mole` | SSH tunnel manager |
 | `overmind` | Process manager (Procfile-based) |
 | `ripgrep` | Fast grep (`rg`) |
-| `tirith` | Policy engine CLI |
 | `trash` | Safe `rm` (moves to trash) |
 | `viddy` | Modern `watch` |
 | `xh` | Friendly HTTP client |
@@ -364,6 +360,22 @@ Or copy the existing `~/.p10k.zsh` file directly from the old machine — it is 
 | `navi` | Interactive cheatsheet (`Ctrl+G` in shell) — run `navi repo add denisidoro/cheats` to populate with community cheatsheets |
 | `git-lfs` | Git Large File Storage — must run `git lfs install` after setup |
 | `gh copilot` | Built into `gh` — explains shell commands (`gh copilot explain`) |
+
+### Python tools — pipx
+
+`pipx` installs Python CLI tools in isolated environments and exposes them on `$PATH` via `~/.local/bin`. Installed via brew.
+
+```bash
+brew install pipx
+```
+
+| Tool | Version | Install |
+|------|---------|---------|
+| `graphify` | 0.4.13 | `pipx install graphifyy` |
+
+> Note: the pip package name is `graphifyy` (double y) but the command is `graphify`.
+>
+> `~/.local/bin` must be in `$PATH` (already in `.zshrc`).
 
 ---
 

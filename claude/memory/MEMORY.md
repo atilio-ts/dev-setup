@@ -1,4 +1,4 @@
 # Memory Index
 
 - [user_profile.md](user_profile.md) — Who Atilio is: role, background, tech stack, personal interests
-- [feedback_github.md](feedback_github.md) — No GitHub API key; browser-only access preferred
+- [feedback_cachebro.md](feedback_cachebro.md) — Use cachebro MCP tool instead of native Read for token optimization
