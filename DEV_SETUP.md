@@ -1491,6 +1491,12 @@ claude mcp add --scope user houtini-lm -- "$HOUTINI_BIN"
 
 Requires LM Studio running with a model loaded on `localhost:1234` (default LM Studio port). No per-project `.mcp.json` needed.
 
+#### Install LM Studio
+
+Download from https://lmstudio.ai/ and install. The `lms` CLI is added automatically to `~/.lmstudio/bin/` during install — the zshrc already includes this in `$PATH`.
+
+After install, download at least one model from the LM Studio UI before running Claude Code sessions that use houtini.
+
 ### Memory System
 
 Claude uses a file-based memory system at `~/.claude/projects/<project-path>/memory/`. Each project gets its own `MEMORY.md` index that is auto-loaded when Claude opens in that directory. Memory entries are markdown files with frontmatter specifying type (`user`, `feedback`, `project`, `reference`).
@@ -1714,6 +1720,7 @@ This keeps the dashboard up to date in the background. Open `public/index.html` 
 [ ] Create ~/.claude/hooks/ and copy pre-bash.sh + pre-websearch.sh
 [ ] Install Claude Code skills: gstack + fullstack-dev-skills + vercel-labs/agent-skills + everything-claude-code (see section 14)
 [ ] Install and configure cachebro MCP server (see section 14)
+[ ] Install LM Studio + download at least one model + install houtini-lm MCP (see section 14)
 [ ] Seed user profile memory files under ~/.claude/projects/.../memory/
 [ ] Apply macOS system preferences (see section 14 — Appearance, Trackpad, Keyboard, Finder, Dock, Mission Control, Accessibility, Energy)
 [ ] brew install --cask rectangle maccy appcleaner itsycal stats vlc
