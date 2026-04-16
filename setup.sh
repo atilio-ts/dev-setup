@@ -239,16 +239,82 @@ done
 step "graphify"
 if command -v pipx &>/dev/null; then
   pipx install graphifyy 2>/dev/null || true
-  graphify install 2>/dev/null || true
-  ok "graphify installed and skill registered"
+  ok "graphify installed"
 else
-  warn "pipx not found — install via 'brew install pipx', then run: pipx install graphifyy && graphify install"
+  warn "pipx not found — install via 'brew install pipx', then run: pipx install graphifyy"
 fi
+
+# graphify global MCP wrapper script
+GRAPHIFY_SCRIPT="$HOME/.claude/scripts/graphify-start.sh"
+mkdir -p "$HOME/.claude/scripts"
+GRAPHIFY_BIN="$HOME/.local/pipx/venvs/graphifyy/bin/python"
+cat > "$GRAPHIFY_SCRIPT" <<'EOF'
+#!/bin/bash
+GRAPH_FILE="${PWD}/graphify-out/graph.json"
+
+if [ ! -f "$GRAPH_FILE" ]; then
+  echo "graphify: no graph found at $GRAPH_FILE" >&2
+  exit 1
+fi
+EOF
+echo "exec \"$GRAPHIFY_BIN\" -m graphify.serve \"\$GRAPH_FILE\"" >> "$GRAPHIFY_SCRIPT"
+chmod +x "$GRAPHIFY_SCRIPT"
+
+# Add graphify to ~/.claude.json if not already present
+if [ -f "$HOME/.claude.json" ]; then
+  if ! grep -q '"graphify"' "$HOME/.claude.json"; then
+    python3 - <<PYEOF
+import json, sys
+path = "$HOME/.claude.json"
+with open(path) as f:
+    data = json.load(f)
+data.setdefault("mcpServers", {})["graphify"] = {
+    "command": "bash",
+    "args": ["$GRAPHIFY_SCRIPT"]
+}
+with open(path, "w") as f:
+    json.dump(data, f, indent=2)
+print("graphify added to ~/.claude.json")
+PYEOF
+  else
+    ok "graphify already in ~/.claude.json"
+  fi
+else
+  warn "~/.claude.json not found — add graphify MCP manually (see DEV_SETUP.md)"
+fi
+ok "graphify MCP wrapper configured"
 
 # ─── cachebro MCP ─────────────────────────────────────────────────────────────
 step "cachebro MCP"
-npx cachebro init 2>/dev/null || true
-ok "cachebro configured — restart Claude Code to activate"
+npm install -g cachebro 2>/dev/null || true
+CACHEBRO_BIN="$(npm prefix -g)/bin/cachebro"
+
+if [ -f "$CACHEBRO_BIN" ]; then
+  if [ -f "$HOME/.claude.json" ]; then
+    if ! grep -q '"cachebro"' "$HOME/.claude.json"; then
+      python3 - <<PYEOF
+import json
+path = "$HOME/.claude.json"
+with open(path) as f:
+    data = json.load(f)
+data.setdefault("mcpServers", {})["cachebro"] = {
+    "command": "$CACHEBRO_BIN",
+    "args": ["serve"]
+}
+with open(path, "w") as f:
+    json.dump(data, f, indent=2)
+print("cachebro added to ~/.claude.json")
+PYEOF
+    else
+      ok "cachebro already in ~/.claude.json"
+    fi
+  else
+    warn "~/.claude.json not found — add cachebro MCP manually (see DEV_SETUP.md)"
+  fi
+  ok "cachebro configured at $CACHEBRO_BIN — restart Claude Code to activate"
+else
+  warn "cachebro binary not found after install — add MCP config manually (see DEV_SETUP.md)"
+fi
 
 # ─── claude-code-stats ───────────────────────────────────────────────────────
 step "claude-code-stats"
