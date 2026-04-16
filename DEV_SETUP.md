@@ -1475,26 +1475,17 @@ Replace `<username>` with the actual username.
 
 In projects without a `graphify-out/graph.json`, the server exits cleanly and shows `✘ failed` in the MCP list — this is expected and harmless.
 
-### MCP Server — houtini-lm (project-scoped)
+### MCP Server — houtini-lm (global)
 
-houtini-lm is a project-scoped MCP — it is **not** global. Each project that needs it must have a `.mcp.json` at the project root:
+houtini-lm is a **global** MCP — registered once for all projects. It connects Claude Code to the local LLM running in LM Studio on `localhost:1234`.
 
-```json
-{
-  "mcpServers": {
-    "houtini-lm": {
-      "command": "npx",
-      "args": ["-y", "@houtini/lm"],
-      "env": {
-        "LM_STUDIO_URL": "http://localhost:11434",
-        "LM_STUDIO_MODEL": "qwen2.5-coder:7b"
-      }
-    }
-  }
-}
+Register globally (one time):
+
+```bash
+claude mcp add --scope user houtini-lm -- npx -y @houtini/lm
 ```
 
-Requires a running Ollama instance at `localhost:11434` with the `qwen2.5-coder:7b` model pulled.
+Requires LM Studio running with a model loaded on `localhost:1234` (default LM Studio port). No per-project `.mcp.json` needed.
 
 ### Memory System
 
