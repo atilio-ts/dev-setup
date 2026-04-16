@@ -1479,10 +1479,12 @@ In projects without a `graphify-out/graph.json`, the server exits cleanly and sh
 
 houtini-lm is a **global** MCP — registered once for all projects. It connects Claude Code to the local LLM running in LM Studio on `localhost:1234`.
 
-Register globally (one time):
+Install the binary globally first, then register with the direct path (more reliable than `npx -y`):
 
 ```bash
-claude mcp add --scope user houtini-lm -- npx -y @houtini/lm
+npm install -g @houtini/lm
+HOUTINI_BIN="$(npm prefix -g)/bin/houtini-lm"
+claude mcp add --scope user houtini-lm -- "$HOUTINI_BIN"
 ```
 
 Requires LM Studio running with a model loaded on `localhost:1234` (default LM Studio port). No per-project `.mcp.json` needed.
