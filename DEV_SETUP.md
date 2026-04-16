@@ -1407,22 +1407,94 @@ done
 
 **cachebro** (https://github.com/glommer/cachebro) is a Claude Code MCP tool that caches file reads by content hash. On repeated reads it returns "unchanged" or a compact diff instead of the full file, saving significant tokens.
 
-It is pre-authorized in `settings.json` (`mcp__cachebro__read_file`, `mcp__cachebro__read_files`). The MCP server config lives in `~/.claude.json` (not `settings.json`) — it is added automatically by the init command.
+It is pre-authorized in `settings.json` (`mcp__cachebro__read_file`, `mcp__cachebro__read_files`). The MCP server config lives in `~/.claude.json` (not `settings.json`).
+
+Install globally (do **not** use `npx cachebro init` — it configures the server with `npx` which is unreliable when the npx cache expires):
 
 ```bash
-npx cachebro init
+npm install -g cachebro
 ```
 
-Then restart Claude Code. The `mcpServers` block it adds to `~/.claude.json`:
+Get the binary path and add it to `~/.claude.json` manually:
+
+```bash
+# Get the path — will be something like:
+# /Users/<username>/.local/share/fnm/node-versions/<version>/installation/bin/cachebro
+echo "$(npm prefix -g)/bin/cachebro"
+```
+
+The `mcpServers` block in `~/.claude.json`:
 
 ```json
 "mcpServers": {
   "cachebro": {
-    "command": "npx",
-    "args": ["cachebro", "serve"]
+    "command": "/Users/<username>/.local/share/fnm/node-versions/<version>/installation/bin/cachebro",
+    "args": ["serve"]
   }
 }
 ```
+
+Replace `<username>` and `<version>` with the output of the command above. Restart Claude Code after editing.
+
+> **Known limitation:** cachebro uses Turso (embedded SQLite fork) which holds an exclusive file lock for the lifetime of the process. Only one Claude Code session at a time can connect to cachebro — a second session will show `✘ failed`. This is a Turso bug tracked in [tursodatabase/turso#5649](https://github.com/tursodatabase/turso/pull/5649).
+
+### MCP Server — graphify (global)
+
+graphify is configured as a **global** MCP server in `~/.claude.json` so it works across all projects without per-project `.mcp.json` entries. It uses a wrapper script that resolves the graph path dynamically from `$PWD` at startup.
+
+**Step 1** — create the wrapper script at `~/.claude/scripts/graphify-start.sh`:
+
+```bash
+#!/bin/bash
+GRAPH_FILE="${PWD}/graphify-out/graph.json"
+
+if [ ! -f "$GRAPH_FILE" ]; then
+  echo "graphify: no graph found at $GRAPH_FILE" >&2
+  exit 1
+fi
+
+exec /Users/<username>/.local/pipx/venvs/graphifyy/bin/python -m graphify.serve "$GRAPH_FILE"
+```
+
+```bash
+chmod +x ~/.claude/scripts/graphify-start.sh
+```
+
+Replace `<username>` with the actual username.
+
+**Step 2** — add to `~/.claude.json`:
+
+```json
+"mcpServers": {
+  "graphify": {
+    "command": "bash",
+    "args": ["/Users/<username>/.claude/scripts/graphify-start.sh"]
+  }
+}
+```
+
+In projects without a `graphify-out/graph.json`, the server exits cleanly and shows `✘ failed` in the MCP list — this is expected and harmless.
+
+### MCP Server — houtini-lm (project-scoped)
+
+houtini-lm is a project-scoped MCP — it is **not** global. Each project that needs it must have a `.mcp.json` at the project root:
+
+```json
+{
+  "mcpServers": {
+    "houtini-lm": {
+      "command": "npx",
+      "args": ["-y", "@houtini/lm"],
+      "env": {
+        "LM_STUDIO_URL": "http://localhost:11434",
+        "LM_STUDIO_MODEL": "qwen2.5-coder:7b"
+      }
+    }
+  }
+}
+```
+
+Requires a running Ollama instance at `localhost:11434` with the `qwen2.5-coder:7b` model pulled.
 
 ### Memory System
 
