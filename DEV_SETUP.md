@@ -1,6 +1,6 @@
 # Developer Setup — Atilio Villalba
 
-> Last updated: 2026-04-14
+> Last updated: 2026-04-16
 > Goal: replicate this exact environment on a new macOS (Apple Silicon) machine from scratch.
 
 ---
@@ -1229,8 +1229,9 @@ See `claude/settings.json` in this repo — copy it verbatim to `~/.claude/setti
 
 Key blocks it contains:
 - `statusLine` — wires the custom statusline script
-- `permissions.allow` — pre-approves read-only tools and safe git/bash commands (includes `Bash(curl *)`)
+- `permissions.allow` — pre-approves read-only tools, cachebro and graphify MCP tools, and safe git/bash commands
 - `permissions.deny` — blocks all destructive commands at the permission layer
+- `enableAllProjectMcpServers` — auto-enables any `.mcp.json` found in a project root without per-project config
 - `hooks.PreToolUse` — Bash safety hook, WebSearch approval prompt, strategic-compact suggestion on Edit/Write
 - `hooks.PreCompact`, `SessionStart`, `SessionEnd` — everything-claude-code plugin lifecycle hooks
 - `enabledPlugins` + `extraKnownMarketplaces` — fullstack-dev-skills and everything-claude-code marketplace plugins
@@ -1325,10 +1326,11 @@ Lives in `~/.agents/skills/`, symlinked into `~/.claude/skills/`. Skills:
 `~/Projects/Personal/claude-skills/` and symlinked into `~/.claude/skills/`:
 
 - `commit-message` — generates conventional commit messages reading git diff and project history
+- `custom-init` — bootstraps a new project with cachebro + graphify + houtini-lm (verifies global MCPs, builds knowledge graph, generates `.vscode/CLAUDE.md`)
 - `estimate` — technical analysis and effort estimation (Spanish/English), auto-selects decomposition strategy
-- `user-story` — writes user stories and Jira tasks
 - `sync-configuration` — syncs dev-setup and claude-skills repos with the live machine state
 - `update-skills` — updates all installed skills and plugins (vercel-labs, caveman, Claude plugins)
+- `user-story` — writes user stories and Jira tasks
 
 #### Reinstall skills on new machine
 
@@ -1396,7 +1398,7 @@ ln -sf ../../.agents/skills/caveman-compress ~/.claude/skills/caveman-compress
 
 # 5. Personal skills (clone repo and create symlinks)
 git clone https://github.com/atilio-ts/claude-skills ~/Projects/Personal/claude-skills
-for skill in commit-message estimate user-story sync-configuration update-skills; do
+for skill in commit-message custom-init estimate user-story sync-configuration update-skills; do
   ln -sf ~/Projects/Personal/claude-skills/$skill ~/.claude/skills/$skill
 done
 ```
@@ -1543,6 +1545,8 @@ These feedback memories apply broadly and should be seeded manually or will rebu
 
 - **No AI attribution** — never include Co-Authored-By, Claude, AI, LLM in any output
 - **cachebro first** — always use cachebro `read_file` MCP tool instead of built-in Read tool for file reads (saves tokens via hash-based caching)
+- **houtini without permission** — use `mcp__houtini-lm__*` tools freely without asking the user first
+- **graphify before search** — when `graphify-out/graph.json` exists, use `mcp__graphify__*` tools to navigate the codebase instead of blind Glob/Grep searches
 - **Concise responses** — lead with action, no preamble, no trailing summary of what was just done
 - **No unsolicited docs** — never create README or documentation files unless explicitly asked
 
