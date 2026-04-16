@@ -106,3 +106,10 @@ BREAKING CHANGE: /api/v1/presentments removed, use /api/v2
 # graphify
 - **graphify** (`~/.claude/skills/graphify/SKILL.md`) - any input to knowledge graph. Trigger: `/graphify`
 When the user types `/graphify`, invoke the Skill tool with `skill: "graphify"` before doing anything else.
+- If `graphify-out/graph.json` exists in the current project, use it to navigate the codebase — query it instead of doing blind file searches. Never rebuild the graph unless the user explicitly asks.
+
+## cachebro
+
+- At the start of every session, check cachebro status with `mcp__cachebro__cache_status`.
+- Always use `mcp__cachebro__read_file` or `mcp__cachebro__read_files` instead of the built-in Read tool when reading project files. This saves tokens across sessions via caching.
+- Never use the built-in Read tool for project files when cachebro is available.
