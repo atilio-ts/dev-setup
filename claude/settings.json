@@ -1,6 +1,9 @@
 {
+  "cleanupPeriodDays": 99999,
   "env": {
-    "NO_UPDATE_NOTIFIER": "1"
+    "NO_UPDATE_NOTIFIER": "1",
+    "CLAUDE_CODE_MAX_THINKING_TOKENS": "10000",
+    "MAX_MCP_OUTPUT_TOKENS": "8192"
   },
   "permissions": {
     "allow": [
@@ -15,13 +18,6 @@
       "mcp__houtini-lm__discover",
       "mcp__houtini-lm__embed",
       "mcp__houtini-lm__list_models",
-      "mcp__graphify__query_graph",
-      "mcp__graphify__get_node",
-      "mcp__graphify__get_neighbors",
-      "mcp__graphify__get_community",
-      "mcp__graphify__god_nodes",
-      "mcp__graphify__graph_stats",
-      "mcp__graphify__shortest_path",
       "Read",
       "Glob",
       "Grep",
@@ -47,6 +43,11 @@
       "Bash(curl *)"
     ],
     "deny": [
+      "Read($HOME/.ssh/**)",
+      "Read($HOME/.aws/**)",
+      "Read(**/.env)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
       "Bash(git reset --hard*)",
       "Bash(git push --force*)",
       "Bash(git push -f *)",
@@ -102,6 +103,7 @@
       "Bash(truncate *)"
     ]
   },
+  "enableAllProjectMcpServers": true,
   "hooks": {
     "PreCompact": [
       {
@@ -120,7 +122,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/atilio/.claude/hooks/pre-bash.sh",
+            "command": "bash $HOME/.claude/hooks/pre-bash.sh",
             "timeout": 5
           }
         ]
@@ -130,7 +132,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/atilio/.claude/hooks/pre-websearch.sh",
+            "command": "bash $HOME/.claude/hooks/pre-websearch.sh",
             "timeout": 10
           }
         ]
@@ -140,7 +142,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/atilio/.claude/skills/strategic-compact/suggest-compact.sh"
+            "command": "bash $HOME/.claude/plugins/marketplaces/everything-claude-code/skills/strategic-compact/suggest-compact.sh"
           }
         ]
       },
@@ -149,7 +151,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/atilio/.claude/skills/strategic-compact/suggest-compact.sh"
+            "command": "bash $HOME/.claude/plugins/marketplaces/everything-claude-code/skills/strategic-compact/suggest-compact.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rtk hook claude",
+            "timeout": 5
           }
         ]
       }
@@ -173,7 +185,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -lc 'input=$(cat); for root in \"${CLAUDE_PLUGIN_ROOT:-}\" \"$HOME/.claude/plugins/everything-claude-code\" \"$HOME/.claude/plugins/everything-claude-code@everything-claude-code\" \"$HOME/.claude/plugins/marketplace/everything-claude-code\"; do if [ -n \"$root\" ] && [ -f \"$root/scripts/hooks/run-with-flags.js\" ]; then printf \"%s\" \"$input\" | node \"$root/scripts/hooks/run-with-flags.js\" \"session:start\" \"scripts/hooks/session-start.js\" \"minimal,standard,strict\"; exit $?; fi; done; for parent in \"$HOME/.claude/plugins\" \"$HOME/.claude/plugins/marketplace\"; do if [ -d \"$parent\" ]; then candidate=$(find \"$parent\" -maxdepth 2 -type f -path \"*/scripts/hooks/run-with-flags.js\" 2>/dev/null | head -n 1); if [ -n \"$candidate\" ]; then root=$(dirname \"$(dirname \"$(dirname \"$candidate\")\")\"); printf \"%s\" \"$input\" | node \"$root/scripts/hooks/run-with-flags.js\" \"session:start\" \"scripts/hooks/session-start.js\" \"minimal,standard,strict\"; exit $?; fi; fi; done; echo \"[SessionStart] WARNING: could not resolve ECC plugin root; skipping session-start hook\" >&2; printf \"%s\" \"$input\"; exit 0'"
+            "command": "bash -lc 'input=$(cat); for root in \"${CLAUDE_PLUGIN_ROOT:-}\" \"$HOME/.claude/plugins/everything-claude-code\" \"$HOME/.claude/plugins/everything-claude-code@everything-claude-code\" \"$HOME/.claude/plugins/marketplace/everything-claude-code\"; do if [ -n \"$root\" ] \u0026\u0026 [ -f \"$root/scripts/hooks/run-with-flags.js\" ]; then printf \"%s\" \"$input\" | node \"$root/scripts/hooks/run-with-flags.js\" \"session:start\" \"scripts/hooks/session-start.js\" \"minimal,standard,strict\"; exit $?; fi; done; for parent in \"$HOME/.claude/plugins\" \"$HOME/.claude/plugins/marketplace\"; do if [ -d \"$parent\" ]; then candidate=$(find \"$parent\" -maxdepth 2 -type f -path \"*/scripts/hooks/run-with-flags.js\" 2\u003e/dev/null | head -n 1); if [ -n \"$candidate\" ]; then root=$(dirname \"$(dirname \"$(dirname \"$candidate\")\")\"); printf \"%s\" \"$input\" | node \"$root/scripts/hooks/run-with-flags.js\" \"session:start\" \"scripts/hooks/session-start.js\" \"minimal,standard,strict\"; exit $?; fi; fi; done; echo \"[SessionStart] WARNING: could not resolve ECC plugin root; skipping session-start hook\" \u003e\u00262; printf \"%s\" \"$input\"; exit 0'",
+            "timeout": 15
           }
         ]
       }
@@ -181,12 +194,14 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "bash /Users/atilio/.claude/statusline-command.sh"
+    "command": "bash $HOME/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
     "everything-claude-code@everything-claude-code": true,
     "fullstack-dev-skills@fullstack-dev-skills": true,
-    "coderabbit@claude-plugins-official": true
+    "coderabbit@claude-plugins-official": true,
+    "context-mode@context-mode": true,
+    "token-optimizer@alexgreensh-token-optimizer": true
   },
   "extraKnownMarketplaces": {
     "everything-claude-code": {
@@ -200,9 +215,20 @@
         "source": "github",
         "repo": "jeffallan/claude-skills"
       }
+    },
+    "context-mode": {
+      "source": {
+        "source": "github",
+        "repo": "mksglu/context-mode"
+      }
+    },
+    "alexgreensh-token-optimizer": {
+      "source": {
+        "source": "github",
+        "repo": "alexgreensh/token-optimizer"
+      }
     }
   },
   "spinnerTipsEnabled": false,
-  "autoUpdatesChannel": "stable",
-  "enableAllProjectMcpServers": true
+  "autoUpdatesChannel": "stable"
 }

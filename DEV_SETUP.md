@@ -1216,6 +1216,14 @@ Create `~/.claude/CLAUDE.md` on the new machine with the following rules (the `.
 
 See `claude/CLAUDE.md` in this repo — copy it verbatim to `~/.claude/CLAUDE.md` on the new machine.
 
+### RTK (Rust Token Killer) — `~/.claude/RTK.md`
+
+RTK is a token-optimized CLI proxy that provides 60-90% savings on dev operations. See `claude/RTK.md` in this repo for usage instructions.
+
+### houtini-lm (local LLM) — `~/.claude/houtini-ref.md`
+
+Houtini connects Claude to a local LLM server (LM Studio) for offloading bounded tasks. See `claude/houtini-ref.md` in this repo for usage instructions.
+
 Key rules it enforces:
 - Never mention AI tools in any output (code, commits, docs, PRs)
 - Never run destructive commands without explicit confirmation (full blocked list inside)
@@ -1253,7 +1261,7 @@ Copy `~/.claude/statusline-command.sh` to the new machine verbatim.
 
 ### Hooks
 
-Two `PreToolUse` hooks are active:
+Three `PreToolUse` hooks are active:
 
 #### `~/.claude/hooks/pre-bash.sh`
 
@@ -1275,7 +1283,35 @@ Returns exit code `2` to block, `0` to allow.
 
 Intercepts `WebSearch` tool calls and surfaces an approval prompt showing the query before consuming tokens.
 
-Copy both files to `~/.claude/hooks/` on the new machine.
+#### `~/.claude/hooks/hooks.json`
+
+Hook configuration file that defines hook metadata and execution rules.
+
+Copy all hook files to `~/.claude/hooks/` on the new machine.
+
+### Rules — `~/.claude/rules/common/`
+
+Common rule files for consistent development practices:
+
+| File | Purpose |
+|------|---------|
+| `agents.md` | Agent orchestration guidelines |
+| `coding-style.md` | Immutability, file organization, error handling |
+| `development-workflow.md` | Feature implementation workflow |
+| `git-workflow.md` | Commit message format, PR workflow |
+| `hooks.md` | Hooks system usage |
+| `patterns.md` | Common design patterns |
+| `performance.md` | Model selection, context window management |
+| `security.md` | Security guidelines and checks |
+| `testing.md` | Testing requirements and TDD |
+
+Copy all files from `claude/rules/common/` in this repo to `~/.claude/rules/common/` on the new machine.
+
+### Agents — `~/.claude/agents/`
+
+Agent definitions for specialized tasks (planner, architect, code-reviewer, security-reviewer, etc.).
+
+Copy all `.md` files from `claude/agents/` in this repo to `~/.claude/agents/` on the new machine.
 
 ### Skills / Plugins
 

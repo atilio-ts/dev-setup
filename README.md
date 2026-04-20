@@ -25,9 +25,16 @@ See [DEV_SETUP.md](DEV_SETUP.md) for the full setup guide.
 │   ├── CLAUDE.md             # ~/.claude/CLAUDE.md
 │   ├── settings.json         # ~/.claude/settings.json
 │   ├── statusline-command.sh # ~/.claude/statusline-command.sh
+│   ├── RTK.md                # ~/.claude/RTK.md (Rust Token Killer docs)
+│   ├── houtini-ref.md        # ~/.claude/houtini-ref.md (local LLM usage)
 │   ├── hooks/
 │   │   ├── pre-bash.sh       # ~/.claude/hooks/pre-bash.sh
-│   │   └── pre-websearch.sh  # ~/.claude/hooks/pre-websearch.sh
+│   │   ├── pre-websearch.sh  # ~/.claude/hooks/pre-websearch.sh
+│   │   ├── hooks.json        # ~/.claude/hooks/hooks.json
+│   │   └── README.md         # Hook documentation
+│   ├── rules/
+│   │   └── common/           # Common rule files
+│   ├── agents/               # Agent definitions
 │   └── memory/
 │       ├── MEMORY.md         # User profile memory index
 │       └── user_profile.md   # Who Atilio is — seeded into Claude on new machines
