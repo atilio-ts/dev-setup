@@ -4,8 +4,17 @@
   },
   "permissions": {
     "allow": [
-      "mcp__cachebro__read_file",
-      "mcp__cachebro__read_files",
+      "mcp__filestash__stash_clear",
+      "mcp__filestash__stash_status",
+      "mcp__filestash__read_file",
+      "mcp__filestash__read_files",
+      "mcp__houtini-lm__chat",
+      "mcp__houtini-lm__code_task",
+      "mcp__houtini-lm__code_task_files",
+      "mcp__houtini-lm__custom_prompt",
+      "mcp__houtini-lm__discover",
+      "mcp__houtini-lm__embed",
+      "mcp__houtini-lm__list_models",
       "mcp__graphify__query_graph",
       "mcp__graphify__get_node",
       "mcp__graphify__get_neighbors",
@@ -193,6 +202,7 @@
       }
     }
   },
+  "spinnerTipsEnabled": false,
   "autoUpdatesChannel": "stable",
   "enableAllProjectMcpServers": true
 }

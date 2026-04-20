@@ -284,36 +284,36 @@ else
 fi
 ok "graphify MCP wrapper configured"
 
-# ─── cachebro MCP ─────────────────────────────────────────────────────────────
-step "cachebro MCP"
-npm install -g cachebro 2>/dev/null || true
-CACHEBRO_BIN="$(npm prefix -g)/bin/cachebro"
+# ─── file-stash MCP ───────────────────────────────────────────────────────────
+step "file-stash MCP"
+npm install -g file-stash 2>/dev/null || true
+FILESTASH_BIN="$(npm prefix -g)/bin/file-stash"
 
-if [ -f "$CACHEBRO_BIN" ]; then
+if [ -f "$FILESTASH_BIN" ]; then
   if [ -f "$HOME/.claude.json" ]; then
-    if ! grep -q '"cachebro"' "$HOME/.claude.json"; then
+    if ! grep -q '"filestash"' "$HOME/.claude.json"; then
       python3 - <<PYEOF
 import json
 path = "$HOME/.claude.json"
 with open(path) as f:
     data = json.load(f)
-data.setdefault("mcpServers", {})["cachebro"] = {
-    "command": "$CACHEBRO_BIN",
+data.setdefault("mcpServers", {})["filestash"] = {
+    "command": "$FILESTASH_BIN",
     "args": ["serve"]
 }
 with open(path, "w") as f:
     json.dump(data, f, indent=2)
-print("cachebro added to ~/.claude.json")
+print("filestash added to ~/.claude.json")
 PYEOF
     else
-      ok "cachebro already in ~/.claude.json"
+      ok "filestash already in ~/.claude.json"
     fi
   else
-    warn "~/.claude.json not found — add cachebro MCP manually (see DEV_SETUP.md)"
+    warn "~/.claude.json not found — add file-stash MCP manually (see DEV_SETUP.md)"
   fi
-  ok "cachebro configured at $CACHEBRO_BIN — restart Claude Code to activate"
+  ok "file-stash configured at $FILESTASH_BIN — restart Claude Code to activate"
 else
-  warn "cachebro binary not found after install — add MCP config manually (see DEV_SETUP.md)"
+  warn "file-stash binary not found after install — add MCP config manually (see DEV_SETUP.md)"
 fi
 
 # ─── claude-code-stats ───────────────────────────────────────────────────────
