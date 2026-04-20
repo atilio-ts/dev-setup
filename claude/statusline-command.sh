@@ -46,6 +46,22 @@ else
   cost_str="-"
 fi
 
+# Tokens
+input_tokens=$(echo "$input" | jq -r '.context_window.total_input_tokens // 0')
+output_tokens=$(echo "$input" | jq -r '.context_window.total_output_tokens // 0')
+total_tokens=$(( input_tokens + output_tokens ))
+if [ "$total_tokens" -gt 0 ]; then
+  if [ "$total_tokens" -ge 1000000 ]; then
+    tokens_str="$(echo "scale=1; $total_tokens / 1000000" | bc)M"
+  elif [ "$total_tokens" -ge 1000 ]; then
+    tokens_str="$(echo "scale=1; $total_tokens / 1000" | bc)k"
+  else
+    tokens_str="${total_tokens}"
+  fi
+else
+  tokens_str="-"
+fi
+
 # Duration
 total_ms=$(echo "$input" | jq -r '.cost.total_duration_ms // empty')
 if [ -n "$total_ms" ]; then
@@ -78,19 +94,21 @@ if [ -n "$used" ]; then
   for i in $(seq 1 $bar_filled); do bar="${bar}#"; done
   for i in $(seq 1 $bar_empty); do bar="${bar}."; done
   bar="${bar}]"
-  printf "◆ %s%s● ctx: %s %d%%%s✦ reset: %s%s%s$ cost: %s%s⚡ session: %s%s~ lines: %s" \
+  printf "◆ %s%s● ctx: %s %d%%%s✦ reset: %s%s%s$ cost: %s%s⬡ tokens: %s%s⚡ session: %s%s~ lines: %s" \
     "$model" "$sep" \
     "$bar" "$used_int" "$sep" \
     "$next_reset_str" "$reset_warn" "$sep" \
     "$cost_str" "$sep" \
+    "$tokens_str" "$sep" \
     "$duration_str" "$sep" \
     "$lines_str"
 else
-  printf "◆ %s%s● ctx: [....................] --%s%s✦ reset: %s%s%s$ cost: %s%s⚡ session: %s%s~ lines: %s" \
+  printf "◆ %s%s● ctx: [....................] --%s%s✦ reset: %s%s%s$ cost: %s%s⬡ tokens: %s%s⚡ session: %s%s~ lines: %s" \
     "$model" "$sep" \
     "%" "$sep" \
     "$next_reset_str" "$reset_warn" "$sep" \
     "$cost_str" "$sep" \
+    "$tokens_str" "$sep" \
     "$duration_str" "$sep" \
     "$lines_str"
 fi

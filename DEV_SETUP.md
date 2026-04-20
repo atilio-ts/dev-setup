@@ -1229,7 +1229,7 @@ See `claude/settings.json` in this repo — copy it verbatim to `~/.claude/setti
 
 Key blocks it contains:
 - `statusLine` — wires the custom statusline script
-- `permissions.allow` — pre-approves read-only tools, cachebro and graphify MCP tools, and safe git/bash commands
+- `permissions.allow` — pre-approves read-only tools, file-stash, houtini-lm, and graphify MCP tools, and safe git/bash commands
 - `permissions.deny` — blocks all destructive commands at the permission layer
 - `enableAllProjectMcpServers` — auto-enables any `.mcp.json` found in a project root without per-project config
 - `hooks.PreToolUse` — Bash safety hook, WebSearch approval prompt, strategic-compact suggestion on Edit/Write
@@ -1326,7 +1326,7 @@ Lives in `~/.agents/skills/`, symlinked into `~/.claude/skills/`. Skills:
 `~/Projects/Personal/claude-skills/` and symlinked into `~/.claude/skills/`:
 
 - `commit-message` — generates conventional commit messages reading git diff and project history
-- `custom-init` — bootstraps a new project with cachebro + graphify + houtini-lm (verifies global MCPs, builds knowledge graph, generates `.vscode/CLAUDE.md`)
+- `custom-init` — bootstraps a new project with file-stash + graphify + houtini-lm (verifies global MCPs, builds knowledge graph, generates `.vscode/CLAUDE.md`)
 - `estimate` — technical analysis and effort estimation (Spanish/English), auto-selects decomposition strategy
 - `sync-configuration` — syncs dev-setup and claude-skills repos with the live machine state
 - `update-skills` — updates all installed skills and plugins (vercel-labs, caveman, Claude plugins)
@@ -1405,40 +1405,38 @@ done
 
 > The marketplace and enabledPlugins entries are already in `settings.json` — they will be applied when the file is copied.
 
-### MCP Server — cachebro
+### MCP Server — file-stash
 
-**cachebro** (https://github.com/glommer/cachebro) is a Claude Code MCP tool that caches file reads by content hash. On repeated reads it returns "unchanged" or a compact diff instead of the full file, saving significant tokens.
+**file-stash** is a Claude Code MCP tool that caches file reads by content hash. On repeated reads it returns cached content instead of re-reading from disk, saving significant tokens across sessions.
 
-It is pre-authorized in `settings.json` (`mcp__cachebro__read_file`, `mcp__cachebro__read_files`). The MCP server config lives in `~/.claude.json` (not `settings.json`).
+It is pre-authorized in `settings.json` (`mcp__filestash__read_file`, `mcp__filestash__read_files`, `mcp__filestash__stash_status`, `mcp__filestash__stash_clear`). The MCP server config lives in `~/.claude.json` (not `settings.json`).
 
-Install globally (do **not** use `npx cachebro init` — it configures the server with `npx` which is unreliable when the npx cache expires):
+Install globally:
 
 ```bash
-npm install -g cachebro
+npm install -g file-stash
 ```
 
 Get the binary path and add it to `~/.claude.json` manually:
 
 ```bash
 # Get the path — will be something like:
-# /Users/<username>/.local/share/fnm/node-versions/<version>/installation/bin/cachebro
-echo "$(npm prefix -g)/bin/cachebro"
+# /Users/<username>/.local/share/fnm/node-versions/<version>/installation/bin/file-stash
+echo "$(npm prefix -g)/bin/file-stash"
 ```
 
 The `mcpServers` block in `~/.claude.json`:
 
 ```json
 "mcpServers": {
-  "cachebro": {
-    "command": "/Users/<username>/.local/share/fnm/node-versions/<version>/installation/bin/cachebro",
+  "filestash": {
+    "command": "/Users/<username>/.local/share/fnm/node-versions/<version>/installation/bin/file-stash",
     "args": ["serve"]
   }
 }
 ```
 
 Replace `<username>` and `<version>` with the output of the command above. Restart Claude Code after editing.
-
-> **Known limitation:** cachebro uses Turso (embedded SQLite fork) which holds an exclusive file lock for the lifetime of the process. Only one Claude Code session at a time can connect to cachebro — a second session will show `✘ failed`. This is a Turso bug tracked in [tursodatabase/turso#5649](https://github.com/tursodatabase/turso/pull/5649).
 
 ### MCP Server — graphify (global)
 
@@ -1550,7 +1548,7 @@ CloudWatch), Docker, Kafka, RabbitMQ, Clean/Hexagonal Architecture, Microservice
 These feedback memories apply broadly and should be seeded manually or will rebuild naturally over time:
 
 - **No AI attribution** — never include Co-Authored-By, Claude, AI, LLM in any output
-- **cachebro first** — always use cachebro `read_file` MCP tool instead of built-in Read tool for file reads (saves tokens via hash-based caching)
+- **file-stash first** — always use file-stash `read_file` MCP tool instead of built-in Read tool for file reads (saves tokens via hash-based caching)
 - **houtini without permission** — use `mcp__houtini-lm__*` tools freely without asking the user first
 - **graphify before search** — when `graphify-out/graph.json` exists, use `mcp__graphify__*` tools to navigate the codebase instead of blind Glob/Grep searches
 - **Concise responses** — lead with action, no preamble, no trailing summary of what was just done
@@ -1717,9 +1715,9 @@ This keeps the dashboard up to date in the background. Open `public/index.html` 
 [ ] Create ~/.claude/CLAUDE.md (see section 14)
 [ ] Copy ~/.claude/settings.json
 [ ] Copy ~/.claude/statusline-command.sh
-[ ] Create ~/.claude/hooks/ and copy pre-bash.sh + pre-websearch.sh
+[ ] Create ~/.claude/hooks/ and copy pre-bash.sh, pre-websearch.sh + hooks.json
 [ ] Install Claude Code skills: gstack + fullstack-dev-skills + vercel-labs/agent-skills + everything-claude-code (see section 14)
-[ ] Install and configure cachebro MCP server (see section 14)
+[ ] Install and configure file-stash MCP server (see section 14)
 [ ] Install LM Studio + download at least one model + install houtini-lm MCP (see section 14)
 [ ] Seed user profile memory files under ~/.claude/projects/.../memory/
 [ ] Apply macOS system preferences (see section 14 — Appearance, Trackpad, Keyboard, Finder, Dock, Mission Control, Accessibility, Energy)

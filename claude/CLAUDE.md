@@ -103,13 +103,77 @@ BREAKING CHANGE: /api/v1/presentments removed, use /api/v2
 - Only comment when logic is truly non-obvious
 - Never add comments like "// Step 1:", "// Step 2:", or "// This method does X"
 - No comments that could suggest AI-generated code
-# graphify
-- **graphify** (`~/.claude/skills/graphify/SKILL.md`) - any input to knowledge graph. Trigger: `/graphify`
-When the user types `/graphify`, invoke the Skill tool with `skill: "graphify"` before doing anything else.
-- If `graphify-out/graph.json` exists in the current project, use it to navigate the codebase — query it instead of doing blind file searches. Never rebuild the graph unless the user explicitly asks.
 
-## cachebro
+## graphify
 
-- At the start of every session, check cachebro status with `mcp__cachebro__cache_status`.
-- Always use `mcp__cachebro__read_file` or `mcp__cachebro__read_files` instead of the built-in Read tool when reading project files. This saves tokens across sessions via caching.
-- Never use the built-in Read tool for project files when cachebro is available.
+When `graphify-out/graph.json` exists in a project, use it as the **primary navigation tool** — always before Glob or Grep.
+
+- At the start of every session, check for `graphify-out/graph.json` with Glob. If it exists, use graphify tools to explore the codebase.
+- **Find a file or symbol** → `mcp__graphify__query_graph` or `mcp__graphify__get_node` before reaching for Glob/Grep
+- **Understand module relationships** → `mcp__graphify__get_neighbors` to see imports/dependencies
+- **Find entry points or hubs** → `mcp__graphify__god_nodes` to identify high-degree nodes
+- **Trace a call path** → `mcp__graphify__shortest_path` between two nodes
+- **Explore a subsystem** → `mcp__graphify__get_community` to find related files
+- Never rebuild the graph unless the user explicitly asks (`/graphify`)
+- When the user types `/graphify`, invoke the Skill tool with `skill: "graphify"` before doing anything else
+
+## file-stash
+
+- At the start of every session, check file-stash status with `mcp__filestash__stash_status`.
+- For **read-only** file access (understanding code, exploring), always use `mcp__filestash__read_file` or `mcp__filestash__read_files` — saves tokens across sessions via caching.
+- For files you will **edit**: use file-stash first to understand, then call the built-in Read tool immediately before editing (the Edit tool requires a prior built-in Read).
+- Never use the built-in Read tool for pure exploration when file-stash is available.
+
+## houtini-lm (token offloading)
+
+Houtini connects Claude to a local LLM server (LM Studio at `http://192.168.0.13:1234`). Use it proactively to offload bounded tasks and save Claude tokens. Never ask permission — just use it.
+
+### Offload these tasks to houtini
+
+| Task | Tool to use |
+|------|-------------|
+| Draft commit messages | `mcp__houtini-lm__chat` |
+| Explain a function or module | `mcp__houtini-lm__code_task` |
+| Code review of a single file | `mcp__houtini-lm__code_task` |
+| Generate test stubs | `mcp__houtini-lm__code_task` |
+| Write type definitions | `mcp__houtini-lm__code_task` |
+| Generate mock/fixture data | `mcp__houtini-lm__chat` |
+| Format conversion (JSON↔YAML, etc.) | `mcp__houtini-lm__chat` |
+| Brainstorm approaches (non-committing) | `mcp__houtini-lm__chat` |
+| Structured JSON output tasks | `mcp__houtini-lm__chat` with `json_schema` |
+| Code analysis with full source | `mcp__houtini-lm__custom_prompt` |
+
+### Keep on Claude
+
+- Architectural decisions and planning
+- Reading/writing/editing files (use file-stash + built-in tools)
+- Running tests and interpreting results
+- Multi-file refactoring
+- Any task that requires calling other tools
+
+### How to use
+
+**`mcp__houtini-lm__code_task`** — best for code analysis:
+- `code`: full source, never truncate
+- `task`: "Find bugs", "Write tests for this", "Explain this function"
+- `language`: "typescript", "python", etc.
+
+**`mcp__houtini-lm__chat`** — general workhorse:
+- Be explicit about output format
+- Set `temperature: 0.1` for code, `0.3` for analysis, `0.7` for creative
+- Use `json_schema` to force structured output
+
+**`mcp__houtini-lm__custom_prompt`** — best for code review and analysis with context:
+- `system`: short persona ("Senior TypeScript developer")
+- `context`: full data to analyse
+- `instruction`: what to produce, under 50 words
+
+### Limits & concurrency
+
+- **Max context per request: 4096 tokens** — never send more; truncate or summarise input if needed
+- **One request at a time** — never fire parallel houtini calls; the local machine cannot handle concurrent LLM inference. Queue them sequentially
+- Send complete code within the 4096-token budget — never truncate with `...`
+- State output format explicitly ("Return a JSON array", "Bullet points only")
+- Include imports and types as surrounding context for code generation
+- Use `mcp__houtini-lm__discover` if unsure the server is available
+- Use `mcp__houtini-lm__list_models` to see what models are loaded and their capabilities
