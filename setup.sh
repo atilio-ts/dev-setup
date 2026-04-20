@@ -109,17 +109,21 @@ fi
 
 # ─── Claude Code ─────────────────────────────────────────────────────────────
 step "Claude Code"
-mkdir -p "$HOME/.claude/hooks" "$HOME/.claude/agents" "$HOME/.claude/rules"
+mkdir -p "$HOME/.claude/hooks" "$HOME/.claude/agents" "$HOME/.claude/rules/common"
 cp "$REPO/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
 cp "$REPO/claude/settings.json" "$HOME/.claude/settings.json"
 cp "$REPO/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh"
+cp "$REPO/claude/RTK.md" "$HOME/.claude/RTK.md"
+cp "$REPO/claude/houtini-ref.md" "$HOME/.claude/houtini-ref.md"
 cp "$REPO/claude/hooks/pre-bash.sh" "$HOME/.claude/hooks/pre-bash.sh"
 cp "$REPO/claude/hooks/pre-websearch.sh" "$HOME/.claude/hooks/pre-websearch.sh"
+cp "$REPO/claude/hooks/hooks.json" "$HOME/.claude/hooks/hooks.json"
+cp "$REPO/claude/hooks/README.md" "$HOME/.claude/hooks/README.md"
 chmod +x "$HOME/.claude/statusline-command.sh" "$HOME/.claude/hooks/"*.sh
 cp "$REPO/claude/agents/"*.md "$HOME/.claude/agents/"
-cp -r "$REPO/claude/rules/." "$HOME/.claude/rules/"
+cp -r "$REPO/claude/rules/common/"*.md "$HOME/.claude/rules/common/"
 ok "Claude Code config, hooks, agents, and rules copied"
-warn "Update username paths in ~/.claude/settings.json"
+warn "Update name/email in ~/.gitconfig and username paths in ~/.claude/settings.json"
 
 # Seed user profile memory
 MEMORY_DIR="$HOME/.claude/projects/-Users-$(whoami)-Projects/memory"
