@@ -88,22 +88,16 @@ fi
 
 if [ -n "$used" ]; then
   used_int=$(printf "%.0f" "$used")
-  bar_filled=$(( used_int / 5 ))
-  bar_empty=$(( 20 - bar_filled ))
-  bar="["
-  for i in $(seq 1 $bar_filled); do bar="${bar}#"; done
-  for i in $(seq 1 $bar_empty); do bar="${bar}."; done
-  bar="${bar}]"
-  printf "◆ %s%s● ctx: %s %d%%%s✦ reset: %s%s%s$ cost: %s%s⬡ tokens: %s%s⚡ session: %s%s~ lines: %s" \
+  printf "◆ %s%s● ctx: %d%%%s✦ reset: %s%s%s$ cost: %s%s⬡ tokens: %s%s⚡ session: %s%s~ lines: %s" \
     "$model" "$sep" \
-    "$bar" "$used_int" "$sep" \
+    "$used_int" "$sep" \
     "$next_reset_str" "$reset_warn" "$sep" \
     "$cost_str" "$sep" \
     "$tokens_str" "$sep" \
     "$duration_str" "$sep" \
     "$lines_str"
 else
-  printf "◆ %s%s● ctx: [....................] --%s%s✦ reset: %s%s%s$ cost: %s%s⬡ tokens: %s%s⚡ session: %s%s~ lines: %s" \
+  printf "◆ %s%s● ctx: --%s%s✦ reset: %s%s%s$ cost: %s%s⬡ tokens: %s%s⚡ session: %s%s~ lines: %s" \
     "$model" "$sep" \
     "%" "$sep" \
     "$next_reset_str" "$reset_warn" "$sep" \
