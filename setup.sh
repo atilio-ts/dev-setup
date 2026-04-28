@@ -117,6 +117,7 @@ cp "$REPO/claude/RTK.md" "$HOME/.claude/RTK.md"
 cp "$REPO/claude/houtini-ref.md" "$HOME/.claude/houtini-ref.md"
 cp "$REPO/claude/hooks/pre-bash.sh" "$HOME/.claude/hooks/pre-bash.sh"
 cp "$REPO/claude/hooks/pre-websearch.sh" "$HOME/.claude/hooks/pre-websearch.sh"
+cp "$REPO/claude/hooks/post-edit-encoding.sh" "$HOME/.claude/hooks/post-edit-encoding.sh"
 cp "$REPO/claude/hooks/hooks.json" "$HOME/.claude/hooks/hooks.json"
 cp "$REPO/claude/hooks/README.md" "$HOME/.claude/hooks/README.md"
 chmod +x "$HOME/.claude/statusline-command.sh" "$HOME/.claude/hooks/"*.sh
@@ -319,6 +320,35 @@ PYEOF
 else
   warn "file-stash binary not found after install — add MCP config manually (see DEV_SETUP.md)"
 fi
+
+# ─── GitHub MCP ──────────────────────────────────────────────────────────────
+step "GitHub MCP"
+if [ -f "$HOME/.claude.json" ]; then
+  if ! grep -q '"github"' "$HOME/.claude.json"; then
+    python3 - <<PYEOF
+import json
+path = "$HOME/.claude.json"
+with open(path) as f:
+    data = json.load(f)
+data.setdefault("mcpServers", {})["github"] = {
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-github"],
+    "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN:-}"
+    }
+}
+with open(path, "w") as f:
+    json.dump(data, f, indent=2)
+print("github MCP added to ~/.claude.json")
+PYEOF
+  else
+    ok "github MCP already in ~/.claude.json"
+  fi
+  warn "Set GITHUB_TOKEN env var before using the GitHub MCP server"
+else
+  warn "~/.claude.json not found — add GitHub MCP manually (see DEV_SETUP.md)"
+fi
+ok "GitHub MCP configured — restart Claude Code to activate"
 
 # ─── claude-code-stats ───────────────────────────────────────────────────────
 step "claude-code-stats"
