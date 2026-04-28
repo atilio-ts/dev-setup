@@ -7,6 +7,9 @@
   },
   "permissions": {
     "allow": [
+      "mcp__code-review-graph__get_architecture_overview_tool",
+      "mcp__code-review-graph__get_hub_nodes_tool",
+      "mcp__code-review-graph__list_communities_tool",
       "mcp__filestash__stash_clear",
       "mcp__filestash__stash_status",
       "mcp__filestash__read_file",
@@ -40,7 +43,8 @@
       "Bash(git branch*)",
       "Bash(git fetch*)",
       "Bash(git remote*)",
-      "Bash(curl *)"
+      "Bash(rtk *)",
+      "mcp__github__*"
     ],
     "deny": [
       "Read($HOME/.ssh/**)",
@@ -112,6 +116,18 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/hooks/run-with-flags.js\" \"pre:compact\" \"scripts/hooks/pre-compact.js\" \"standard,strict\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/post-edit-encoding.sh",
+            "timeout": 5
           }
         ]
       }
