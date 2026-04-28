@@ -1365,6 +1365,7 @@ Lives in `~/.agents/skills/`, symlinked into `~/.claude/skills/`. Skills:
 - `custom-init` — bootstraps a new project with file-stash + graphify + houtini-lm (verifies global MCPs, builds knowledge graph, generates `.vscode/CLAUDE.md`)
 - `estimate` — technical analysis and effort estimation (Spanish/English), auto-selects decomposition strategy
 - `sync-configuration` — syncs dev-setup and claude-skills repos with the live machine state
+- `timesheet` — generates Clockify-format timesheet entries from git branch changes (English/Spanish, max 3h per task)
 - `update-skills` — updates all installed skills and plugins (vercel-labs, caveman, Claude plugins)
 - `user-story` — writes user stories and Jira tasks
 
@@ -1434,7 +1435,7 @@ ln -sf ../../.agents/skills/caveman-compress ~/.claude/skills/caveman-compress
 
 # 5. Personal skills (clone repo and create symlinks)
 git clone https://github.com/atilio-ts/claude-skills ~/Projects/Personal/claude-skills
-for skill in commit-message custom-init estimate user-story sync-configuration update-skills; do
+for skill in commit-message custom-init estimate timesheet user-story sync-configuration update-skills; do
   ln -sf ~/Projects/Personal/claude-skills/$skill ~/.claude/skills/$skill
 done
 ```
