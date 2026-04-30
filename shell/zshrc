@@ -104,3 +104,48 @@ alias lzd='lazydocker'
 
 # LM Studio CLI
 export PATH="$PATH:$HOME/.lmstudio/bin"
+
+# Clipboard cleaner toggle
+# Background daemon (~/.local/bin/clipboard-cleaner.py) strips trailing whitespace
+# from every clipboard change automatically. Use this command to pause/resume it.
+clipclean() {
+  case "$1" in
+    on)
+      rm -f ~/.clipboard-cleaner.pause
+      echo "clipboard cleaner: active"
+      ;;
+    off)
+      touch ~/.clipboard-cleaner.pause
+      echo "clipboard cleaner: paused"
+      ;;
+    status|"")
+      if [[ -f ~/.clipboard-cleaner.pause ]]; then
+        echo "clipboard cleaner: paused"
+      else
+        echo "clipboard cleaner: active"
+      fi
+      ;;
+    help|--help|-h)
+      echo ""
+      echo "  clipclean — background clipboard cleaner"
+      echo ""
+      echo "  Automatically strips trailing whitespace from anything you copy."
+      echo "  Useful when copying commands from Claude Code output, which adds"
+      echo "  extra spaces that break pasting into the terminal."
+      echo ""
+      echo "  Usage:"
+      echo "    clipclean           show current status"
+      echo "    clipclean on        resume cleaning (default at login)"
+      echo "    clipclean off       pause cleaning temporarily"
+      echo "    clipclean help      show this message"
+      echo ""
+      echo "  Daemon:    ~/.local/bin/clipboard-cleaner.py"
+      echo "  LaunchAgent: ~/Library/LaunchAgents/local.clipboard-cleaner.plist"
+      echo "  Pause flag:  ~/.clipboard-cleaner.pause (created by 'clipclean off')"
+      echo ""
+      ;;
+    *)
+      echo "clipclean: unknown command '$1' — run 'clipclean help' for usage"
+      ;;
+  esac
+}
