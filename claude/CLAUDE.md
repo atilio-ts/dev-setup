@@ -20,6 +20,23 @@ At the start of every conversation, check if `.vscode/CLAUDE.md` exists in the c
 - Keep entries concise and factual — no speculation, no session-specific state
 - Remove or correct entries that turn out to be wrong; stale memory is worse than no memory
 
+## Scope Discipline
+
+- When asked to review code, DEFAULT to producing a documented issue list — do NOT apply fixes unless explicitly told to
+- When asked to fix a specific list of bugs, fix ONLY those bugs — do not propose tangential migrations or refactors
+- If unsure whether to fix or just list, ASK before invoking any edit tools
+
+## Commit Workflow
+
+- Before generating any commit message, run `git status` AND `git diff --cached` to verify ALL staged files are accounted for
+- Do not repeat the same line or bullet across the commit message — consolidate related changes
+- Check `git log -5 --oneline` to match the user's existing commit style before writing new messages
+
+## File Editing Safety
+
+- Preserve original character encoding (UTF-8 with accents) — never substitute or strip Spanish accent characters (á, é, í, ó, ú, ñ)
+- After editing files containing non-ASCII content, re-read the file to verify accents are intact
+
 ## Response Approach
 
 - Think before acting. Read existing files before writing code.
@@ -80,3 +97,6 @@ When compacting, preserve:
 - Model routing: Haiku for workers/lightweight agents, Sonnet for main dev, Opus for architecture
 - file-stash: use mcp__filestash__read_file before built-in Read for exploration
 - Never mention AI/Claude/LLMs in any output, commit, or code comment
+- Scope Discipline: reviews produce a findings list only — no fixes without explicit confirmation
+- Commit Workflow: always run git status + git diff --cached + git log -5 before drafting any commit message
+- File Editing Safety: never strip Spanish accents (á é í ó ú ñ); re-read non-ASCII files after editing

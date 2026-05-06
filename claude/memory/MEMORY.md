@@ -1,6 +1,7 @@
-# Memory Index
+# Global Memory Index
 
-- [Atilio's profile](user_profile.md) — Software Engineer at fintech.works, 6+ yrs exp, Java/TS/C#, fintech/backend/cloud
-- [Use file-stash for file reads](feedback_filestash.md) — Always use file-stash read_file instead of built-in Read tool
-- [Use houtini without asking permission](feedback_houtini.md) — Never ask permission before using mcp__houtini-lm__* tools, just use them
-- [Use graphify to navigate codebases](feedback_graphify.md) — Use mcp__graphify__* tools when available to find/traverse files instead of blind Glob/Grep searches
+## User
+- [Perfil de Atilio](memory/user_profile.md) — Quién es: rol, background, tech stack, intereses
+
+## Feedback
+- [Usar file-stash para lectura de archivos](memory/feedback_filestash.md) — Usar siempre file-stash en lugar de Read nativo para ahorrar tokens

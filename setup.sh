@@ -109,7 +109,9 @@ fi
 
 # ─── Claude Code ─────────────────────────────────────────────────────────────
 step "Claude Code"
-mkdir -p "$HOME/.claude/hooks" "$HOME/.claude/agents" "$HOME/.claude/rules/common"
+mkdir -p "$HOME/.claude/hooks" "$HOME/.claude/agents" "$HOME/.claude/memory" \
+  "$HOME/.claude/rules/common" "$HOME/.claude/rules/kotlin" \
+  "$HOME/.claude/rules/python" "$HOME/.claude/rules/typescript"
 cp "$REPO/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
 cp "$REPO/claude/settings.json" "$HOME/.claude/settings.json"
 cp "$REPO/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh"
@@ -122,16 +124,18 @@ cp "$REPO/claude/hooks/hooks.json" "$HOME/.claude/hooks/hooks.json"
 cp "$REPO/claude/hooks/README.md" "$HOME/.claude/hooks/README.md"
 chmod +x "$HOME/.claude/statusline-command.sh" "$HOME/.claude/hooks/"*.sh
 cp "$REPO/claude/agents/"*.md "$HOME/.claude/agents/"
-cp -r "$REPO/claude/rules/common/"*.md "$HOME/.claude/rules/common/"
+cp "$REPO/claude/rules/README.md" "$HOME/.claude/rules/README.md"
+cp "$REPO/claude/rules/common/"*.md "$HOME/.claude/rules/common/"
+cp "$REPO/claude/rules/kotlin/"*.md "$HOME/.claude/rules/kotlin/"
+cp "$REPO/claude/rules/python/"*.md "$HOME/.claude/rules/python/"
+cp "$REPO/claude/rules/typescript/"*.md "$HOME/.claude/rules/typescript/"
 ok "Claude Code config, hooks, agents, and rules copied"
 warn "Update name/email in ~/.gitconfig and username paths in ~/.claude/settings.json"
 
-# Seed user profile memory
-MEMORY_DIR="$HOME/.claude/projects/-Users-$(whoami)-Projects/memory"
-mkdir -p "$MEMORY_DIR"
-cp "$REPO/claude/memory/MEMORY.md" "$MEMORY_DIR/MEMORY.md"
-cp "$REPO/claude/memory/user_profile.md" "$MEMORY_DIR/user_profile.md"
-ok "Claude user profile memory seeded"
+# Seed global memory
+cp "$REPO/claude/memory/MEMORY.md" "$HOME/.claude/MEMORY.md"
+cp "$REPO/claude/memory/"*.md "$HOME/.claude/memory/"
+ok "Claude global memory seeded"
 
 # ─── Spicetify ───────────────────────────────────────────────────────────────
 step "Spicetify"

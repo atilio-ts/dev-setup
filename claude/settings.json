@@ -222,5 +222,8 @@
     }
   },
   "spinnerTipsEnabled": false,
-  "autoUpdatesChannel": "stable"
+  "advisorModel": "opus",
+  "autoUpdatesChannel": "stable",
+  "autoCompactEnabled": false,
+  "remoteControlAtStartup": false
 }

@@ -226,5 +226,6 @@
     "gitlens.ai.model": "vscode",
     "gitlens.ai.vscode.model": "copilot:gpt-4.1",
     "claudeCode.preferredLocation": "panel",
-    "workbench.preferredHighContrastColorTheme": "Gatito Theme"
+    "workbench.preferredHighContrastColorTheme": "Gatito Theme",
+    "chat.mcp.gallery.enabled": true
 }
