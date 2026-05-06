@@ -369,12 +369,10 @@ Or copy the existing `~/.p10k.zsh` file directly from the old machine — it is 
 brew install pipx
 ```
 
-| Tool | Version | Install |
-|------|---------|---------|
-| `graphify` | 0.4.13 | `pipx install graphifyy` |
+| Tool | Install |
+|------|---------|
+| `code-review-graph` | `pipx install code-review-graph` |
 
-> Note: the pip package name is `graphifyy` (double y) but the command is `graphify`.
->
 > `~/.local/bin` must be in `$PATH` (already in `.zshrc`).
 
 ---
@@ -1475,42 +1473,23 @@ The `mcpServers` block in `~/.claude.json`:
 
 Replace `<username>` and `<version>` with the output of the command above. Restart Claude Code after editing.
 
-### MCP Server — graphify (global)
+### MCP Server — code-review-graph (per-project)
 
-graphify is configured as a **global** MCP server in `~/.claude.json` so it works across all projects without per-project `.mcp.json` entries. It uses a wrapper script that resolves the graph path dynamically from `$PWD` at startup.
+`code-review-graph` builds a persistent structural graph of the codebase using Tree-sitter. It provides impact analysis, semantic search, and call-path traversal — use it in any project via the `mcp__code-review-graph__*` tools.
 
-**Step 1** — create the wrapper script at `~/.claude/scripts/graphify-start.sh`:
-
-```bash
-#!/bin/bash
-GRAPH_FILE="${PWD}/graphify-out/graph.json"
-
-if [ ! -f "$GRAPH_FILE" ]; then
-  echo "graphify: no graph found at $GRAPH_FILE" >&2
-  exit 1
-fi
-
-exec /Users/<username>/.local/pipx/venvs/graphifyy/bin/python -m graphify.serve "$GRAPH_FILE"
-```
+Install:
 
 ```bash
-chmod +x ~/.claude/scripts/graphify-start.sh
+pipx install code-review-graph
 ```
 
-Replace `<username>` with the actual username.
+Build the graph in a project:
 
-**Step 2** — add to `~/.claude.json`:
-
-```json
-"mcpServers": {
-  "graphify": {
-    "command": "bash",
-    "args": ["/Users/<username>/.claude/scripts/graphify-start.sh"]
-  }
-}
+```bash
+code-review-graph build
 ```
 
-In projects without a `graphify-out/graph.json`, the server exits cleanly and shows `✘ failed` in the MCP list — this is expected and harmless.
+The graph lives in `.code-review-graph/` in the project root. Claude Code detects it automatically via the MCP plugin — no manual `~/.claude.json` entry needed. See the CLAUDE.md rules for usage patterns.
 
 ### MCP Server — houtini-lm (global)
 
@@ -1587,7 +1566,7 @@ These feedback memories apply broadly and should be seeded manually or will rebu
 - **No AI attribution** — never include Co-Authored-By, Claude, AI, LLM in any output
 - **file-stash first** — always use file-stash `read_file` MCP tool instead of built-in Read tool for file reads (saves tokens via hash-based caching)
 - **houtini without permission** — use `mcp__houtini-lm__*` tools freely without asking the user first
-- **graphify before search** — when `graphify-out/graph.json` exists, use `mcp__graphify__*` tools to navigate the codebase instead of blind Glob/Grep searches
+- **code-review-graph before search** — when `.code-review-graph/` exists in a project, use `mcp__code-review-graph__*` tools to navigate instead of Glob/Grep
 - **Concise responses** — lead with action, no preamble, no trailing summary of what was just done
 - **No unsolicited docs** — never create README or documentation files unless explicitly asked
 
