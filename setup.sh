@@ -244,6 +244,15 @@ for skill_dir in "$CLAUDE_SKILLS_DIR"/*/; do
   fi
 done
 
+# Link dev-setup local skills
+for skill_dir in "$REPO/skills/"/*/; do
+  skill_name="$(basename "$skill_dir")"
+  if [ -f "$skill_dir/SKILL.md" ]; then
+    ln -sfn "$skill_dir" "$HOME/.claude/skills/${skill_name}"
+    ok "local skill '${skill_name}' linked"
+  fi
+done
+
 # ─── graphify ────────────────────────────────────────────────────────────────
 step "graphify"
 if command -v pipx &>/dev/null; then
