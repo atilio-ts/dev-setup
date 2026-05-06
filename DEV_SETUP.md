@@ -1360,12 +1360,17 @@ Lives in `~/.agents/skills/`, symlinked into `~/.claude/skills/`. Skills:
 `~/Projects/Personal/claude-skills/` and symlinked into `~/.claude/skills/`:
 
 - `commit-message` — generates conventional commit messages reading git diff and project history
-- `custom-init` — bootstraps a new project with file-stash + graphify + houtini-lm (verifies global MCPs, builds knowledge graph, generates `.vscode/CLAUDE.md`)
+- `custom-init` — bootstraps a new project with file-stash + houtini-lm + code-review-graph (verifies global MCPs, builds knowledge graph, generates `.vscode/CLAUDE.md`)
 - `estimate` — technical analysis and effort estimation (Spanish/English), auto-selects decomposition strategy
-- `sync-configuration` — syncs dev-setup and claude-skills repos with the live machine state
+- `readme-generator` — generates README files from project context
+- `review` — comprehensive code review of uncommitted changes
 - `timesheet` — generates Clockify-format timesheet entries from git branch changes (English/Spanish, max 3h per task)
-- `update-skills` — updates all installed skills and plugins (vercel-labs, caveman, Claude plugins)
 - `user-story` — writes user stories and Jira tasks
+
+**dev-setup skills** — stored in this repo under `skills/`, symlinked into `~/.claude/skills/`:
+
+- `sync-configuration` — syncs live machine config back to this repo (run periodically to keep backup current)
+- `install-dev-setup` — interactive step-by-step guide to install this full dev environment on a new machine
 
 #### Reinstall skills on new machine
 
@@ -1433,8 +1438,13 @@ ln -sf ../../.agents/skills/caveman-compress ~/.claude/skills/caveman-compress
 
 # 5. Personal skills (clone repo and create symlinks)
 git clone https://github.com/atilio-ts/claude-skills ~/Projects/Personal/claude-skills
-for skill in commit-message custom-init estimate timesheet user-story sync-configuration update-skills; do
+for skill in commit-message custom-init estimate readme-generator review timesheet user-story; do
   ln -sf ~/Projects/Personal/claude-skills/$skill ~/.claude/skills/$skill
+done
+
+# 6. dev-setup local skills (symlink from this repo)
+for skill in sync-configuration install-dev-setup; do
+  ln -sf ~/Projects/Personal/dev-setup/skills/$skill ~/.claude/skills/$skill
 done
 ```
 
