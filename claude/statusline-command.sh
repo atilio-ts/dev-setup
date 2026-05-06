@@ -5,37 +5,6 @@ input=$(cat)
 model=$(echo "$input" | jq -r '.model.display_name // "Unknown"')
 used=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
 
-# Calculate next quota reset time from fixed schedule: 00:00, 04:00, 09:00, 14:00, 19:00
-# NOTE: this schedule is hardcoded — verify at https://claude.ai/settings if resets feel off
-now_h=$(date +%H)
-now_m=$(date +%M)
-now_minutes=$(( now_h * 60 + now_m ))
-reset_hours=(0 4 9 14 19)
-next_reset_minutes=-1
-for rh in "${reset_hours[@]}"; do
-  candidate=$(( rh * 60 ))
-  if [ "$candidate" -gt "$now_minutes" ]; then
-    next_reset_minutes=$candidate
-    break
-  fi
-done
-if [ "$next_reset_minutes" -eq -1 ]; then
-  next_reset_minutes=$(( 24 * 60 ))
-fi
-diff=$(( next_reset_minutes - now_minutes ))
-if [ "$diff" -le 30 ]; then
-  reset_warn=" (!)"
-else
-  reset_warn=""
-fi
-diff_h=$(( diff / 60 ))
-diff_m=$(( diff % 60 ))
-if [ "$diff_h" -gt 0 ]; then
-  next_reset_str="in ${diff_h}h ${diff_m}m"
-else
-  next_reset_str="in ${diff_m}m"
-fi
-
 sep="  |  "
 
 # Cost
@@ -88,19 +57,17 @@ fi
 
 if [ -n "$used" ]; then
   used_int=$(printf "%.0f" "$used")
-  printf "◆ %s%s● ctx: %d%%%s✦ reset: %s%s%s$ cost: %s%s⬡ tokens: %s%s⚡ session: %s%s~ lines: %s" \
+  printf "◆ %s%s● ctx: %d%%%s$ cost: %s%s⬡ tokens: %s%s⚡ session: %s%s~ lines: %s" \
     "$model" "$sep" \
     "$used_int" "$sep" \
-    "$next_reset_str" "$reset_warn" "$sep" \
     "$cost_str" "$sep" \
     "$tokens_str" "$sep" \
     "$duration_str" "$sep" \
     "$lines_str"
 else
-  printf "◆ %s%s● ctx: --%s%s✦ reset: %s%s%s$ cost: %s%s⬡ tokens: %s%s⚡ session: %s%s~ lines: %s" \
+  printf "◆ %s%s● ctx: --%s%s$ cost: %s%s⬡ tokens: %s%s⚡ session: %s%s~ lines: %s" \
     "$model" "$sep" \
     "%" "$sep" \
-    "$next_reset_str" "$reset_warn" "$sep" \
     "$cost_str" "$sep" \
     "$tokens_str" "$sep" \
     "$duration_str" "$sep" \
