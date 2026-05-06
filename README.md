@@ -63,6 +63,8 @@ See [DEV_SETUP.md](DEV_SETUP.md) for the full setup guide.
 │   ├── homebrew.asimov.plist          # ~/Library/LaunchAgents/ (exclude brew from Time Machine)
 │   └── local.clipboard-cleaner.plist  # ~/Library/LaunchAgents/ (clipboard cleaner daemon)
 ├── skills/
+│   ├── install-dev-setup/    # Claude skill: interactive full dev environment installation guide
+│   │   └── SKILL.md           # linked to ~/.claude/skills/install-dev-setup
 │   └── sync-configuration/   # Claude skill: sync live machine config → this repo
 │       └── SKILL.md           # linked to ~/.claude/skills/sync-configuration
 └── spicetify/
