@@ -91,6 +91,7 @@ brew install \
   gh \
   git \
   git-delta \
+  git-filter-repo \
   git-lfs \
   git-open \
   gnupg \
@@ -404,6 +405,7 @@ Or copy the existing `~/.p10k.zsh` file directly from the old machine — it is 
 | `hyperfine` | Benchmark shell commands |
 | `tokei` | Count lines of code by language |
 | `navi` | Interactive cheatsheet (`Ctrl+G` in shell) — run `navi repo add denisidoro/cheats` to populate with community cheatsheets |
+| `git-filter-repo` | Rewrite git history (email, paths, etc.) — modern `filter-branch` replacement |
 | `git-lfs` | Git Large File Storage — must run `git lfs install` after setup |
 | `gh copilot` | Built into `gh` — explains shell commands (`gh copilot explain`) |
 
