@@ -1,6 +1,6 @@
 # Developer Setup — Atilio Villalba
 
-> Last updated: 2026-04-16
+> Last updated: 2026-05-21
 > Goal: replicate this exact environment on a new macOS (Apple Silicon) machine from scratch.
 
 ---
@@ -12,8 +12,8 @@
 3. [Shell — Zsh + Oh My Zsh + Powerlevel10k](#3-shell--zsh--oh-my-zsh--powerlevel10k)
 4. [Terminal Tools & Aliases](#4-terminal-tools--aliases)
 5. [Git](#5-git)
-6. [Node.js — fnm + pnpm + bun](#6-nodejs--fnm--pnpm--bun)
-7. [Java — jenv](#7-java--jenv)
+6. [Node.js — mise + pnpm + bun](#6-nodejs--mise--pnpm--bun)
+7. [Java — mise](#7-java--mise)
 8. [Neovim (LazyVim)](#8-neovim-lazyvim)
 9. [Terminal Editors — nano & vim](#9-terminal-editors--nano--vim)
 10. [Docker](#10-docker)
@@ -115,7 +115,6 @@ brew install \
   overmind \
   pipx \
   powerlevel10k \
-  python@3.13 \
   python@3.14 \
   ripgrep \
   spicetify-cli \
@@ -188,6 +187,8 @@ echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' > ~/.zprofile
 ### `~/.zshrc`
 
 ```zsh
+MAILCHECK=0
+
 # Powerlevel10k instant prompt — must stay near the top
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
@@ -196,17 +197,13 @@ fi
 # ARM Homebrew (Apple Silicon)
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# jenv
-export PATH="$HOME/.jenv/bin:$PATH"
-eval "$(jenv init -)"
-
 # Oh My Zsh
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 ZSH_COLORIZE_STYLE="colorful"
 
 # Docker CLI completions (must be before oh-my-zsh)
-fpath=(/Users/atilio/.docker/completions $fpath)
+fpath=($HOME/.docker/completions $fpath)
 
 plugins=(
   git
@@ -244,8 +241,8 @@ source $ZSH/oh-my-zsh.sh
 # Powerlevel10k config
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# fnm (Node version manager)
-eval "$(fnm env --use-on-cd --shell zsh)"
+# mise (version manager — Node, Java, etc.)
+eval "$($HOME/.local/bin/mise activate zsh)"
 
 # fzf shell integration
 source <(fzf --zsh)
@@ -254,7 +251,7 @@ source <(fzf --zsh)
 eval "$(zoxide init zsh)"
 
 # pnpm
-export PNPM_HOME="/Users/atilio/Library/pnpm"
+export PNPM_HOME="$HOME/Library/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
@@ -263,18 +260,18 @@ esac
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
-[ -s "/Users/atilio/.bun/_bun" ] && source "/Users/atilio/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # Default editor
 export EDITOR=nvim
 export VISUAL=nvim
 
-# Python
+# Python 3.14
 export PATH="/opt/homebrew/opt/python@3.14/libexec/bin:$PATH"
 
 # PATH extras
 PATH=~/.console-ninja/.bin:$PATH
-export PATH=/Users/atilio/.opencode/bin:$PATH
+export PATH=$HOME/.opencode/bin:$PATH
 export PATH="$HOME/.local/bin:$PATH"
 
 # direnv
@@ -293,16 +290,65 @@ alias cat='bat --paging=never'
 alias watch='viddy'
 alias lg='lazygit'
 alias lzd='lazydocker'
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:$HOME/.lmstudio/bin"
+# End of LM Studio CLI section
+
+# Clipboard cleaner toggle
+# Background daemon (~/.local/bin/clipboard-cleaner.py) strips trailing whitespace
+# from every clipboard change automatically. Use this command to pause/resume it.
+clipclean() {
+  case "$1" in
+    on)
+      rm -f ~/.clipboard-cleaner.pause
+      echo "clipboard cleaner: active"
+      ;;
+    off)
+      touch ~/.clipboard-cleaner.pause
+      echo "clipboard cleaner: paused"
+      ;;
+    status|"")
+      if [[ -f ~/.clipboard-cleaner.pause ]]; then
+        echo "clipboard cleaner: paused"
+      else
+        echo "clipboard cleaner: active"
+      fi
+      ;;
+    help|--help|-h)
+      echo ""
+      echo "  clipclean — background clipboard cleaner"
+      echo ""
+      echo "  Automatically strips trailing whitespace from anything you copy."
+      echo "  Useful when copying commands from Claude Code output, which adds"
+      echo "  extra spaces that break pasting into the terminal."
+      echo ""
+      echo "  Usage:"
+      echo "    clipclean           show current status"
+      echo "    clipclean on        resume cleaning (default at login)"
+      echo "    clipclean off       pause cleaning temporarily"
+      echo "    clipclean help      show this message"
+      echo ""
+      echo "  Daemon:    ~/.local/bin/clipboard-cleaner.py"
+      echo "  LaunchAgent: ~/Library/LaunchAgents/local.clipboard-cleaner.plist"
+      echo "  Pause flag:  ~/.clipboard-cleaner.pause (created by 'clipclean off')"
+      echo ""
+      ;;
+    *)
+      echo "clipclean: unknown command '$1' — run 'clipclean help' for usage"
+      ;;
+  esac
+}
 ```
 
-> Adjust username-specific paths (`/Users/atilio/`) to the new machine's username.
+> All shell config paths use `$HOME` and are portable. Only `~/.claude/settings.json` hardcodes `/Users/<username>/` in hook paths — update those after copying (see section 15).
 
 ### Powerlevel10k
 
 The theme is configured with the **rainbow** style, **Nerd Fonts** (`MesloLGS NF`), powerline separators, 1-line compact prompt, and the following segment layout:
 
 - **Left:** `os_icon` → `dir` → `vcs`
-- **Right:** `status`, `command_execution_time`, `background_jobs`, `direnv`, `jenv`, `kubecontext`, `aws`, `context`, `time`
+- **Right:** `status`, `command_execution_time`, `background_jobs`, `direnv`, `kubecontext`, `aws`, `context`, `time`
 
 After installing, run the wizard to regenerate `~/.p10k.zsh`:
 
@@ -488,9 +534,9 @@ The config also contains **Conventional Commits git aliases** (`feat`, `fix`, `r
 | Tool | Version |
 |------|---------|
 | Node.js | `v24.13.1` (default) |
-| npm | `11.8.0` |
-| pnpm | `10.12.4` |
-| bun | `1.3.10` |
+| npm | `11.13.0` |
+| pnpm | `11.2.2` |
+| bun | `1.3.14` |
 
 ### Setup with mise
 
@@ -684,7 +730,7 @@ No custom daemon config. Docker Compose is bundled with Docker Desktop.
 
 Docker CLI completions are added in `.zshrc`:
 ```zsh
-fpath=(/Users/atilio/.docker/completions $fpath)
+fpath=($HOME/.docker/completions $fpath)
 ```
 
 ---
@@ -1235,12 +1281,13 @@ See `claude/settings.json` in this repo — copy it verbatim to `~/.claude/setti
 
 Key blocks it contains:
 - `statusLine` — wires the custom statusline script
-- `permissions.allow` — pre-approves read-only tools, file-stash, houtini-lm, and graphify MCP tools, and safe git/bash commands
+- `permissions.allow` — pre-approves read-only tools, file-stash, houtini-lm, context-mode, and safe git/bash commands
 - `permissions.deny` — blocks all destructive commands at the permission layer
 - `enableAllProjectMcpServers` — auto-enables any `.mcp.json` found in a project root without per-project config
-- `hooks.PreToolUse` — Bash safety hook, WebSearch approval prompt, strategic-compact suggestion on Edit/Write
-- `hooks.PreCompact`, `SessionStart`, `SessionEnd` — everything-claude-code plugin lifecycle hooks
-- `enabledPlugins` + `extraKnownMarketplaces` — fullstack-dev-skills and everything-claude-code marketplace plugins
+- `hooks.PreToolUse` — Bash safety hook and WebSearch approval prompt
+- `hooks.PostToolUse` — encoding integrity check after edits
+- `hooks.SessionStart` — context-mode plugin cache self-heal
+- `enabledPlugins` + `extraKnownMarketplaces` — coderabbit, context-mode, and token-optimizer marketplace plugins
 
 > Update the username in all paths before copying.
 
@@ -1259,9 +1306,9 @@ Copy `~/.claude/statusline-command.sh` to the new machine verbatim.
 
 ### Hooks
 
-Three `PreToolUse` hooks are active:
+Copy all hook files to `~/.claude/hooks/` on the new machine.
 
-#### `~/.claude/hooks/pre-bash.sh`
+#### `~/.claude/hooks/pre-bash.sh` (PreToolUse — Bash)
 
 Blocks destructive shell commands before they run. Checked patterns:
 
@@ -1277,15 +1324,21 @@ rm -rf /  rm -rf *  rm -rf $  rm -rf ~
 
 Returns exit code `2` to block, `0` to allow.
 
-#### `~/.claude/hooks/pre-websearch.sh`
+#### `~/.claude/hooks/pre-websearch.sh` (PreToolUse — WebSearch)
 
 Intercepts `WebSearch` tool calls and surfaces an approval prompt showing the query before consuming tokens.
 
+#### `~/.claude/hooks/post-edit-encoding.sh` (PostToolUse — Edit/Write)
+
+Verifies UTF-8 encoding integrity after file edits to ensure non-ASCII characters (Spanish accents, etc.) are not corrupted.
+
+#### `~/.claude/hooks/context-mode-cache-heal.mjs` (SessionStart)
+
+Fixes a known Claude Code bug (#46915) where auto-updates can break the context-mode plugin's install path. Runs at session start and self-heals the symlink if broken. Pure Node.js — no shell dependency.
+
 #### `~/.claude/hooks/hooks.json`
 
-Hook configuration file that defines hook metadata and execution rules.
-
-Copy all hook files to `~/.claude/hooks/` on the new machine.
+Hook configuration used by the context-mode and token-optimizer plugins. Defines PreCompact, PostCompact, and session lifecycle hooks.
 
 ### Rules — `~/.claude/rules/common/`
 
@@ -1307,63 +1360,25 @@ Copy all files from `claude/rules/common/` in this repo to `~/.claude/rules/comm
 
 ### Agents — `~/.claude/agents/`
 
-Agent definitions for specialized tasks (planner, architect, code-reviewer, security-reviewer, etc.).
-
-Copy all `.md` files from `claude/agents/` in this repo to `~/.claude/agents/` on the new machine.
+No custom agents configured. The `~/.claude/agents/` directory is empty — all agent functionality is handled through marketplace plugins and skills.
 
 ### Skills / Plugins
 
-The following skill sources are active:
+**Marketplace plugins** — installed via the Claude Code plugin system (entries already in `settings.json`):
 
-**gstack** — installed under `~/.claude/skills/gstack/` (repo: https://github.com/garrytan/gstack).
-Active sub-skills: `autoplan`, `benchmark`, `careful`, `checkpoint`, `codex`, `document-release`,
-`freeze`, `health`, `investigate`, `learn`, `openclaw`, `pair-agent`, `plan-ceo-review`,
-`plan-eng-review`, `qa`, `qa-only`, `retro`, `review`, `unfreeze`
-
-Symlinked from `~/.claude/skills/`: `plan-ceo-review`, `plan-eng-review`, `qa`, `retro`, `review`
-
-> Deleted sub-skills (not needed): design-*, browse, gstack-upgrade, setup-browser-cookies, ship,
-> canary, cso, guard, devex-review, plan-devex-review, land-and-deploy, setup-deploy, office-hours
-
-**fullstack-dev-skills** — plugin from marketplace. Install via Claude Code plugin system.
-Active skills (33): `api-designer`, `architecture-designer`, `cloud-architect`, `code-documenter`,
-`code-reviewer`, `csharp-developer`, `database-optimizer`, `debugging-wizard`, `devops-engineer`,
-`dotnet-core-expert`, `embedded-systems`, `fullstack-guardian`, `game-developer`, `java-architect`,
-`javascript-pro`, `legacy-modernizer`, `microservices-architect`, `monitoring-expert`, `nestjs-expert`,
-`nextjs-developer`, `postgres-pro`, `prompt-engineer`, `react-expert`, `react-native-expert`,
-`secure-code-guardian`, `security-reviewer`, `spring-boot-engineer`, `sql-pro`, `sre-engineer`,
-`terraform-engineer`, `test-master`, `typescript-pro`, `websocket-engineer`
-
-**vercel-labs/agent-skills** — installed via `npx skills` CLI from https://github.com/vercel-labs/agent-skills.
-Lives in `~/.agents/skills/`, symlinked into `~/.claude/skills/`. Active skills:
-- `vercel-react-best-practices`
-- `vercel-composition-patterns`
-- `vercel-react-native-skills`
-- `web-design-guidelines`
-
-**caveman** — installed via `npx skills` CLI from https://github.com/JuliusBrussee/caveman.
-Lives in `~/.agents/skills/`, symlinked into `~/.claude/skills/`. Skills:
-- `caveman` — ultra-compressed output mode (~65-75% token reduction)
-- `caveman-compress` — compresses CLAUDE.md/memory files (~45% input token reduction)
-
-**everything-claude-code** — marketplace plugin. Active skills (28): `agentic-engineering`,
-`ai-first-engineering`, `api-design`, `article-writing`, `autonomous-loops`, `blueprint`,
-`carrier-relationship-management`, `claude-api`, `continuous-agent-loop`, `cost-aware-llm-pipeline`,
-`database-migrations`, `deep-research`, `deployment-patterns`, `docker-patterns`, `e2e-testing`,
-`enterprise-agent-ops`, `eval-harness`, `frontend-patterns`, `jpa-patterns`, `market-research`,
-`plankton-code-quality`, `postgres-patterns`, `prompt-optimizer`, `regex-vs-llm-structured-text`,
-`search-first`, `security-review`, `security-scan`, `springboot-security`
-
-**coderabbit** — marketplace plugin. Skills: `autofix`, `code-review`
+| Plugin | Key | Skills |
+|--------|-----|--------|
+| coderabbit | `coderabbit@claude-plugins-official` | `autofix`, `code-review` |
+| context-mode | `context-mode@context-mode` | Context optimization and token savings |
+| token-optimizer | `token-optimizer@alexgreensh-token-optimizer` | Token usage tracking and auditing |
 
 **Personal skills** — stored at https://github.com/atilio-ts/claude-skills, cloned to
 `~/Projects/Personal/claude-skills/` and symlinked into `~/.claude/skills/`:
 
 - `commit-message` — generates conventional commit messages reading git diff and project history
-- `custom-init` — bootstraps a new project with file-stash + houtini-lm + code-review-graph (verifies global MCPs, builds knowledge graph, generates `.vscode/CLAUDE.md`)
-- `estimate` — technical analysis and effort estimation (Spanish/English), auto-selects decomposition strategy
+- `custom-init` — bootstraps a new project with file-stash + houtini-lm + code-review-graph
+- `estimate` — technical analysis and effort estimation (Spanish/English)
 - `readme-generator` — generates README files from project context
-- `review` — comprehensive code review of uncommitted changes
 - `timesheet` — generates Clockify-format timesheet entries from git branch changes (English/Spanish, max 3h per task)
 - `user-story` — writes user stories and Jira tasks
 
@@ -1375,74 +1390,18 @@ Lives in `~/.agents/skills/`, symlinked into `~/.claude/skills/`. Skills:
 #### Reinstall skills on new machine
 
 ```bash
-# 1. gstack (installs as plugin, lives under ~/.claude/skills/gstack/)
-claude plugin install gstack
-
-# After install, delete unused sub-skills:
-GSTACK="$HOME/.claude/skills/gstack"
-for skill in design-consultation design-html design-review design-shotgun plan-design-review \
-  browse open-gstack-browser office-hours land-and-deploy setup-deploy ship \
-  canary cso guard devex-review plan-devex-review gstack-upgrade; do
-  rm -rf "$GSTACK/$skill"
-done
-# Remove symlinks that pointed to deleted sub-skills:
-rm -f ~/.claude/skills/{browse,gstack-upgrade,setup-browser-cookies,ship}
-
-# 2. Claude plugins (run inside Claude Code or via CLI)
-claude plugin marketplace add jeffallan/claude-skills
-claude plugin install fullstack-dev-skills@fullstack-dev-skills
-claude plugin install everything-claude-code@everything-claude-code
+# 1. Marketplace plugins (run inside Claude Code or via CLI)
 claude plugin install coderabbit@claude-plugins-official
+claude plugin install context-mode@context-mode
+claude plugin install token-optimizer@alexgreensh-token-optimizer
 
-# After installing fullstack-dev-skills, delete unused skills:
-BASE_FS="$HOME/.claude/plugins/cache/fullstack-dev-skills/fullstack-dev-skills/$(ls ~/.claude/plugins/cache/fullstack-dev-skills/fullstack-dev-skills/)/skills"
-for skill in angular-architect atlassian-mcp chaos-engineer cli-developer cpp-pro django-expert \
-  fastapi-expert fine-tuning-expert flutter-expert golang-pro graphql-architect kotlin-specialist \
-  kubernetes-specialist laravel-specialist mcp-developer ml-pipeline pandas-pro php-pro \
-  playwright-expert python-pro rag-architect rails-expert react-native-expert rust-engineer \
-  salesforce-developer shopify-expert spark-engineer spec-miner swift-expert the-fool \
-  vue-expert vue-expert-js wordpress-pro feature-forge; do
-  rm -rf "$BASE_FS/$skill"
-done
-
-# After installing everything-claude-code, delete unused skills:
-BASE_ECC="$HOME/.claude/plugins/cache/everything-claude-code/everything-claude-code/$(ls ~/.claude/plugins/cache/everything-claude-code/everything-claude-code/)/skills"
-for skill in android-clean-architecture coding-standards compose-multiplatform-patterns configure-ecc \
-  content-engine content-hash-cache-pattern continuous-learning continuous-learning-v2 \
-  cpp-coding-standards cpp-testing crosspost customs-trade-compliance django-patterns django-security \
-  django-tdd django-verification dmux-workflows energy-procurement fal-ai-media \
-  foundation-models-on-device frontend-patterns frontend-slides golang-patterns golang-testing \
-  inventory-demand-planning investor-materials investor-outreach iterative-retrieval \
-  java-coding-standards kotlin-coroutines-flows kotlin-exposed-patterns kotlin-ktor-patterns \
-  kotlin-patterns kotlin-testing liquid-glass-design logistics-exception-management nanoclaw-repl \
-  nutrient-document-processing perl-patterns perl-security perl-testing production-scheduling \
-  project-guidelines-example python-patterns python-testing quality-nonconformance \
-  ralphinho-rfc-pipeline returns-reverse-logistics skill-stocktake springboot-patterns springboot-tdd \
-  springboot-verification strategic-compact swift-actor-persistence swift-concurrency-6-2 \
-  swift-protocol-di-testing swiftui-patterns tdd-workflow verification-loop video-editing \
-  videodb visa-doc-translate x-api agent-harness-construction backend-patterns; do
-  rm -rf "$BASE_ECC/$skill"
-done
-
-# 3. vercel-labs/agent-skills (installs to ~/.agents/skills/, symlinked into ~/.claude/skills/)
-npx skills add vercel-labs/agent-skills -g -s vercel-react-best-practices
-npx skills add vercel-labs/agent-skills -g -s vercel-composition-patterns
-npx skills add vercel-labs/agent-skills -g -s vercel-react-native-skills
-npx skills add vercel-labs/agent-skills -g -s web-design-guidelines
-
-# 4. caveman (installs to ~/.agents/skills/, symlinked into ~/.claude/skills/)
-npx skills add JuliusBrussee/caveman -g
-# Create symlinks for Claude Code:
-ln -sf ../../.agents/skills/caveman ~/.claude/skills/caveman
-ln -sf ../../.agents/skills/caveman-compress ~/.claude/skills/caveman-compress
-
-# 5. Personal skills (clone repo and create symlinks)
+# 2. Personal skills (clone repo and create symlinks)
 git clone https://github.com/atilio-ts/claude-skills ~/Projects/Personal/claude-skills
-for skill in commit-message custom-init estimate readme-generator review timesheet user-story; do
+for skill in commit-message custom-init estimate readme-generator timesheet user-story; do
   ln -sf ~/Projects/Personal/claude-skills/$skill ~/.claude/skills/$skill
 done
 
-# 6. dev-setup local skills (symlink from this repo)
+# 3. dev-setup local skills (symlink from this repo)
 for skill in sync-configuration install-dev-setup; do
   ln -sf ~/Projects/Personal/dev-setup/skills/$skill ~/.claude/skills/$skill
 done
@@ -1466,7 +1425,7 @@ Get the binary path and add it to `~/.claude.json` manually:
 
 ```bash
 # Get the path — will be something like:
-# /Users/<username>/.local/share/fnm/node-versions/<version>/installation/bin/file-stash
+# /Users/<username>/.local/share/mise/installs/node/<version>/bin/file-stash
 echo "$(npm prefix -g)/bin/file-stash"
 ```
 
@@ -1475,7 +1434,7 @@ The `mcpServers` block in `~/.claude.json`:
 ```json
 "mcpServers": {
   "filestash": {
-    "command": "/Users/<username>/.local/share/fnm/node-versions/<version>/installation/bin/file-stash",
+    "command": "/Users/<username>/.local/share/mise/installs/node/<version>/bin/file-stash",
     "args": ["serve"]
   }
 }
@@ -1703,7 +1662,7 @@ crontab -e
 Add:
 
 ```
-*/10 * * * * cd /Users/atilio/Projects/Github/claude-code-stats && python3 extract_stats.py 2>&1 >> update.log
+*/10 * * * * cd $HOME/Projects/Github/claude-code-stats && python3 extract_stats.py 2>&1 >> update.log
 ```
 
 This keeps the dashboard up to date in the background. Open `public/index.html` in any browser to view — it reads `dashboard_data.json` which is regenerated on each run.
@@ -1738,13 +1697,14 @@ This keeps the dashboard up to date in the background. Open `public/index.html` 
 [ ] Run: navi repo add denisidoro/cheats
 [ ] Install Spotify + run: spicetify backup apply + install Marketplace
 [ ] Install Claude Code (brew cask or npm)
-[ ] Create ~/.claude/CLAUDE.md (see section 14)
+[ ] Create ~/.claude/CLAUDE.md (see section 15)
 [ ] Copy ~/.claude/settings.json
 [ ] Copy ~/.claude/statusline-command.sh
-[ ] Create ~/.claude/hooks/ and copy pre-bash.sh, pre-websearch.sh + hooks.json
-[ ] Install Claude Code skills: gstack + fullstack-dev-skills + vercel-labs/agent-skills + everything-claude-code (see section 14)
-[ ] Install and configure file-stash MCP server (see section 14)
-[ ] Install LM Studio + download at least one model + install houtini-lm MCP (see section 14)
+[ ] Create ~/.claude/hooks/ and copy pre-bash.sh, pre-websearch.sh, post-edit-encoding.sh, context-mode-cache-heal.mjs + hooks.json
+[ ] Install Claude Code plugins: coderabbit + context-mode + token-optimizer (see section 15)
+[ ] Clone personal skills: git clone https://github.com/atilio-ts/claude-skills ~/Projects/Personal/claude-skills + create symlinks (see section 15)
+[ ] Install and configure file-stash MCP server (see section 15)
+[ ] Install LM Studio + download at least one model + install houtini-lm MCP (see section 15)
 [ ] Seed user profile memory files under ~/.claude/projects/.../memory/
 [ ] Apply macOS system preferences (see section 14 — Appearance, Trackpad, Keyboard, Finder, Dock, Mission Control, Accessibility, Energy)
 [ ] brew install --cask rectangle maccy appcleaner itsycal stats vlc

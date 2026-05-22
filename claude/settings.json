@@ -10,6 +10,13 @@
       "mcp__code-review-graph__get_architecture_overview_tool",
       "mcp__code-review-graph__get_hub_nodes_tool",
       "mcp__code-review-graph__list_communities_tool",
+      "mcp__plugin_context-mode_context-mode__ctx_batch_execute",
+      "mcp__plugin_context-mode_context-mode__ctx_execute",
+      "mcp__plugin_context-mode_context-mode__ctx_execute_file",
+      "mcp__plugin_context-mode_context-mode__ctx_search",
+      "mcp__plugin_context-mode_context-mode__ctx_fetch_and_index",
+      "mcp__plugin_context-mode_context-mode__ctx_index",
+      "mcp__plugin_context-mode_context-mode__ctx_stats",
       "mcp__filestash__stash_clear",
       "mcp__filestash__stash_status",
       "mcp__filestash__read_file",
@@ -47,9 +54,10 @@
       "mcp__github__*"
     ],
     "deny": [
-      "Read($HOME/.ssh/**)",
-      "Read($HOME/.aws/**)",
+      "Read(/Users/atilio/.ssh/**)",
+      "Read(/Users/atilio/.aws/**)",
       "Read(**/.env)",
+      "Read(**/*.env.*)",
       "Read(**/*.pem)",
       "Read(**/*.key)",
       "Bash(git reset --hard*)",
@@ -127,7 +135,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash $HOME/.claude/hooks/pre-bash.sh",
+            "command": "bash /Users/atilio/.claude/hooks/pre-bash.sh",
             "timeout": 5
           }
         ]
@@ -137,26 +145,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash $HOME/.claude/hooks/pre-websearch.sh",
+            "command": "bash /Users/atilio/.claude/hooks/pre-websearch.sh",
             "timeout": 10
-          }
-        ]
-      },
-      {
-        "matcher": "Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash $HOME/.claude/plugins/marketplaces/everything-claude-code/skills/strategic-compact/suggest-compact.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash $HOME/.claude/plugins/marketplaces/everything-claude-code/skills/strategic-compact/suggest-compact.sh"
           }
         ]
       },
@@ -173,12 +163,10 @@
     ],
     "SessionStart": [
       {
-        "matcher": "*",
         "hooks": [
           {
             "type": "command",
-            "command": "bash -lc 'input=$(cat); for root in \"${CLAUDE_PLUGIN_ROOT:-}\" \"$HOME/.claude/plugins/everything-claude-code\" \"$HOME/.claude/plugins/everything-claude-code@everything-claude-code\" \"$HOME/.claude/plugins/marketplace/everything-claude-code\"; do if [ -n \"$root\" ] \u0026\u0026 [ -f \"$root/scripts/hooks/run-with-flags.js\" ]; then printf \"%s\" \"$input\" | node \"$root/scripts/hooks/run-with-flags.js\" \"session:start\" \"scripts/hooks/session-start.js\" \"minimal,standard,strict\"; exit $?; fi; done; for parent in \"$HOME/.claude/plugins\" \"$HOME/.claude/plugins/marketplace\"; do if [ -d \"$parent\" ]; then candidate=$(find \"$parent\" -maxdepth 2 -type f -path \"*/scripts/hooks/run-with-flags.js\" 2\u003e/dev/null | head -n 1); if [ -n \"$candidate\" ]; then root=$(dirname \"$(dirname \"$(dirname \"$candidate\")\")\"); printf \"%s\" \"$input\" | node \"$root/scripts/hooks/run-with-flags.js\" \"session:start\" \"scripts/hooks/session-start.js\" \"minimal,standard,strict\"; exit $?; fi; fi; done; echo \"[SessionStart] WARNING: could not resolve ECC plugin root; skipping session-start hook\" \u003e\u00262; printf \"%s\" \"$input\"; exit 0'",
-            "timeout": 15
+            "command": "\"/Users/atilio/.claude/hooks/context-mode-cache-heal.mjs\""
           }
         ]
       }
@@ -186,11 +174,9 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "bash $HOME/.claude/statusline-command.sh"
+    "command": "bash /Users/atilio/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
-    "everything-claude-code@everything-claude-code": true,
-    "fullstack-dev-skills@fullstack-dev-skills": true,
     "coderabbit@claude-plugins-official": true,
     "context-mode@context-mode": true,
     "token-optimizer@alexgreensh-token-optimizer": true

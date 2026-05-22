@@ -1,12 +1,11 @@
 ---
 name: sync-configuration
-version: 1.0.0
+version: 2.0.0
 description: |
   Sync the live machine configuration into the dev-setup backup repo.
   Diffs all tracked config files (Claude, shell, git, nvim, vscode, atuin,
-  gh, spicetify) between the live system and the repo, reports what is out
-  of sync, copies live → repo, and commits the result.
-  Skip mise — this machine uses jenv and fnm.
+  gh, spicetify) between the live system and the repo, flags regressions,
+  copies live → repo, updates DEV_SETUP.md, and commits the result.
 allowed-tools:
   - Bash
   - Read
@@ -28,9 +27,38 @@ ls "$REPO"
 
 Confirm the repo exists. If not, stop and tell the user to clone it first.
 
-## Step 2 — Diff all tracked files
+## Step 2 — Detect REPO-ONLY files (regressions)
 
-Run these diffs in parallel and collect a findings list. For each file, report `[ok]` or `[DIFF]` with a short description of what changed.
+Before diffing, check for files that exist in the repo but NOT on the live machine. These may indicate intentional deletions or configuration cleanup — flag them for the user to confirm before removing.
+
+```bash
+REPO="$HOME/Projects/Personal/dev-setup"
+
+echo "=== REPO-ONLY hooks ==="
+for f in "$REPO/claude/hooks/"*; do
+  fname=$(basename "$f")
+  [ -e "$HOME/.claude/hooks/$fname" ] || echo "  REPO-ONLY: claude/hooks/$fname"
+done
+
+echo "=== REPO-ONLY agents ==="
+for f in "$REPO/claude/agents/"*.md 2>/dev/null; do
+  [ -e "$f" ] || continue
+  fname=$(basename "$f")
+  [ -e "$HOME/.claude/agents/$fname" ] || echo "  REPO-ONLY: claude/agents/$fname"
+done
+
+echo "=== REPO-ONLY rules ==="
+find "$REPO/claude/rules" -type f -name "*.md" | while read f; do
+  rel="${f#$REPO/claude/rules/}"
+  [ -e "$HOME/.claude/rules/$rel" ] || echo "  REPO-ONLY: claude/rules/$rel"
+done
+```
+
+Present any REPO-ONLY findings to the user and confirm whether to delete them from the repo before proceeding.
+
+## Step 3 — Diff all tracked files
+
+Run these diffs and collect a findings list. Report `[ok]` or `[DIFF]` for each file.
 
 ### Claude config
 
@@ -41,38 +69,51 @@ diff "$REPO/claude/settings.json"         "$HOME/.claude/settings.json"         
 diff "$REPO/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh" > /dev/null && echo "[ok] statusline-command.sh" || echo "[DIFF] statusline-command.sh"
 diff "$REPO/claude/RTK.md"               "$HOME/.claude/RTK.md"                > /dev/null && echo "[ok] RTK.md"               || echo "[DIFF] RTK.md"
 diff "$REPO/claude/houtini-ref.md"       "$HOME/.claude/houtini-ref.md"        > /dev/null && echo "[ok] houtini-ref.md"       || echo "[DIFF] houtini-ref.md"
-diff "$REPO/claude/AGENTS.md"            "$HOME/.claude/AGENTS.md"             > /dev/null && echo "[ok] AGENTS.md"            || echo "[DIFF] AGENTS.md (snapshot)"
-diff "$REPO/claude/README.md"            "$HOME/.claude/README.md"             > /dev/null && echo "[ok] README.md (claude)"   || echo "[DIFF] README.md (claude snapshot)"
-diff "$REPO/claude/marketplace.json"     "$HOME/.claude/marketplace.json"      > /dev/null && echo "[ok] marketplace.json"     || echo "[DIFF] marketplace.json (snapshot)"
-diff "$REPO/claude/plugin.json"          "$HOME/.claude/plugin.json"           > /dev/null && echo "[ok] plugin.json"          || echo "[DIFF] plugin.json (snapshot)"
-diff "$REPO/claude/PLUGIN_SCHEMA_NOTES.md" "$HOME/.claude/PLUGIN_SCHEMA_NOTES.md" > /dev/null && echo "[ok] PLUGIN_SCHEMA_NOTES.md" || echo "[DIFF] PLUGIN_SCHEMA_NOTES.md (snapshot)"
 ```
 
 ```bash
 REPO="$HOME/Projects/Personal/dev-setup"
-for f in "$REPO/claude/hooks/"*.{sh,json,md}; do
+# Hooks: discover dynamically, include .sh, .json, .md, .mjs
+for f in "$HOME/.claude/hooks/"*; do
   fname=$(basename "$f")
-  diff "$f" "$HOME/.claude/hooks/$fname" > /dev/null 2>&1 && echo "[ok] hooks/$fname" || echo "[DIFF] hooks/$fname"
-done
-for f in "$REPO/claude/agents/"*.md; do
-  fname=$(basename "$f")
-  diff "$f" "$HOME/.claude/agents/$fname" > /dev/null 2>&1 && echo "[ok] agents/$fname" || echo "[DIFF] agents/$fname"
-done
-for f in $(find "$REPO/claude/rules" -type f -name "*.md"); do
-  rel="${f#$REPO/claude/rules/}"
-  diff "$f" "$HOME/.claude/rules/$rel" > /dev/null 2>&1 && echo "[ok] rules/$rel" || echo "[DIFF] rules/$rel"
+  repo_f="$REPO/claude/hooks/$fname"
+  [ -e "$repo_f" ] && { diff "$repo_f" "$f" > /dev/null 2>&1 && echo "[ok] hooks/$fname" || echo "[DIFF] hooks/$fname"; } \
+    || echo "[NEW] hooks/$fname (not in repo yet)"
 done
 ```
 
 ```bash
 REPO="$HOME/Projects/Personal/dev-setup"
-for f in "$REPO/claude/memory/"*.md; do
+# Agents: discover dynamically (directory may be empty)
+shopt -s nullglob
+for f in "$HOME/.claude/agents/"*.md; do
   fname=$(basename "$f")
-  if [ "$fname" = "MEMORY.md" ]; then
-    diff "$f" "$HOME/.claude/MEMORY.md" > /dev/null 2>&1 && echo "[ok] memory/MEMORY.md (→ ~/.claude/MEMORY.md)" || echo "[DIFF] memory/MEMORY.md"
-  else
-    diff "$f" "$HOME/.claude/memory/$fname" > /dev/null 2>&1 && echo "[ok] memory/$fname" || echo "[DIFF] memory/$fname"
-  fi
+  repo_f="$REPO/claude/agents/$fname"
+  [ -e "$repo_f" ] && { diff "$repo_f" "$f" > /dev/null 2>&1 && echo "[ok] agents/$fname" || echo "[DIFF] agents/$fname"; } \
+    || echo "[NEW] agents/$fname (not in repo yet)"
+done
+shopt -u nullglob
+```
+
+```bash
+REPO="$HOME/Projects/Personal/dev-setup"
+# Rules: discover dynamically
+find "$HOME/.claude/rules" -type f -name "*.md" | while read f; do
+  rel="${f#$HOME/.claude/rules/}"
+  repo_f="$REPO/claude/rules/$rel"
+  [ -e "$repo_f" ] && { diff "$repo_f" "$f" > /dev/null 2>&1 && echo "[ok] rules/$rel" || echo "[DIFF] rules/$rel"; } \
+    || echo "[NEW] rules/$rel (not in repo yet)"
+done
+```
+
+```bash
+REPO="$HOME/Projects/Personal/dev-setup"
+# Global memory files
+for f in "$HOME/.claude/memory/"*.md; do
+  fname=$(basename "$f")
+  repo_f="$REPO/claude/memory/$fname"
+  [ -e "$repo_f" ] && { diff "$repo_f" "$f" > /dev/null 2>&1 && echo "[ok] memory/$fname" || echo "[DIFF] memory/$fname"; } \
+    || echo "[NEW] memory/$fname (not in repo yet)"
 done
 ```
 
@@ -80,39 +121,41 @@ done
 
 ```bash
 REPO="$HOME/Projects/Personal/dev-setup"
-diff "$REPO/shell/zshrc"            "$HOME/.zshrc"                                       > /dev/null && echo "[ok] zshrc"             || echo "[DIFF] zshrc"
-diff "$REPO/shell/p10k.zsh"         "$HOME/.p10k.zsh"                                    > /dev/null && echo "[ok] p10k.zsh"          || echo "[DIFF] p10k.zsh"
-diff "$REPO/shell/clipboard-cleaner.py" "$HOME/.local/bin/clipboard-cleaner.py"         > /dev/null && echo "[ok] clipboard-cleaner" || echo "[DIFF] clipboard-cleaner.py"
-diff "$REPO/git/gitignore_global"   "$HOME/.gitignore_global"                            > /dev/null && echo "[ok] gitignore_global"  || echo "[DIFF] gitignore_global"
-diff "$REPO/vscode/settings.json"   "$HOME/Library/Application Support/Code/User/settings.json" > /dev/null && echo "[ok] vscode/settings.json" || echo "[DIFF] vscode/settings.json"
-diff "$REPO/atuin/config.toml"      "$HOME/.config/atuin/config.toml"                    > /dev/null && echo "[ok] atuin/config.toml" || echo "[DIFF] atuin/config.toml"
-diff "$REPO/gh/config.yml"          "$HOME/.config/gh/config.yml"                        > /dev/null && echo "[ok] gh/config.yml"     || echo "[DIFF] gh/config.yml"
-diff "$REPO/nvim/init.lua"          "$HOME/.config/nvim/init.lua"                        > /dev/null && echo "[ok] nvim/init.lua"     || echo "[DIFF] nvim/init.lua"
-diff "$REPO/spicetify/config-xpui.ini" "$HOME/.config/spicetify/config-xpui.ini"       > /dev/null && echo "[ok] spicetify"         || echo "[DIFF] spicetify (likely version bump)"
+diff "$REPO/shell/zshrc"               "$HOME/.zshrc"                                              > /dev/null && echo "[ok] zshrc"             || echo "[DIFF] zshrc"
+diff "$REPO/shell/p10k.zsh"            "$HOME/.p10k.zsh"                                           > /dev/null && echo "[ok] p10k.zsh"          || echo "[DIFF] p10k.zsh"
+diff "$REPO/shell/clipboard-cleaner.py" "$HOME/.local/bin/clipboard-cleaner.py"                   > /dev/null && echo "[ok] clipboard-cleaner" || echo "[DIFF] clipboard-cleaner.py"
+diff "$REPO/git/gitignore_global"      "$HOME/.gitignore_global"                                   > /dev/null && echo "[ok] gitignore_global"  || echo "[DIFF] gitignore_global"
+diff "$REPO/vscode/settings.json"      "$HOME/Library/Application Support/Code/User/settings.json"> /dev/null && echo "[ok] vscode/settings"   || echo "[DIFF] vscode/settings.json"
+diff "$REPO/atuin/config.toml"         "$HOME/.config/atuin/config.toml"                           > /dev/null && echo "[ok] atuin/config.toml" || echo "[DIFF] atuin/config.toml"
+diff "$REPO/gh/config.yml"             "$HOME/.config/gh/config.yml"                               > /dev/null && echo "[ok] gh/config.yml"     || echo "[DIFF] gh/config.yml"
+diff "$REPO/nvim/init.lua"             "$HOME/.config/nvim/init.lua"                               > /dev/null && echo "[ok] nvim/init.lua"     || echo "[DIFF] nvim/init.lua"
+diff "$REPO/spicetify/config-xpui.ini" "$HOME/.config/spicetify/config-xpui.ini"                  > /dev/null && echo "[ok] spicetify"         || echo "[DIFF] spicetify (likely version bump)"
 ```
 
-Also check gitconfig for meaningful diffs (hash or new sections, ignoring name/email placeholders):
+Gitconfig — exclude machine-specific noise before comparing:
 
 ```bash
-diff <(grep -v "name = YOUR\|email = YOUR" "$HOME/Projects/Personal/dev-setup/git/gitconfig") \
-     <(grep -v "machineId\|name = \|email = " "$HOME/.gitconfig") > /dev/null \
+diff <(grep -v "name = YOUR\|email = YOUR\|git-commit-alias\|machineId" "$HOME/Projects/Personal/dev-setup/git/gitconfig") \
+     <(grep -v "name = \|email = \|git-commit-alias\|machineId" "$HOME/.gitconfig") > /dev/null \
   && echo "[ok] gitconfig (substantive)" || echo "[DIFF] gitconfig (substantive change)"
 ```
 
-## Step 3 — Present findings
+## Step 4 — Present findings
 
-Show the complete findings list to the user. Group by section:
-- **Claude** (CLAUDE.md, settings, hooks, agents, rules, memory, snapshots)
+Show the complete findings list to the user, grouped:
+- **Claude** (CLAUDE.md, settings, hooks, agents, rules, memory)
 - **Shell** (zshrc, p10k, clipboard-cleaner)
 - **Git** (gitconfig, gitignore_global)
 - **Editors** (nvim, vscode)
 - **Tools** (atuin, gh, spicetify)
 
+Flag any `[NEW]` items (on live but not in repo) and any REPO-ONLY items confirmed in Step 2. Ask the user to confirm before removing REPO-ONLY files.
+
 If everything is `[ok]`, tell the user the repo is fully in sync and stop.
 
-## Step 4 — Copy live → repo
+## Step 5 — Copy live → repo
 
-For every file that shows `[DIFF]`, copy the live version to the repo. Run copies in parallel where possible.
+For every file that shows `[DIFF]` or `[NEW]`, copy the live version to the repo.
 
 ### Claude config files
 
@@ -123,81 +166,94 @@ cp "$HOME/.claude/settings.json"         "$REPO/claude/settings.json"
 cp "$HOME/.claude/statusline-command.sh" "$REPO/claude/statusline-command.sh"
 cp "$HOME/.claude/RTK.md"               "$REPO/claude/RTK.md"
 cp "$HOME/.claude/houtini-ref.md"       "$REPO/claude/houtini-ref.md"
-cp "$HOME/.claude/AGENTS.md"            "$REPO/claude/AGENTS.md"
-cp "$HOME/.claude/README.md"            "$REPO/claude/README.md"
-cp "$HOME/.claude/marketplace.json"     "$REPO/claude/marketplace.json"
-cp "$HOME/.claude/plugin.json"          "$REPO/claude/plugin.json"
-cp "$HOME/.claude/PLUGIN_SCHEMA_NOTES.md" "$REPO/claude/PLUGIN_SCHEMA_NOTES.md"
 ```
+
+Hooks — copy all files from live, preserving any new extensions (.mjs etc.):
 
 ```bash
 REPO="$HOME/Projects/Personal/dev-setup"
-cp "$HOME/.claude/hooks/pre-bash.sh"           "$REPO/claude/hooks/pre-bash.sh"
-cp "$HOME/.claude/hooks/pre-websearch.sh"      "$REPO/claude/hooks/pre-websearch.sh"
-cp "$HOME/.claude/hooks/post-edit-encoding.sh" "$REPO/claude/hooks/post-edit-encoding.sh"
-cp "$HOME/.claude/hooks/hooks.json"            "$REPO/claude/hooks/hooks.json"
-cp "$HOME/.claude/hooks/README.md"             "$REPO/claude/hooks/README.md"
-cp "$HOME/.claude/agents/"*.md                 "$REPO/claude/agents/"
-cp "$HOME/.claude/rules/README.md"             "$REPO/claude/rules/README.md"
-cp "$HOME/.claude/rules/common/"*.md           "$REPO/claude/rules/common/"
-cp "$HOME/.claude/rules/kotlin/"*.md           "$REPO/claude/rules/kotlin/"
-cp "$HOME/.claude/rules/python/"*.md           "$REPO/claude/rules/python/"
-cp "$HOME/.claude/rules/typescript/"*.md       "$REPO/claude/rules/typescript/"
+for f in "$HOME/.claude/hooks/"*; do
+  cp "$f" "$REPO/claude/hooks/$(basename "$f")"
+done
 ```
+
+Agents — only copy if the directory is non-empty on live:
 
 ```bash
 REPO="$HOME/Projects/Personal/dev-setup"
-cp "$HOME/.claude/MEMORY.md"                        "$REPO/claude/memory/MEMORY.md"
-cp "$HOME/.claude/memory/user_profile.md"           "$REPO/claude/memory/user_profile.md"
-cp "$HOME/.claude/memory/feedback_filestash.md"     "$REPO/claude/memory/feedback_filestash.md"
-cp "$HOME/.claude/memory/feedback_houtini.md"       "$REPO/claude/memory/feedback_houtini.md"
-cp "$HOME/.claude/memory/feedback_file_editing.md"  "$REPO/claude/memory/feedback_file_editing.md"
+shopt -s nullglob
+agents=("$HOME/.claude/agents/"*.md)
+if [ ${#agents[@]} -gt 0 ]; then
+  cp "${agents[@]}" "$REPO/claude/agents/"
+else
+  echo "No agents on live machine — agents directory stays empty in repo"
+fi
+shopt -u nullglob
+```
+
+Rules — mirror directory structure:
+
+```bash
+REPO="$HOME/Projects/Personal/dev-setup"
+find "$HOME/.claude/rules" -type f -name "*.md" | while read f; do
+  rel="${f#$HOME/.claude/rules/}"
+  dest="$REPO/claude/rules/$rel"
+  mkdir -p "$(dirname "$dest")"
+  cp "$f" "$dest"
+done
+```
+
+Memory files:
+
+```bash
+REPO="$HOME/Projects/Personal/dev-setup"
+for f in "$HOME/.claude/memory/"*.md; do
+  cp "$f" "$REPO/claude/memory/$(basename "$f")"
+done
 ```
 
 ### Other config files
 
 ```bash
 REPO="$HOME/Projects/Personal/dev-setup"
-cp "$HOME/.zshrc"                  "$REPO/shell/zshrc"
-cp "$HOME/.p10k.zsh"               "$REPO/shell/p10k.zsh"
-cp "$HOME/.local/bin/clipboard-cleaner.py" "$REPO/shell/clipboard-cleaner.py"
-cp "$HOME/.gitignore_global"       "$REPO/git/gitignore_global"
-cp "$HOME/.config/atuin/config.toml"        "$REPO/atuin/config.toml"
-cp "$HOME/.config/gh/config.yml"            "$REPO/gh/config.yml"
-cp "$HOME/.config/nvim/init.lua"            "$REPO/nvim/init.lua"
-cp "$HOME/.config/nvim/lazy-lock.json"      "$REPO/nvim/lazy-lock.json"
-cp "$HOME/.config/spicetify/config-xpui.ini" "$REPO/spicetify/config-xpui.ini"
-cp "$HOME/Library/Application Support/Code/User/settings.json" "$REPO/vscode/settings.json"
+cp "$HOME/.zshrc"                                                            "$REPO/shell/zshrc"
+cp "$HOME/.p10k.zsh"                                                         "$REPO/shell/p10k.zsh"
+cp "$HOME/.local/bin/clipboard-cleaner.py"                                   "$REPO/shell/clipboard-cleaner.py"
+cp "$HOME/.gitignore_global"                                                 "$REPO/git/gitignore_global"
+cp "$HOME/.config/atuin/config.toml"                                         "$REPO/atuin/config.toml"
+cp "$HOME/.config/gh/config.yml"                                             "$REPO/gh/config.yml"
+cp "$HOME/.config/nvim/init.lua"                                             "$REPO/nvim/init.lua"
+cp "$HOME/.config/nvim/lazy-lock.json"                                       "$REPO/nvim/lazy-lock.json"
+cp "$HOME/.config/spicetify/config-xpui.ini"                                 "$REPO/spicetify/config-xpui.ini"
+cp "$HOME/Library/Application Support/Code/User/settings.json"               "$REPO/vscode/settings.json"
 ```
 
-For gitconfig: copy everything **except** the `[coderabbit]` section (machineId is machine-specific and should not be in the repo):
+Gitconfig — strip machine-specific sections and restore placeholders:
 
 ```bash
-grep -v "^\[coderabbit\]" "$HOME/.gitconfig" | grep -v "machineId" > "$HOME/Projects/Personal/dev-setup/git/gitconfig.tmp" \
-  && mv "$HOME/Projects/Personal/dev-setup/git/gitconfig.tmp" "$HOME/Projects/Personal/dev-setup/git/gitconfig"
+REPO="$HOME/Projects/Personal/dev-setup"
+# Remove coderabbit section and machine-specific fields
+awk '/^\[coderabbit\]/{skip=1} /^\[/ && !/^\[coderabbit\]/{skip=0} !skip' "$HOME/.gitconfig" \
+  | grep -v "machineId\|git-commit-alias" \
+  > "$REPO/git/gitconfig.tmp" \
+  && mv "$REPO/git/gitconfig.tmp" "$REPO/git/gitconfig"
+
+# Restore name/email placeholders
+sed -i '' 's/^\tname = .*/\tname = YOUR_NAME/'   "$REPO/git/gitconfig"
+sed -i '' 's/^\temail = .*/\temail = YOUR_EMAIL/' "$REPO/git/gitconfig"
 ```
 
-Then restore the `YOUR_NAME` / `YOUR_EMAIL` placeholders in the repo copy (the real values stay in live only):
+## Step 6 — Update DEV_SETUP.md
 
-```bash
-sed -i '' 's/^\tname = .*/\tname = YOUR_NAME/' "$HOME/Projects/Personal/dev-setup/git/gitconfig"
-sed -i '' 's/^\temail = .*/\temail = YOUR_EMAIL/' "$HOME/Projects/Personal/dev-setup/git/gitconfig"
-```
+After copying files, update `DEV_SETUP.md` to reflect the current state:
+- Update the **date** at the top to today
+- Update any plugin/tool lists if they changed (enabled plugins, hooks, etc.)
+- Update the **Reinstall script** section if new tools were added or removed
+- If agents were removed, update the Agents section to say "No custom agents configured"
 
-## Step 5 — Check for new memory files
+Read the current file first, then edit only the sections that are out of date.
 
-Check if there are any `.md` files in `~/.claude/memory/` that are NOT yet in the repo:
-
-```bash
-for f in "$HOME/.claude/memory/"*.md; do
-  fname=$(basename "$f")
-  [ -f "$HOME/Projects/Personal/dev-setup/claude/memory/$fname" ] || echo "NEW memory file: $fname"
-done
-```
-
-If new files are found, copy them to the repo as well.
-
-## Step 6 — Verify git status
+## Step 7 — Verify git status
 
 ```bash
 git -C "$HOME/Projects/Personal/dev-setup" status
@@ -205,17 +261,17 @@ git -C "$HOME/Projects/Personal/dev-setup" status
 
 Show the list of modified and untracked files. If nothing changed, tell the user everything was already in sync.
 
-## Step 7 — Commit
+## Step 8 — Commit
 
-Run the commit-message skill (`/commit-message`) to generate a commit message, or use this template:
+Use this commit message template:
 
 ```
 chore(sync): sync live machine config to repo
 ```
 
-With a body listing the sections that changed (e.g. `- claude: settings.json, statusline`, `- shell: zshrc`).
+With a body listing the sections that changed (e.g. `- claude: settings.json, hooks/context-mode-cache-heal.mjs`, `- shell: zshrc`).
 
-Then commit:
+Stage and commit:
 
 ```bash
 git -C "$HOME/Projects/Personal/dev-setup" add -A
@@ -227,6 +283,9 @@ Ask the user if they want to push to the remote before running `git push`.
 ## Notes
 
 - **Never** copy `~/.claude/stats-cache.json`, `history.jsonl`, session files, or anything under `~/.claude/cache/`, `sessions/`, `telemetry/` — these are runtime data, not config.
-- **Skip mise** — this machine uses `jenv` and `fnm` for Java/Node version management.
+- **gitconfig noise**: always strip `[oh-my-zsh] git-commit-alias` (plugin version hash) and `[coderabbit] machineId` — both are machine-specific and have no restore value.
 - **gitconfig placeholders** — always restore `YOUR_NAME` / `YOUR_EMAIL` in the repo copy. The real values belong only in the live `~/.gitconfig`.
+- **Empty agents dir** — if the live machine has no agents, leave `claude/agents/` empty in the repo (do not copy the directory itself, just ensure it's tracked).
+- **REPO-ONLY files** — always check Step 2 before copying. Files in the repo that no longer exist locally usually mean the user intentionally removed them. Confirm before deleting.
 - **Spicetify diffs** are usually just version bumps from auto-updates — include them anyway to keep the snapshot current.
+- **settings.json unicode escapes** — if the Edit tool fails to match text in settings.json, the file may contain JSON unicode escapes (`&` for `&`, `>` for `>`). Use the Write tool to rewrite the whole file in that case.

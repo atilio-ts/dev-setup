@@ -36,19 +36,16 @@ At the start of every conversation, check if `.vscode/CLAUDE.md` exists in the c
 
 - Preserve original character encoding (UTF-8 with accents) — never substitute or strip Spanish accent characters (á, é, í, ó, ú, ñ)
 - After editing files containing non-ASCII content, re-read the file to verify accents are intact
+- When spawning sub-agents for bilingual content tasks, explicitly instruct them to preserve all non-ASCII bytes
 
 ## Response Approach
 
-- Think before acting. Read existing files before writing code.
-- Be concise in output but thorough in reasoning.
 - Prefer editing over rewriting whole files.
 - Do not re-read files you have already read unless the file may have changed.
 - Skip files over 100KB unless explicitly required.
 - Suggest running `/cost` when a session is running long to monitor cache ratio.
 - Recommend starting a new session when switching to an unrelated task.
-- Test your code before declaring done.
 - No sycophantic openers or closing fluff.
-- Keep solutions simple and direct.
 - User instructions always override everything in this file.
 
 ## Code Style
@@ -89,14 +86,6 @@ Houtini connects Claude to a local LLM server (LM Studio at `http://192.168.0.13
 
 @houtini-ref.md
 
-## Compact Instructions
+## Model Routing
 
-When compacting, preserve:
-- houtini-lm tool names and offloading task table
-- RTK: all bash commands auto-proxied via rtk hook
-- Model routing: Haiku for workers/lightweight agents, Sonnet for main dev, Opus for architecture
-- file-stash: use mcp__filestash__read_file before built-in Read for exploration
-- Never mention AI/Claude/LLMs in any output, commit, or code comment
-- Scope Discipline: reviews produce a findings list only — no fixes without explicit confirmation
-- Commit Workflow: always run git status + git diff --cached + git log -5 before drafting any commit message
-- File Editing Safety: never strip Spanish accents (á é í ó ú ñ); re-read non-ASCII files after editing
+Default subagents to `model="haiku"` unless the task needs multi-file reasoning (Sonnet) or architecture decisions (Opus). For bounded single-message tasks under 4K tokens, prefer `mcp__houtini-lm__code_task` over any Claude subagent call.

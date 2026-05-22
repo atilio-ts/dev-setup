@@ -14,7 +14,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 ZSH_COLORIZE_STYLE="colorful"
 
 # Docker CLI completions (must be before oh-my-zsh)
-fpath=(/Users/atilio/.docker/completions $fpath)
+fpath=($HOME/.docker/completions $fpath)
 
 plugins=(
   git
@@ -62,7 +62,7 @@ source <(fzf --zsh)
 eval "$(zoxide init zsh)"
 
 # pnpm
-export PNPM_HOME="/Users/atilio/Library/pnpm"
+export PNPM_HOME="$HOME/Library/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
@@ -77,12 +77,12 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 export EDITOR=nvim
 export VISUAL=nvim
 
-# Python — prefer 3.13 (3.14 is pre-release)
-export PATH="/opt/homebrew/opt/python@3.13/libexec/bin:$PATH"
+# Python 3.14
+export PATH="/opt/homebrew/opt/python@3.14/libexec/bin:$PATH"
 
 # PATH extras
 PATH=~/.console-ninja/.bin:$PATH
-export PATH=/Users/atilio/.opencode/bin:$PATH
+export PATH=$HOME/.opencode/bin:$PATH
 export PATH="$HOME/.local/bin:$PATH"
 
 # direnv
@@ -102,8 +102,9 @@ alias watch='viddy'
 alias lg='lazygit'
 alias lzd='lazydocker'
 
-# LM Studio CLI
+# Added by LM Studio CLI (lms)
 export PATH="$PATH:$HOME/.lmstudio/bin"
+# End of LM Studio CLI section
 
 # Clipboard cleaner toggle
 # Background daemon (~/.local/bin/clipboard-cleaner.py) strips trailing whitespace
