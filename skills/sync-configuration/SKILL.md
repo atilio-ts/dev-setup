@@ -54,7 +54,18 @@ find "$REPO/claude/rules" -type f -name "*.md" | while read f; do
 done
 ```
 
-Present any REPO-ONLY findings to the user and confirm whether to delete them from the repo before proceeding.
+Note: `claude/rules/{python,typescript,kotlin}/*` are expected to show REPO-ONLY — per `rules/README.md` they're opt-in per-project installs (`./install.sh <language>`), not meant to be globally present on `~/.claude/rules`. Don't flag these as drift.
+
+```bash
+echo "=== Global skills not yet tracked in repo ==="
+for d in "$HOME/.claude/skills/"*/; do
+  n=$(basename "$d")
+  [ -L "${d%/}" ] && continue  # already a symlink, presumably into some repo — fine
+  [ -e "$REPO/claude/skills/$n" ] || echo "  UNTRACKED real dir: ~/.claude/skills/$n (not a symlink, not in repo)"
+done
+```
+
+Present any REPO-ONLY findings to the user and confirm whether to delete them from the repo before proceeding. `UNTRACKED real dir` findings are a different thing — see "Global skills" under Step 5.
 
 ## Step 3 — Diff all tracked files
 
@@ -119,11 +130,12 @@ done
 
 ### Other configs
 
+`zshrc` and `gitconfig` are hand-portabilized in the repo (`$HOME`, not `/Users/<user>/`) — see the warning under Step 5 before copying either. Diff them here just to detect that something changed, not to decide the copy is a straight `cp`.
+
 ```bash
 REPO="$HOME/Projects/Personal/dev-setup"
 diff "$REPO/shell/zshrc"               "$HOME/.zshrc"                                              > /dev/null && echo "[ok] zshrc"             || echo "[DIFF] zshrc"
 diff "$REPO/shell/p10k.zsh"            "$HOME/.p10k.zsh"                                           > /dev/null && echo "[ok] p10k.zsh"          || echo "[DIFF] p10k.zsh"
-diff "$REPO/shell/clipboard-cleaner.py" "$HOME/.local/bin/clipboard-cleaner.py"                   > /dev/null && echo "[ok] clipboard-cleaner" || echo "[DIFF] clipboard-cleaner.py"
 diff "$REPO/git/gitignore_global"      "$HOME/.gitignore_global"                                   > /dev/null && echo "[ok] gitignore_global"  || echo "[DIFF] gitignore_global"
 diff "$REPO/vscode/settings.json"      "$HOME/Library/Application Support/Code/User/settings.json"> /dev/null && echo "[ok] vscode/settings"   || echo "[DIFF] vscode/settings.json"
 diff "$REPO/atuin/config.toml"         "$HOME/.config/atuin/config.toml"                           > /dev/null && echo "[ok] atuin/config.toml" || echo "[DIFF] atuin/config.toml"
@@ -144,7 +156,7 @@ diff <(grep -v "name = YOUR\|email = YOUR\|git-commit-alias\|machineId" "$HOME/P
 
 Show the complete findings list to the user, grouped:
 - **Claude** (CLAUDE.md, settings, hooks, agents, rules, memory)
-- **Shell** (zshrc, p10k, clipboard-cleaner)
+- **Shell** (zshrc, p10k)
 - **Git** (gitconfig, gitignore_global)
 - **Editors** (nvim, vscode)
 - **Tools** (atuin, gh, spicetify)
@@ -157,7 +169,41 @@ If everything is `[ok]`, tell the user the repo is fully in sync and stop.
 
 For every file that shows `[DIFF]` or `[NEW]`, copy the live version to the repo.
 
+**Exception — `zshrc` and `gitconfig`: never blind-copy.** The repo copies of these two files have hardcoded `/Users/<user>/` paths hand-rewritten to `$HOME` (portability — see repo memory `feedback_portable_paths`). Live's raw files use hardcoded paths in several spots. A straight `cp` regresses that. Instead: diff live against the *previous* live snapshot (or just read both) to find the *substantive* lines that changed (new tool block added/removed, version bumped, PATH addition) and hand-edit only those into the repo copy, keeping every path in `$HOME` form. Do the same in reverse for `gitconfig` — restore the `YOUR_NAME`/`YOUR_EMAIL` placeholders and `$HOME`-form `excludesfile` regardless of what live currently has.
+
+### Global skills
+
+Some personal skills under `~/.claude/skills/` are real directories rather than symlinks — meaning their content isn't backed up in any repo yet. For each one found by the Step 2 "Global skills not yet tracked" check:
+
+```bash
+REPO="$HOME/Projects/Personal/dev-setup"
+mkdir -p "$REPO/claude/skills/<name>"
+cp -r "$HOME/.claude/skills/<name>/"* "$REPO/claude/skills/<name>/" 2>/dev/null
+# if the source dir is empty, at least track it:
+touch "$REPO/claude/skills/<name>/.gitkeep"
+
+# then re-link so it's never duplicated again:
+mv "$HOME/.claude/skills/<name>" "$HOME/.claude/skills/.pre-symlink-backup/<name>"  # reversible, don't rm -rf
+ln -s "$REPO/claude/skills/<name>" "$HOME/.claude/skills/<name>"
+```
+
+This matches the convention already used for skills like `commit-message`, `estimate`, etc., which symlink into the sibling `~/Projects/Personal/claude-skills` repo — the point is content lives in exactly one repo, `~/.claude/skills/<name>` is always just a pointer. `install-dev-setup` should set up the same symlinks on a fresh machine (see that skill).
+
 ### Claude config files
+
+**Before copying `settings.json`, strip `autoMode`.** `autoMode.environment`/`soft_deny` is auto-learned per-project session context, not portable machine config — it has previously contained an internal corporate git hostname and institutional (OCA) repo paths. This must never reach the GitHub remote. Check the live file for an `autoMode` key and remove it from the copy going into the repo (keep it on live, it's useful there):
+
+```bash
+python3 -c "
+import json
+p = '$HOME/.claude/settings.json'
+d = json.load(open(p))
+d.pop('autoMode', None)
+print(json.dumps(d))
+" > /tmp/settings-for-repo.json
+```
+
+Then diff `/tmp/settings-for-repo.json` against the repo copy instead of the raw live file, and copy that instead of `$HOME/.claude/settings.json` directly below.
 
 ```bash
 REPO="$HOME/Projects/Personal/dev-setup"
@@ -218,7 +264,6 @@ done
 REPO="$HOME/Projects/Personal/dev-setup"
 cp "$HOME/.zshrc"                                                            "$REPO/shell/zshrc"
 cp "$HOME/.p10k.zsh"                                                         "$REPO/shell/p10k.zsh"
-cp "$HOME/.local/bin/clipboard-cleaner.py"                                   "$REPO/shell/clipboard-cleaner.py"
 cp "$HOME/.gitignore_global"                                                 "$REPO/git/gitignore_global"
 cp "$HOME/.config/atuin/config.toml"                                         "$REPO/atuin/config.toml"
 cp "$HOME/.config/gh/config.yml"                                             "$REPO/gh/config.yml"
@@ -289,3 +334,4 @@ Ask the user if they want to push to the remote before running `git push`.
 - **REPO-ONLY files** — always check Step 2 before copying. Files in the repo that no longer exist locally usually mean the user intentionally removed them. Confirm before deleting.
 - **Spicetify diffs** are usually just version bumps from auto-updates — include them anyway to keep the snapshot current.
 - **settings.json unicode escapes** — if the Edit tool fails to match text in settings.json, the file may contain JSON unicode escapes (`&` for `&`, `>` for `>`). Use the Write tool to rewrite the whole file in that case.
+- **Third-party tool hooks in settings.json** (e.g. `~/.pixel-agents/...`, `~/.orca/...`) — copy as-is, they're a faithful machine snapshot and both are written to no-op safely when their server/registry is absent. Note in DEV_SETUP.md that these are optional integrations tied to tools this repo's `setup.sh` doesn't install — a new machine's owner decides independently whether to set them up.

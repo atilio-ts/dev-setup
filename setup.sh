@@ -137,6 +137,22 @@ cp "$REPO/claude/memory/MEMORY.md" "$HOME/.claude/MEMORY.md"
 cp "$REPO/claude/memory/"*.md "$HOME/.claude/memory/"
 ok "Claude global memory seeded"
 
+# ─── code-review-graph ───────────────────────────────────────────────────────
+step "code-review-graph"
+if ! command -v code-review-graph &>/dev/null; then
+  pipx install code-review-graph
+  ok "code-review-graph installed"
+else
+  ok "code-review-graph already installed"
+fi
+mkdir -p "$HOME/.claude/code-review-graph"
+cp "$REPO/claude/code-review-graph/languages.toml" "$HOME/.claude/code-review-graph/languages.toml"
+ok "Global languages.toml (markdown) copied to ~/.claude/code-review-graph/"
+bash "$REPO/code-review-graph/apply-patches.sh"
+ok "code-review-graph patches applied (.vscode visibility, global languages.toml fallback, .vscode-scoped config path)"
+warn "Reapply patches after every 'pipx upgrade code-review-graph' — run: $REPO/code-review-graph/apply-patches.sh"
+warn "Build new projects with: code-review-graph build --data-dir .vscode/code-review-graph"
+
 # ─── Spicetify ───────────────────────────────────────────────────────────────
 step "Spicetify"
 if command -v spicetify &>/dev/null && [ -d "/Applications/Spotify.app" ]; then

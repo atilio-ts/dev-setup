@@ -152,25 +152,7 @@ Verify:
 code --version
 ```
 
-## Step 9 — Manual: clipboard cleaner daemon
-
-Install the clipboard cleaner Python script and LaunchAgent:
-
-```bash
-mkdir -p ~/.local/bin
-cp ~/Projects/Personal/dev-setup/shell/clipboard-cleaner.py ~/.local/bin/clipboard-cleaner.py
-chmod +x ~/.local/bin/clipboard-cleaner.py
-cp ~/Projects/Personal/dev-setup/launchagents/local.clipboard-cleaner.plist ~/Library/LaunchAgents/
-launchctl load ~/Library/LaunchAgents/local.clipboard-cleaner.plist
-```
-
-Verify:
-
-```bash
-launchctl list | grep clipboard
-```
-
-## Step 10 — Manual: Claude Code setup
+## Step 9 — Manual: Claude Code setup
 
 ### Install Claude Code (if not installed)
 
@@ -187,11 +169,13 @@ claude login
 
 ### Install Claude Code plugins
 
-After first login, install the three active plugins from the marketplace:
+After first login, install the active plugins from the marketplace:
 
 1. **coderabbit** — `coderabbit@claude-plugins-official`
 2. **context-mode** — `context-mode@context-mode`
 3. **token-optimizer** — `token-optimizer@alexgreensh-token-optimizer`
+4. **caveman** — `caveman@caveman`
+5. **ponytail** — `ponytail@ponytail`
 
 ### Set GITHUB_TOKEN for GitHub MCP
 
@@ -210,15 +194,23 @@ chmod +x ~/.claude/hooks/*.sh
 ls -la ~/.claude/hooks/
 ```
 
-There should be 4 hooks: `pre-bash.sh`, `pre-websearch.sh`, `post-edit-encoding.sh`, `context-mode-cache-heal.mjs`.
+There should be 8 hooks: `pre-bash.sh`, `pre-websearch.sh`, `post-edit-encoding.sh`, `context-mode-cache-heal.mjs`, `code-review-graph-guard.sh`, `file-stash-guard.sh`, `prefer-search-tools-guard.sh`, `session-start-tool-reminders.sh`.
+
+`settings.json` also wires most events (Notification, PermissionRequest, PostToolUse, Stop, etc.) to two third-party local tools — `~/.pixel-agents/hooks/claude-hook.js` and `~/.orca/agent-hooks/claude-hook.sh` — plus an iTerm2 status script. These aren't installed by this repo's `setup.sh`; both hook scripts no-op safely (`exit 0`) if the tool isn't present, so leaving them in `settings.json` is harmless on a machine that doesn't have `pixel-agents`/`orca`/iTerm2 installed. Install those tools separately only if you want the integration.
 
 ### Verify skills are linked
 
 ```bash
-ls ~/.claude/skills/
+ls -la ~/.claude/skills/
 ```
 
-Should include: `sync-configuration`, `install-dev-setup`.
+Should include the project skills `sync-configuration`, `install-dev-setup` (discovered from this repo's `skills/` dir, not symlinked), plus symlinks for personal global skills — `context7-mcp` and `learned` should point into `dev-setup/claude/skills/`, matching the pattern used for skills like `commit-message` (which point into the sibling `claude-skills` repo). Re-create any missing symlink:
+
+```bash
+REPO="$HOME/Projects/Personal/dev-setup"
+ln -s "$REPO/claude/skills/context7-mcp" "$HOME/.claude/skills/context7-mcp"
+ln -s "$REPO/claude/skills/learned" "$HOME/.claude/skills/learned"
+```
 
 ## Step 11 — Manual: pipx tools
 
@@ -288,8 +280,8 @@ Present a final summary: what's configured, what still needs manual attention.
 
 - **mise**: Used for all runtime version management — Node, Java, and Python. No jenv or fnm on this machine.
 - **Agents**: No custom agents are installed. The `~/.claude/agents/` directory should be empty.
-- **Plugins**: Only 3 active plugins: `coderabbit`, `context-mode`, `token-optimizer`. No ECC or fullstack-dev-skills.
-- **Hooks**: 4 hooks total — `pre-bash.sh` (safety guards), `pre-websearch.sh` (search guard), `post-edit-encoding.sh` (encoding check), `context-mode-cache-heal.mjs` (SessionStart, fixes plugin cache path bug).
+- **Plugins**: 5 active plugins: `coderabbit`, `context-mode`, `token-optimizer`, `caveman`, `ponytail`. No ECC or fullstack-dev-skills.
+- **Hooks**: 8 hooks total — `pre-bash.sh` (safety guards), `pre-websearch.sh` (search guard), `post-edit-encoding.sh` (encoding check), `context-mode-cache-heal.mjs` (SessionStart, fixes plugin cache path bug), `code-review-graph-guard.sh` (nudges toward code-review-graph over Glob/Grep), `file-stash-guard.sh` (nudges toward file-stash reads), `prefer-search-tools-guard.sh` (nudges toward rg/fd over grep/find), `session-start-tool-reminders.sh` (SessionStart, prints tool-priority reminders). `settings.json` additionally wires `pixel-agents`/`orca`/iTerm2 integrations — see "Verify hooks are executable" above.
 - **Spicetify**: Requires Spotify to be installed first. Theme (Comfy) needs to be installed via Spicetify Marketplace after first launch.
 - **claude-code-stats**: Config file at `~/Projects/Github/claude-code-stats/config.json` — update `display_name` and `plan_history` after install.
 - **GITHUB_TOKEN**: Required for the GitHub MCP server. Without it, the MCP loads but API calls fail.

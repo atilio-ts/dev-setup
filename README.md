@@ -12,8 +12,7 @@ See [DEV_SETUP.md](DEV_SETUP.md) for the full setup guide.
 ├── setup.sh                  # Automated restore script
 ├── shell/
 │   ├── zshrc                 # ~/.zshrc
-│   ├── p10k.zsh              # ~/.p10k.zsh (Powerlevel10k theme config)
-│   └── clipboard-cleaner.py  # ~/.local/bin/clipboard-cleaner.py (strips trailing spaces from clipboard)
+│   └── p10k.zsh              # ~/.p10k.zsh (Powerlevel10k theme config)
 ├── git/
 │   ├── gitconfig             # ~/.gitconfig (placeholders for name/email)
 │   ├── gitignore_global      # ~/.gitignore_global
@@ -38,15 +37,23 @@ See [DEV_SETUP.md](DEV_SETUP.md) for the full setup guide.
 │   │   ├── pre-websearch.sh          # ~/.claude/hooks/pre-websearch.sh
 │   │   ├── post-edit-encoding.sh     # ~/.claude/hooks/post-edit-encoding.sh
 │   │   ├── context-mode-cache-heal.mjs # ~/.claude/hooks/ (SessionStart — fixes plugin cache path)
+│   │   ├── code-review-graph-guard.sh # ~/.claude/hooks/ (PreToolUse — nudge to code-review-graph)
+│   │   ├── file-stash-guard.sh       # ~/.claude/hooks/ (PreToolUse — nudge to file-stash)
+│   │   ├── prefer-search-tools-guard.sh # ~/.claude/hooks/ (PreToolUse — nudge to rg/fd)
+│   │   ├── session-start-tool-reminders.sh # ~/.claude/hooks/ (SessionStart)
 │   │   ├── hooks.json                # ~/.claude/hooks/hooks.json
 │   │   └── README.md                 # Hook documentation
 │   ├── rules/
 │   │   ├── README.md         # Rules overview
+│   │   ├── context7.md       # ~/.claude/rules/context7.md (Context7 MCP usage)
 │   │   ├── common/           # Language-agnostic rules (always active)
-│   │   ├── kotlin/           # Kotlin-specific rules
-│   │   ├── python/           # Python-specific rules
-│   │   └── typescript/       # TypeScript-specific rules
+│   │   ├── kotlin/           # Kotlin-specific rules (opt-in, ./install.sh kotlin)
+│   │   ├── python/           # Python-specific rules (opt-in, ./install.sh python)
+│   │   └── typescript/       # TypeScript-specific rules (opt-in, ./install.sh typescript)
 │   ├── agents/               # No custom agents (empty)
+│   ├── skills/                   # Global skills without a home in the claude-skills repo
+│   │   ├── context7-mcp/SKILL.md # symlinked to ~/.claude/skills/context7-mcp
+│   │   └── learned/.gitkeep      # symlinked to ~/.claude/skills/learned (currently empty)
 │   └── memory/
 │       ├── MEMORY.md             # Global memory index → ~/.claude/MEMORY.md
 │       ├── user_profile.md       # Who Atilio is
@@ -61,13 +68,12 @@ See [DEV_SETUP.md](DEV_SETUP.md) for the full setup guide.
 │   └── config.toml           # ~/.config/atuin/config.toml
 ├── launchagents/
 │   ├── com.atilio.brew-upgrade.plist  # ~/Library/LaunchAgents/ (weekly brew upgrade)
-│   ├── homebrew.asimov.plist          # ~/Library/LaunchAgents/ (exclude brew from Time Machine)
-│   └── local.clipboard-cleaner.plist  # ~/Library/LaunchAgents/ (clipboard cleaner daemon)
+│   └── homebrew.asimov.plist          # ~/Library/LaunchAgents/ (exclude brew from Time Machine)
 ├── skills/
 │   ├── install-dev-setup/    # Claude skill: interactive full dev environment installation guide
-│   │   └── SKILL.md           # linked to ~/.claude/skills/install-dev-setup
+│   │   └── SKILL.md           # project-scoped — discovered from cwd, not symlinked
 │   └── sync-configuration/   # Claude skill: sync live machine config → this repo
-│       └── SKILL.md           # linked to ~/.claude/skills/sync-configuration
+│       └── SKILL.md           # project-scoped — discovered from cwd, not symlinked
 └── spicetify/
     └── config-xpui.ini       # ~/.config/spicetify/config-xpui.ini
 ```

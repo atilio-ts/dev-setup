@@ -1,6 +1,6 @@
 # Developer Setup — Atilio Villalba
 
-> Last updated: 2026-05-21
+> Last updated: 2026-09-17
 > Goal: replicate this exact environment on a new macOS (Apple Silicon) machine from scratch.
 
 ---
@@ -66,7 +66,7 @@ This installs all formulas and casks at once. To update the Brewfile after insta
 brew bundle dump --file=~/Brewfile --force
 ```
 
-> **Note:** `brew bundle dump` only captures explicitly installed packages, not those installed as dependencies. The manual formula list below is the authoritative reference — use it to cross-check after a bundle restore. Known gaps in the Brewfile: `python@3.14`, `tmux`, `bash`, `gradle-completion`, `openjdk`.
+> **Note:** `brew bundle dump` only captures explicitly installed packages, not those installed as dependencies. The manual formula list below is the authoritative reference — use it to cross-check after a bundle restore. Known gaps in the Brewfile: `python@3.13`, `tmux`, `bash`, `gradle-completion`, `openjdk`.
 
 ### Formulas
 
@@ -295,51 +295,6 @@ alias lzd='lazydocker'
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:$HOME/.lmstudio/bin"
 # End of LM Studio CLI section
-
-# Clipboard cleaner toggle
-# Background daemon (~/.local/bin/clipboard-cleaner.py) strips trailing whitespace
-# from every clipboard change automatically. Use this command to pause/resume it.
-clipclean() {
-  case "$1" in
-    on)
-      rm -f ~/.clipboard-cleaner.pause
-      echo "clipboard cleaner: active"
-      ;;
-    off)
-      touch ~/.clipboard-cleaner.pause
-      echo "clipboard cleaner: paused"
-      ;;
-    status|"")
-      if [[ -f ~/.clipboard-cleaner.pause ]]; then
-        echo "clipboard cleaner: paused"
-      else
-        echo "clipboard cleaner: active"
-      fi
-      ;;
-    help|--help|-h)
-      echo ""
-      echo "  clipclean — background clipboard cleaner"
-      echo ""
-      echo "  Automatically strips trailing whitespace from anything you copy."
-      echo "  Useful when copying commands from Claude Code output, which adds"
-      echo "  extra spaces that break pasting into the terminal."
-      echo ""
-      echo "  Usage:"
-      echo "    clipclean           show current status"
-      echo "    clipclean on        resume cleaning (default at login)"
-      echo "    clipclean off       pause cleaning temporarily"
-      echo "    clipclean help      show this message"
-      echo ""
-      echo "  Daemon:    ~/.local/bin/clipboard-cleaner.py"
-      echo "  LaunchAgent: ~/Library/LaunchAgents/local.clipboard-cleaner.plist"
-      echo "  Pause flag:  ~/.clipboard-cleaner.pause (created by 'clipclean off')"
-      echo ""
-      ;;
-    *)
-      echo "clipclean: unknown command '$1' — run 'clipclean help' for usage"
-      ;;
-  esac
-}
 ```
 
 > All shell config paths use `$HOME` and are portable. Only `~/.claude/settings.json` hardcodes `/Users/<username>/` in hook paths — update those after copying (see section 15).
@@ -530,6 +485,8 @@ The config also contains **Conventional Commits git aliases** (`feat`, `fix`, `r
 ---
 
 ## 6. Node.js — mise + pnpm + bun
+
+mise stays the standing choice for Node/Java version management on this machine — do not replace it with jenv/fnm. (An experimental jenv addition briefly replaced the mise `activate` line in `~/.zshrc`; reverted during this sync.)
 
 ### Current versions
 
@@ -1286,10 +1243,11 @@ Key blocks it contains:
 - `permissions.allow` — pre-approves read-only tools, file-stash, houtini-lm, context-mode, and safe git/bash commands
 - `permissions.deny` — blocks all destructive commands at the permission layer
 - `enableAllProjectMcpServers` — auto-enables any `.mcp.json` found in a project root without per-project config
-- `hooks.PreToolUse` — Bash safety hook and WebSearch approval prompt
-- `hooks.PostToolUse` — encoding integrity check after edits
-- `hooks.SessionStart` — context-mode plugin cache self-heal
-- `enabledPlugins` + `extraKnownMarketplaces` — coderabbit, context-mode, and token-optimizer marketplace plugins
+- `hooks.*` — Bash safety, WebSearch approval, encoding check, context-mode self-heal, code-review-graph/file-stash/search-tool guard rails, session-start reminders, plus third-party `pixel-agents`/`orca`/iTerm2 integrations (see the Hooks subsection below)
+- `enabledPlugins` + `extraKnownMarketplaces` — coderabbit, context-mode, token-optimizer, caveman, ponytail marketplace plugins
+- `model`, `skillOverrides`, `tui`, `advisorModel`, `autoCompactEnabled`, `autoUpdatesChannel`, `remoteControlAtStartup` — session behavior tuning, added since the last sync
+
+> **`autoMode` intentionally excluded.** Live `settings.json` carries an `autoMode.environment`/`soft_deny` block auto-learned by a specific project session — it is per-project, not portable machine config, and must never leave this machine's disk: it names an internal corporate git host and an institutional (OCA) repo. Never copy `autoMode` into this repo. If it reappears on a future sync, strip it again before committing.
 
 > Update the username in all paths before copying.
 
@@ -1338,9 +1296,35 @@ Verifies UTF-8 encoding integrity after file edits to ensure non-ASCII character
 
 Fixes a known Claude Code bug (#46915) where auto-updates can break the context-mode plugin's install path. Runs at session start and self-heals the symlink if broken. Pure Node.js — no shell dependency.
 
+#### `~/.claude/hooks/code-review-graph-guard.sh` (PreToolUse)
+
+Blocks Glob/Grep in a project that has a code-review-graph database, nudging toward the MCP graph tools instead.
+
+#### `~/.claude/hooks/file-stash-guard.sh` (PreToolUse)
+
+Blocks the built-in Read tool for pure exploration when file-stash is available, nudging toward `mcp__filestash__read_file`/`read_files`.
+
+#### `~/.claude/hooks/prefer-search-tools-guard.sh` (PreToolUse)
+
+Blocks `grep`/`find` in Bash commands, nudging toward `rg`/`fd` (faster, respects `.gitignore`).
+
+#### `~/.claude/hooks/session-start-tool-reminders.sh` (SessionStart)
+
+Prints tool-priority reminders (file-stash, context-mode, code-review-graph) at the start of every session.
+
 #### `~/.claude/hooks/hooks.json`
 
 Hook configuration used by the context-mode and token-optimizer plugins. Defines PreCompact, PostCompact, and session lifecycle hooks.
+
+#### Third-party tool hooks (not provisioned by this repo)
+
+`settings.json` also wires nearly every hook event (`Notification`, `PermissionRequest`, `PostToolUse`, `Stop`, `SessionStart`, etc.) to two locally-installed tools:
+
+- `~/.pixel-agents/hooks/claude-hook.js` — pane/session tracking for the **pixel-agents** multi-agent orchestration tool
+- `~/.orca/agent-hooks/claude-hook.sh` — same purpose for the **orca** tool, plus a Windows-only PowerShell branch that never runs on macOS
+- `~/.config/iterm2/cc-status` — feeds session state to an iTerm2 status widget
+
+These are machine-specific examples tied to tools installed independently of `setup.sh` — a new machine's owner decides whether to install `pixel-agents`/`orca`/the iTerm2 integration. All three hook scripts are written to no-op safely (`exit 0`) when their target tool/server isn't present, so leaving the entries in `settings.json` on a machine without those tools is harmless.
 
 ### Rules — `~/.claude/rules/common/`
 
@@ -1373,6 +1357,8 @@ No custom agents configured. The `~/.claude/agents/` directory is empty — all 
 | coderabbit | `coderabbit@claude-plugins-official` | `autofix`, `code-review` |
 | context-mode | `context-mode@context-mode` | Context optimization and token savings |
 | token-optimizer | `token-optimizer@alexgreensh-token-optimizer` | Token usage tracking and auditing |
+| caveman | `caveman@caveman` | Terse response-compression persona |
+| ponytail | `ponytail@ponytail` | Lazy/minimal-diff engineering persona |
 
 **Personal skills** — stored at https://github.com/atilio-ts/claude-skills, cloned to
 `~/Projects/Personal/claude-skills/` and symlinked into `~/.claude/skills/`:
@@ -1384,10 +1370,15 @@ No custom agents configured. The `~/.claude/agents/` directory is empty — all 
 - `timesheet` — generates Clockify-format timesheet entries from git branch changes (English/Spanish, max 3h per task)
 - `user-story` — writes user stories and Jira tasks
 
-**dev-setup skills** — stored in this repo under `skills/`, symlinked into `~/.claude/skills/`:
+**dev-setup project skills** — stored in this repo under `skills/`, discovered from the repo's working directory (NOT symlinked into `~/.claude/skills` — they're project-scoped, only active while working inside this repo):
 
 - `sync-configuration` — syncs live machine config back to this repo (run periodically to keep backup current)
 - `install-dev-setup` — interactive step-by-step guide to install this full dev environment on a new machine
+
+**dev-setup global skills** — stored in this repo under `claude/skills/`, symlinked into `~/.claude/skills/` (personal skills that don't have a home in the separate `claude-skills` repo):
+
+- `context7-mcp` — Context7 MCP usage notes
+- `learned` — currently empty placeholder (tracked with `.gitkeep`)
 
 #### Reinstall skills on new machine
 
@@ -1396,6 +1387,8 @@ No custom agents configured. The `~/.claude/agents/` directory is empty — all 
 claude plugin install coderabbit@claude-plugins-official
 claude plugin install context-mode@context-mode
 claude plugin install token-optimizer@alexgreensh-token-optimizer
+claude plugin install caveman@caveman
+claude plugin install ponytail@ponytail
 
 # 2. Personal skills (clone repo and create symlinks)
 git clone https://github.com/atilio-ts/claude-skills ~/Projects/Personal/claude-skills
@@ -1403,11 +1396,13 @@ for skill in commit-message custom-init estimate readme-generator timesheet user
   ln -sf ~/Projects/Personal/claude-skills/$skill ~/.claude/skills/$skill
 done
 
-# 3. dev-setup local skills (symlink from this repo)
-for skill in sync-configuration install-dev-setup; do
-  ln -sf ~/Projects/Personal/dev-setup/skills/$skill ~/.claude/skills/$skill
+# 3. dev-setup global skills (symlink from this repo — content lives only here)
+for skill in context7-mcp learned; do
+  ln -sf ~/Projects/Personal/dev-setup/claude/skills/$skill ~/.claude/skills/$skill
 done
 ```
+
+> `sync-configuration` and `install-dev-setup` need no symlink step — Claude Code discovers them automatically from `skills/` when working inside this repo.
 
 > The marketplace and enabledPlugins entries are already in `settings.json` — they will be applied when the file is copied.
 
@@ -1437,12 +1432,21 @@ The `mcpServers` block in `~/.claude.json`:
 "mcpServers": {
   "filestash": {
     "command": "/Users/<username>/.local/share/mise/installs/node/<version>/bin/file-stash",
-    "args": ["serve"]
+    "args": ["serve"],
+    "env": {
+      "FILESTASH_DIR": ".vscode/file-stash"
+    }
   }
 }
 ```
 
 Replace `<username>` and `<version>` with the output of the command above. Restart Claude Code after editing.
+
+**`.vscode/`-scoped stash directory, no patch needed.** Unlike code-review-graph, file-stash needs no source patch at all — `getStashDir()` in the installed package (`agent-file-stash`, `dist/cli.mjs`) already reads `process.env.FILESTASH_DIR ?? ".file-stash"` and resolves it with `path.resolve()` against the server process's `cwd` (the project directory, same `$PWD`-at-startup resolution code-review-graph uses). Setting `FILESTASH_DIR=.vscode/file-stash` once in the global MCP registration above relocates the stash database under `.vscode/` for every project automatically — no separate `.filestash`/`.file-stash` line needed in any project's `.gitignore`, same rationale as the code-review-graph move.
+
+This is a manual, one-time edit to `~/.claude.json` — per the standing rule (see `custom-init`'s Important Notes), tooling never edits that file automatically, only prints instructions. Restart Claude Code after adding the `env` block for it to take effect; existing `.file-stash/` directories at repo roots are stale once this is set and can be deleted (they hold a cache, not anything precious — file-stash rebuilds it from scratch on first read).
+
+> Bug found while auditing this: `custom-init`'s Step 7 (`.gitignore` update) checks for a `.filestash` line (no hyphen), but the tool's real default directory is `.file-stash` (with hyphen) — the two have never matched. Harmless while `.file-stash` sat at the repo root outside `.vscode` (git still ignored it via the literal name once added correctly elsewhere), but worth fixing in `custom-init` regardless, especially now that Step 7 no longer needs a `.filestash`/`.file-stash` entry at all if `FILESTASH_DIR` is set globally.
 
 ### MCP Server — code-review-graph (per-project)
 
@@ -1454,13 +1458,48 @@ Install:
 pipx install code-review-graph
 ```
 
-Build the graph in a project:
+Build the graph, storing everything under `.vscode/` instead of a top-level `.code-review-graph/` (so it rides along with `.vscode` being gitignored — no separate `.code-review-graph` gitignore entry needed):
 
 ```bash
-code-review-graph build
+code-review-graph build --data-dir .vscode/code-review-graph
 ```
 
-The graph lives in `.code-review-graph/` in the project root. Claude Code detects it automatically via the MCP plugin — no manual `~/.claude.json` entry needed. See the CLAUDE.md rules for usage patterns.
+`--data-dir` is a first-class flag (not a patch) that persists in a machine-wide registry at `~/.code-review-graph/registry.json`, keyed by resolved repo path — set it once per repo and every later `code-review-graph build` / `status` / MCP tool call resolves there automatically, no need to pass the flag again. Claude Code detects the graph automatically via the MCP plugin — no manual `~/.claude.json` entry needed. See the CLAUDE.md rules for usage patterns.
+
+**Doc indexing (`.vscode/` and `temporary/`) — three patches, applied globally.** By default, three things stand between the graph and our per-project docs — `.vscode/*.md` CLAUDE.md docs and `temporary/*.md` scratch analysis notes, both usually gitignored but genuinely useful content:
+
+1. `collect_all_files()` prefers `git ls-files` for file discovery, so any project where these dirs are gitignored (the normal case) never even considers those files as candidates.
+2. `.md` isn't a recognized extension at all until a custom language is registered (requires code-review-graph 2.3.6+), and that registration is hardcoded to `<repo_root>/.code-review-graph/languages.toml` — there's no built-in user-level config path.
+3. Even the repo-local override in point 2 is hardcoded to the repo root, not `.vscode/` — so a project using `--data-dir .vscode/code-review-graph` for the database would still need a stray `.code-review-graph/languages.toml` sitting outside it.
+
+`setup.sh` patches the installed package for all three, machine-wide, with no per-repo file required:
+
+- `code-review-graph/patch_vscode_docs.py` — `collect_all_files()` always walks `EXTRA_DOC_DIRS = (".vscode", "temporary")` regardless of git tracking status. Idempotently upgrades an already-`.vscode`-only-patched install in place if it encounters one (older machines / earlier runs of this script).
+- `code-review-graph/patch_global_languages.py` — `load_custom_languages()` falls back to `~/.claude/code-review-graph/languages.toml` (deployed from `claude/code-review-graph/languages.toml` in this repo) whenever a project has no `languages.toml` of its own. A repo-local file still always wins when present — this is a fallback, not a merge.
+- `code-review-graph/patch_config_path.py` — the repo-local override itself moves from `<repo_root>/.code-review-graph/languages.toml` to `<repo_root>/.vscode/code-review-graph/languages.toml`, so it sits next to the database instead of at the repo root.
+
+Together, plus `--data-dir`: any repo with code-review-graph installed and built gets `.vscode/*.md` and `temporary/*.md` docs indexed as markdown automatically, and nothing code-review-graph-related is ever created outside `.vscode/`. Verified on a project with no local `languages.toml` (default data dir) — `markdown` shows in `code-review-graph status` after a rebuild — and on a project with a repo-local `languages.toml` moved into `.vscode/code-review-graph/` with `--data-dir` pointed at the same place (file count rose once `temporary/` walking was added) — an old `.code-review-graph/` left at repo root was just a stale duplicate of an already-current rebuild, safe to delete, nothing lost.
+
+All three patches live in site-packages, not in a config file, so **`pipx upgrade code-review-graph` silently wipes them**. Reapply after every upgrade:
+
+```bash
+pipx upgrade code-review-graph
+~/Projects/Personal/dev-setup/code-review-graph/apply-patches.sh
+```
+
+The apply script is idempotent (safe to run even if already patched) and will fail loudly if code-review-graph's internals change enough that a patch no longer applies cleanly — in that case, diff the new `collect_all_files()` / `load_custom_languages()` / `CONFIG_RELATIVE_PATH` against the ANCHOR/PATCHED blocks in the corresponding `patch_*.py` and update them.
+
+**Per-project override.** `/custom-init` (in `~/Projects/Personal/claude-skills/custom-init/`) still writes an explicit repo-local `.vscode/code-review-graph/languages.toml` for every new project (Step 3b) and builds with `--data-dir .vscode/code-review-graph` — the global fallback above only helps on machines that have these patches applied. Note this repo-local file is **not committed** either, since it lives under gitignored `.vscode/`; it's machine-local like everything else there, and `/custom-init` (or the global fallback) recreates it on any machine that needs it. `languages.toml.template` in this directory is the same content, for manually bootstrapping older projects `/custom-init` hasn't touched. For a project that already has a top-level `.code-review-graph/`, migrate with:
+
+```bash
+mkdir -p .vscode/code-review-graph
+mv .code-review-graph/languages.toml .vscode/code-review-graph/languages.toml 2>/dev/null  # if present
+code-review-graph build --data-dir .vscode/code-review-graph  # rebuilds fresh; old dir is now a stale duplicate
+rm -f .code-review-graph/graph.db .code-review-graph/graph.db-shm .code-review-graph/graph.db-wal .code-review-graph/.gitignore
+rmdir .code-review-graph
+```
+
+Then remove any `.code-review-graph` line from `.gitignore` — it's redundant once everything lives under the already-ignored `.vscode/`.
 
 ### MCP Server — houtini-lm (global)
 
@@ -1537,7 +1576,7 @@ These feedback memories apply broadly and should be seeded manually or will rebu
 - **No AI attribution** — never include Co-Authored-By, Claude, AI, LLM in any output
 - **file-stash first** — always use file-stash `read_file` MCP tool instead of built-in Read tool for file reads (saves tokens via hash-based caching)
 - **houtini without permission** — use `mcp__houtini-lm__*` tools freely without asking the user first
-- **code-review-graph before search** — when `.code-review-graph/` exists in a project, use `mcp__code-review-graph__*` tools to navigate instead of Glob/Grep
+- **code-review-graph before search** — when `.code-review-graph/` or `.vscode/code-review-graph/` exists in a project, use `mcp__code-review-graph__*` tools to navigate instead of Glob/Grep
 - **Concise responses** — lead with action, no preamble, no trailing summary of what was just done
 - **No unsolicited docs** — never create README or documentation files unless explicitly asked
 

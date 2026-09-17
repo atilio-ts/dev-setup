@@ -1,0 +1,5 @@
+[languages.markdown]
+extensions = [".md"]
+grammar = "markdown"
+class_node_types = ["section"]
+name_field = ["inline"]

@@ -1,5 +1,5 @@
 tap "anomalyco/tap"
-tap "lucassabrero/tap"
+tap "lucassabreu/tap"
 tap "steipete/tap"
 brew "act"
 brew "asimov"
