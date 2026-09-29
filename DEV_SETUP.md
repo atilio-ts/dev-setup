@@ -1,6 +1,6 @@
 # Developer Setup — Atilio Villalba
 
-> Last updated: 2026-09-17
+> Last updated: 2026-09-29
 > Goal: replicate this exact environment on a new macOS (Apple Silicon) machine from scratch.
 
 ---
@@ -147,10 +147,45 @@ brew install --cask \
   aws-vault-binary \
   claude-code \
   clockify-cli \
+  dbeaver-community \
+  docker-desktop \
+  firefox@developer-edition \
   font-meslo-for-powerlevel10k \
+  github \
+  handy \
+  hipixel \
+  instantview \
+  intellij-idea \
+  iterm2 \
+  itermai \
   itsycal \
-  stats
+  keystore-explorer \
+  lm-studio \
+  logi-options+ \
+  logitech-g-hub \
+  mattermost \
+  microsoft-teams \
+  obsidian \
+  ollama-app \
+  openvpn-connect \
+  pinta \
+  poke-token-bar \
+  postman \
+  realvnc-connect-viewer \
+  rectangle \
+  redis-insight \
+  rider \
+  spotify \
+  stats \
+  sublime-text \
+  visual-studio-code \
+  vlc \
+  webstorm \
+  windows-app \
+  zoom
 ```
+
+> `docker-desktop`, `logitech-g-hub`, `logi-options+`, `openvpn-connect`, `realvnc-connect-viewer`, `windows-app`, `microsoft-teams` run a privileged `.pkg`/installer post-install step that needs `sudo` — run this block from an interactive terminal (not scripted/headless), you'll get password prompts partway through.
 
 ---
 
@@ -681,9 +716,9 @@ cp vim/vimrc ~/.vimrc
 
 **Docker Desktop** is used (not Docker Engine standalone).
 
-- Version: `29.2.1`
+- Version: `4.93.0`
 - Architecture: `aarch64`
-- Install from: https://www.docker.com/products/docker-desktop/
+- Install: `brew install --cask docker-desktop`
 
 No custom daemon config. Docker Compose is bundled with Docker Desktop.
 
@@ -696,16 +731,17 @@ fpath=($HOME/.docker/completions $fpath)
 
 ## 11. JetBrains IDEs
 
-Installed via **JetBrains Toolbox** (recommended for managing updates):
+Installed directly via brew cask (one cask per IDE, no JetBrains Toolbox):
 
-| IDE | Purpose |
-|-----|---------|
-| IntelliJ IDEA | Java / Kotlin / general JVM |
-| Rider | .NET / C# |
-| WebStorm | JavaScript / TypeScript |
+| IDE | Purpose | Cask |
+|-----|---------|------|
+| IntelliJ IDEA | Java / Kotlin / general JVM | `intellij-idea` |
+| Rider | .NET / C# | `rider` |
+| WebStorm | JavaScript / TypeScript | `webstorm` |
 
-Install JetBrains Toolbox first, then install each IDE from it:
-https://www.jetbrains.com/toolbox-app/
+```bash
+brew install --cask intellij-idea rider webstorm
+```
 
 ---
 
@@ -1091,7 +1127,7 @@ No automated config — open the app, go to Preferences → SmartDelete → enab
 
 ### Developer Tools
 
-#### Postman `v11.86.1` — https://www.postman.com/downloads/
+#### Postman `v12.30.0` — `brew install --cask postman`
 
 API development and testing client. Collections and environments sync automatically through a Postman account — sign in after install to restore workspaces.
 
@@ -1101,7 +1137,7 @@ Universal database GUI. Supports PostgreSQL, MySQL, SQLite, Oracle, SQL Server, 
 
 Config and connection data live at `~/Library/DBeaverData/workspace6/`. No automated restore — reconnect to databases manually after install. Connection passwords are stored in the system keychain.
 
-#### Redis Insight `v2.70.1` — https://redis.io/redis-insight/
+#### Redis Insight `v3.8.0` — `brew install --cask redis-insight`
 
 Redis GUI for browsing keys, running commands, and profiling. Config at `~/Library/Application Support/RedisInsight/config.json`.
 
@@ -1111,19 +1147,19 @@ Redis GUI for browsing keys, running commands, and profiling. Config at `~/Libra
 
 Databases are stored in the app's internal config — re-add connections manually after install.
 
-#### Obsidian `v1.12.4` — https://obsidian.md/
+#### Obsidian `v1.13.7` — `brew install --cask obsidian`
 
 Markdown-based knowledge management and note-taking. Vaults are plain folders of `.md` files — back them up separately (e.g., iCloud, Dropbox, or a dedicated git repo). No Obsidian-specific config to restore beyond re-opening the vault folder.
 
-#### Sublime Text `Build 4200` — https://www.sublimetext.com/
+#### Sublime Text `Build 4215` — `brew install --cask sublime-text`
 
 Lightweight editor used for quick file viewing and edits that don't warrant opening a full IDE. No custom packages installed — used out of the box.
 
-#### KeyStore Explorer `v5.5.3` — https://keystore-explorer.org/
+#### KeyStore Explorer `v5.7.0` — `brew install --cask keystore-explorer`
 
 GUI for managing Java keystores, truststores, and certificates (JKS, PKCS12). No config to restore — open `.jks` / `.p12` files directly.
 
-#### GitHub Desktop `v3.5.4` — https://desktop.github.com/
+#### GitHub Desktop `v3.6.6` — `brew install --cask github`
 
 Git GUI for visual diffs, branch management, and PR workflows. Sign in with GitHub account after install to restore repository access.
 
@@ -1133,8 +1169,9 @@ Git GUI for visual diffs, branch management, and PR workflows. Sign in with GitH
 
 | App | Version | Install | Notes |
 |-----|---------|---------|-------|
-| Zoom | 6.1.6 | https://zoom.us/download | Work video calls |
-| Microsoft Teams | 26032.605 | https://www.microsoft.com/teams | Work meetings |
+| Zoom | 7.2.1 | `brew install --cask zoom` | Work video calls |
+| Microsoft Teams | 26225.1708 | `brew install --cask microsoft-teams` | Work meetings — needs `sudo` (pkg installer), can't run headless |
+| Mattermost | 6.3.0 | `brew install --cask mattermost` | Team chat |
 | Telegram | 12.5 | Mac App Store or https://telegram.org | Messaging |
 | WhatsApp | 26.9.75 | Mac App Store or https://www.whatsapp.com | Messaging |
 
@@ -1144,8 +1181,9 @@ Git GUI for visual diffs, branch management, and PR workflows. Sign in with GitH
 
 | App | Version | Install | Notes |
 |-----|---------|---------|-------|
-| OpenVPN Connect | 3.8.1 | https://openvpn.net/client/ | VPN — import `.ovpn` profile after install |
-| Windows App | 11.3.3 | Mac App Store | Microsoft Remote Desktop — add PC connections manually |
+| OpenVPN Connect | 3.8.2 | `brew install --cask openvpn-connect` | VPN — needs `sudo` (pkg installer); import `.ovpn` profile after install |
+| Windows App | 11.4.2 | `brew install --cask windows-app` | Microsoft Remote Desktop — needs `sudo` (pkg installer); add PC connections manually |
+| RealVNC Connect Viewer | 8.5.0 | `brew install --cask realvnc-connect-viewer` | Needs `sudo` (pkg installer) — remote desktop viewer |
 
 ---
 
@@ -1153,24 +1191,36 @@ Git GUI for visual diffs, branch management, and PR workflows. Sign in with GitH
 
 | App | Version | Install | Notes |
 |-----|---------|---------|-------|
-| VLC | 3.0.21 | `brew install --cask vlc` | Universal media player |
+| VLC | 3.0.24 | `brew install --cask vlc` | Universal media player |
 | Stremio | — | https://www.stremio.com/downloads | Streaming platform — sign in to restore add-ons |
 
 ---
 
 ### Other Utilities
 
-#### macOS InstantView `v3.22` — https://www.smi-inc.com/
+#### macOS InstantView `v3.24` — `brew install --cask instantview`
 
-Display management driver for SMI (Silicon Motion) external displays. Enables extended/mirror mode for monitors connected over USB-C/DisplayLink. Install from the SMI website; no configuration needed beyond connecting the display.
+Display management driver for SMI (Silicon Motion) external displays. Enables extended/mirror mode for monitors connected over USB-C/DisplayLink. No configuration needed beyond connecting the display.
 
-#### iTermAI `v1.1` — companion to iTerm2
+#### iTermAI `v1.1` — `brew install --cask itermai`
 
 Standalone AI assistant window that integrates with the iTerm2 terminal. Installed separately from iTerm2 itself.
 
-#### Pinta `v2.1.2` — https://www.pinta-project.com/ or Mac App Store
+#### Pinta `v3.1.2` — `brew install --cask pinta`
 
 Simple raster image editor (similar to MS Paint). Used for quick image annotations and crops. No configuration needed.
+
+---
+
+### Input Devices
+
+#### Logitech G HUB `v2026.6.974819` — `brew install --cask logitech-g-hub`
+
+Configuration for Logitech gaming peripherals (mice, macros, RGB). Needs `sudo` (pkg installer). Settings sync to a Logitech account — sign in after install to restore profiles.
+
+#### Logi Options+ `v2.7.970334` — `brew install --cask logi-options+`
+
+Configuration for standard Logitech mice/keyboards (button remapping, gestures, flow between devices). Needs `sudo` (pkg installer). Replaces the older "Logi Options" (no +) app — settings don't carry over automatically, reconfigure after install.
 
 ---
 
@@ -1517,7 +1567,7 @@ Requires LM Studio running with a model loaded on `localhost:1234` (default LM S
 
 #### Install LM Studio
 
-Download from https://lmstudio.ai/ and install. The `lms` CLI is added automatically to `~/.lmstudio/bin/` during install — the zshrc already includes this in `$PATH`.
+`brew install --cask lm-studio`. The `lms` CLI is added automatically to `~/.lmstudio/bin/` during install — the zshrc already includes this in `$PATH`.
 
 After install, download at least one model from the LM Studio UI before running Claude Code sessions that use houtini.
 
@@ -1726,8 +1776,7 @@ This keeps the dashboard up to date in the background. Open `public/index.html` 
 [ ] Install mise (curl https://mise.run | sh) and set up Node 24.13.1
 [ ] Install pnpm (npm install -g pnpm) and bun (curl -fsSL https://bun.sh/install | bash)
 [ ] Install Java JDKs via mise: mise install java@corretto-21 && mise install java@corretto-24
-[ ] Install Docker Desktop
-[ ] Install JetBrains Toolbox → IntelliJ IDEA, WebStorm
+[ ] brew install --cask docker-desktop intellij-idea rider webstorm
 [ ] Install VS Code, add 'code' to PATH (Cmd+Shift+P → Shell Command), install extensions or enable Settings Sync
 [ ] Install asimov LaunchAgent: cp launchagents/homebrew.asimov.plist ~/Library/LaunchAgents/ && launchctl load ~/Library/LaunchAgents/homebrew.asimov.plist
 [ ] Install Neovim + LazyVim
@@ -1752,11 +1801,13 @@ This keeps the dashboard up to date in the background. Open `public/index.html` 
 [ ] Apply Rectangle defaults (see section 14)
 [ ] Apply Maccy defaults (see section 14)
 [ ] AppCleaner: Preferences → SmartDelete → enable
-[ ] Install manually: FineTune, Postman, DBeaver, Redis Insight, Obsidian, KeyStore Explorer, GitHub Desktop, Sublime Text
-[ ] Install manually: Zoom, Microsoft Teams, Mattermost, Telegram, WhatsApp
-[ ] Install manually: OpenVPN Connect (import .ovpn profile), Windows App
-[ ] Install manually: macOS InstantView, iTermAI, Stremio, Pinta
-[ ] Sign in to: GitHub Desktop, Postman, Zoom, Telegram, WhatsApp
+[ ] brew install --cask postman redis-insight obsidian keystore-explorer github sublime-text pinta
+[ ] brew install --cask iterm2 itermai lm-studio mattermost logitech-g-hub logi-options+
+[ ] brew install --cask openvpn-connect realvnc-connect-viewer windows-app zoom microsoft-teams instantview firefox@developer-edition
+[ ] Install manually: FineTune, DBeaver
+[ ] Install manually: Telegram, WhatsApp, Stremio
+[ ] Import .ovpn profile into OpenVPN Connect after install
+[ ] Sign in to: GitHub Desktop, Postman, Zoom, Telegram, WhatsApp, Logi Options+, Logitech G HUB
 [ ] Clone claude-code-stats: git clone https://github.com/AeternaLabsHQ/claude-code-stats ~/Projects/Github/claude-code-stats
 [ ] Configure claude-code-stats: cp config.example.json config.json → edit plan_history
 [ ] Set up cron job: */10 * * * * cd ~/Projects/Github/claude-code-stats && python3 extract_stats.py 2>&1 >> update.log

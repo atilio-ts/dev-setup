@@ -1,81 +1,381 @@
 tap "anomalyco/tap"
+tap "can1357/tap"
+tap "chattymin/tap"
 tap "lucassabreu/tap"
+tap "okooo5km/tap"
 tap "steipete/tap"
+# Run your GitHub Actions locally
 brew "act"
+# Automatically exclude development dependencies from Time Machine backups
 brew "asimov"
+# Improved shell history for zsh, bash, fish and nushell
 brew "atuin"
-brew "awscli"
+# Clone of cat(1) with syntax highlighting and Git integration
 brew "bat"
+# Resource monitor. C++ version and continuation of bashtop and bpytop
 brew "btop"
+# Vector graphics library with cross-device output support
 brew "cairo"
+# Apjanke's fork of the classic cowsay project
 brew "cowsay"
+# Load/unload environment variables based on $PWD
 brew "direnv"
+# Tool for exploring each layer in a docker image
 brew "dive"
+# Modern, maintained replacement for ls
 brew "eza"
+# Simple, fast and user-friendly alternative to find
 brew "fd"
+# Play, record, convert, and stream select audio and video codecs
+brew "ffmpeg"
+# Infamous electronic fortune-cookie generator
 brew "fortune"
+# Terminal JSON viewer
 brew "fx"
+# Command-line fuzzy finder written in Go
 brew "fzf"
+# GitHub command-line tool
 brew "gh"
+# Library and utilities for processing GIFs
 brew "giflib"
+# Distributed revision control system
 brew "git"
+# Syntax-highlighting pager for git and diff output
 brew "git-delta"
+# Quickly rewrite git repository history
+brew "git-filter-repo"
+# Git extension for versioning large files
 brew "git-lfs"
+# Open GitHub webpages from a terminal
 brew "git-open"
+# GNU multiple precision arithmetic library
 brew "gmp"
+# GNU Privacy Guard (OpenPGP)
 brew "gnupg"
+# Library access to GnuPG
 brew "gpgme"
+# C++ bindings for gpgme
 brew "gpgmepp"
+# Open-source build automation tool based on the Groovy and Kotlin DSL
 brew "gradle"
+# Java-based scripting language
 brew "groovy"
+# Tool for glamorous shell scripts
 brew "gum"
+# Command-line benchmarking tool
 brew "hyperfine"
+# Lightweight and flexible command-line JSON processor
 brew "jq"
+# Network authentication protocol
 brew "krb5"
+# Kubernetes command-line interface
 brew "kubernetes-cli"
+# Lazier way to manage everything docker
 brew "lazydocker"
+# Simple terminal UI for git commands
 brew "lazygit"
+# Postgres C API library
 brew "libpq"
+# Multi-platform support library with a focus on asynchronous I/O
 brew "libuv"
+# Parsing Expression Grammars For Lua
 brew "lpeg"
+# Just-In-Time Compiler (JIT) for the Lua programming language
 brew "luajit"
+# Bare libuv bindings for lua
 brew "luv"
+# Java-based project management
 brew "maven"
+# Run a Kubernetes cluster locally
 brew "minikube"
+# Polyglot runtime version manager (Node, Java, Python)
 brew "mise"
+# Deep clean and optimize your Mac
 brew "mole"
+# Free (GNU) replacement for the Pico text editor
 brew "nano"
+# Interactive cheatsheet tool for the command-line
 brew "navi"
+# Ambitious Vim-fork focused on extensibility and agility
 brew "neovim"
+# Small build system for use with gyp or CMake
+brew "ninja"
+# Platform-neutral API for system-level and libc-like functions
 brew "nspr"
+# Libraries for security-enabled client and server applications
 brew "nss"
+# Development kit for the Java programming language
 brew "openjdk@21"
+# Library for JPEG-2000 image manipulation
 brew "openjpeg"
+# Process manager for Procfile-based applications and tmux
 brew "overmind"
-brew "pipx"
+# Execute binaries from Python packages in isolated environments
+brew "pipx", link: false
+# PDF rendering library (based on the xpdf-3.0 code base)
 brew "poppler"
+# Theme for zsh
 brew "powerlevel10k"
+# Generic syntax highlighter
 brew "pygments"
+# Pack repository contents into a single AI-friendly file
+brew "repomix"
+# Search tool like grep and The Silver Searcher
 brew "ripgrep"
+# CLI proxy to minimize LLM token consumption
+brew "rtk"
+# Command-line tool to customize Spotify client
 brew "spicetify-cli"
+# User interface to the TELNET protocol
 brew "telnet"
+# Program that allows you to count code, quickly
 brew "tokei"
+# CLI tool that moves files or folder to the trash
 brew "trash"
+# Provide version control info in shell prompts
 brew "vcprompt"
-brew "viddy"
+# Modern watch command
+brew "viddy", link: false
+# Friendly and fast tool for sending HTTP requests
 brew "xh"
+# Blazing fast terminal file manager written in Rust, based on async I/O
 brew "yazi"
+# Pluggable terminal workspace, with terminal multiplexer as the base feature
 brew "zellij"
+# Shell extension to navigate your filesystem faster
 brew "zoxide"
+# Fish-like fast/unobtrusive autosuggestions for zsh
 brew "zsh-autosuggestions"
-brew "anomalyco/tap/opencode"
+# Coding agent with the IDE wired in
+brew "can1357/tap/omp", trusted: true
+# Application uninstaller
 cask "appcleaner"
+# Securely stores and accesses AWS credentials in a development environment
 cask "aws-vault-binary"
+# Terminal-based AI coding assistant
 cask "claude-code"
-cask "lucassabreu/tap/clockify-cli"
-cask "steipete/tap/codexbar"
+cask "codexbar"
+# Universal database tool and SQL client
+cask "dbeaver-community"
+# App to build and share containerised applications and microservices
+cask "docker-desktop"
+# Web browser
+cask "firefox@developer-edition"
 cask "font-meslo-for-powerlevel10k"
+# Desktop client for GitHub repositories
+cask "github"
+# Speech to text application
+cask "handy"
+# Image upscaling tool that makes images crystal clear
+cask "okooo5km/tap/hipixel", trusted: true
+# Driver for SM76x with UI
+cask "instantview"
+# Java IDE by JetBrains
+cask "intellij-idea"
+# Terminal emulator as alternative to Apple's Terminal app
+cask "iterm2"
+# Enable generative AI features in iTerm2
+cask "itermai"
+# Menu bar calendar
 cask "itsycal"
-cask "maccy"
+# GUI replacement for the Java command-line utilities keytool and jarsigner
+cask "keystore-explorer"
+# Discover, download, and run local LLMs
+cask "lm-studio"
+# Software for Logitech devices
+cask "logi-options+"
+# Support for Logitech G gear
+cask "logitech-g-hub"
+# Open-source, self-hosted Slack-alternative
+cask "mattermost"
+# Meet, chat, call, and collaborate in just one place
+cask "microsoft-teams"
+# Knowledge base that works on top of a local folder of plain text Markdown files
+cask "obsidian"
+# Get up and running with large language models locally
+cask "ollama-app"
+# Client program for the OpenVPN Access Server
+cask "openvpn-connect"
+# Simple Gtk# Paint Program
+cask "pinta"
+# Menu bar app turning AI coding token usage into a growing Pokemon
+cask "chattymin/tap/poke-token-bar", trusted: true
+# Collaboration platform for API development
+cask "postman"
+# Remote desktop application focusing on security
+cask "realvnc-connect-viewer"
+# Move and resize windows using keyboard shortcuts or snap areas
 cask "rectangle"
+# GUI for streamlined Redis application development
+cask "redis-insight"
+# .NET IDE
+cask "rider"
+# Music streaming service
+cask "spotify"
+# System monitor for the menu bar
 cask "stats"
+# Text editor for code, markup and prose
+cask "sublime-text"
+# Open-source code editor
+cask "visual-studio-code"
+# Multimedia player
+cask "vlc"
+# JavaScript IDE
+cask "webstorm"
+# Connect to Windows
+cask "windows-app"
+# Video communication and virtual meeting platform
+cask "zoom"
+vscode "aaron-bond.better-comments"
+vscode "alefragnani.bookmarks"
+vscode "alfredbirk.tailwind-documentation"
+vscode "anseki.vscode-color"
+vscode "antfu.vite"
+vscode "anthropic.claude-code"
+vscode "arjun.swagger-viewer"
+vscode "austenc.tailwind-docs"
+vscode "bierner.color-info"
+vscode "bierner.github-markdown-preview"
+vscode "bierner.markdown-checkbox"
+vscode "bierner.markdown-emoji"
+vscode "bierner.markdown-footnotes"
+vscode "bierner.markdown-mermaid"
+vscode "bierner.markdown-preview-github-styles"
+vscode "bierner.markdown-yaml-preamble"
+vscode "bradlc.vscode-tailwindcss"
+vscode "britesnow.vscode-toggle-quotes"
+vscode "burkeholland.simple-react-snippets"
+vscode "chakrounanas.turbo-console-log"
+vscode "chouzz.vscode-better-align"
+vscode "christian-kohler.npm-intellisense"
+vscode "christian-kohler.path-intellisense"
+vscode "chrmarti.regex"
+vscode "coderabbit.coderabbit-vscode"
+vscode "codezombiech.gitignore"
+vscode "compulim.vscode-mocha"
+vscode "dbaeumer.vscode-eslint"
+vscode "developersoapbox.vscode-springboot-snippets"
+vscode "docker.docker"
+vscode "donjayamanne.githistory"
+vscode "dotjoshjohnson.xml"
+vscode "dsznajder.es7-react-js-snippets"
+vscode "eamodio.gitlens"
+vscode "ecmel.vscode-html-css"
+vscode "editorconfig.editorconfig"
+vscode "esbenp.prettier-vscode"
+vscode "ethansk.restore-terminals"
+vscode "everettjf.filter-line"
+vscode "fabianlauer.vs-code-xml-format"
+vscode "firefox-devtools.vscode-firefox-debug"
+vscode "formulahendry.auto-close-tag"
+vscode "formulahendry.auto-complete-tag"
+vscode "formulahendry.auto-rename-tag"
+vscode "formulahendry.code-runner"
+vscode "github.vscode-github-actions"
+vscode "github.vscode-pull-request-github"
+vscode "gitlab.gitlab-workflow"
+vscode "grapecity.gc-excelviewer"
+vscode "hediet.vscode-drawio"
+vscode "inferrinizzard.prettier-sql-vscode"
+vscode "ionutvmi.path-autocomplete"
+vscode "janisdd.vscode-edit-csv"
+vscode "jduponchelle.rainbow-end"
+vscode "jeff-hykin.better-cpp-syntax"
+vscode "jinxdash.prettier-rust"
+vscode "johnpapa.vscode-peacock"
+vscode "juanblanco.solidity"
+vscode "justin-grote.github-actions-enhanced"
+vscode "justin-grote.powershell-extension-pack"
+vscode "karb0f0s.vbscript"
+vscode "kaysonwu.cpptask"
+vscode "kevinrose.vsc-python-indent"
+vscode "kisstkondoros.vscode-gutter-preview"
+vscode "leizongmin.node-module-intellisense"
+vscode "louiswt.regexp-preview"
+vscode "mathematic.vscode-latex"
+vscode "mattedesign.laravel-pack"
+vscode "mechatroner.rainbow-csv"
+vscode "mgmcdermott.vscode-language-babel"
+vscode "mguellsegarra.highlight-on-copy"
+vscode "mhutchie.git-graph"
+vscode "mikestead.dotenv"
+vscode "mohsen1.prettify-json"
+vscode "monish.regexsnippets"
+vscode "ms-azuretools.vscode-containers"
+vscode "ms-azuretools.vscode-docker"
+vscode "ms-ceintl.vscode-language-pack-es"
+vscode "ms-dotnettools.csdevkit"
+vscode "ms-dotnettools.vscode-dotnet-pack"
+vscode "ms-dotnettools.vscode-dotnet-runtime"
+vscode "ms-kubernetes-tools.vscode-kubernetes-tools"
+vscode "ms-python.debugpy"
+vscode "ms-python.isort"
+vscode "ms-python.python"
+vscode "ms-python.vscode-pylance"
+vscode "ms-python.vscode-python-envs"
+vscode "ms-vscode-remote.remote-containers"
+vscode "ms-vscode-remote.remote-ssh"
+vscode "ms-vscode-remote.remote-ssh-edit"
+vscode "ms-vscode-remote.remote-wsl"
+vscode "ms-vscode-remote.vscode-remote-extensionpack"
+vscode "ms-vscode.cmake-tools"
+vscode "ms-vscode.cpp-devtools"
+vscode "ms-vscode.cpptools"
+vscode "ms-vscode.cpptools-extension-pack"
+vscode "ms-vscode.makefile-tools"
+vscode "ms-vscode.remote-explorer"
+vscode "ms-vscode.remote-server"
+vscode "ms-vsliveshare.vsliveshare"
+vscode "msjsdiag.vscode-react-native"
+vscode "mushan.vscode-paste-image"
+vscode "naumovs.color-highlight"
+vscode "oderwat.indent-rainbow"
+vscode "oracle.oracle-java"
+vscode "orta.vscode-jest"
+vscode "pablodelucca.pixel-agents"
+vscode "pawelgrzybek.gatito-theme"
+vscode "pkief.material-icon-theme"
+vscode "prisma.prisma"
+vscode "redhat.java"
+vscode "redhat.vscode-xml"
+vscode "redhat.vscode-yaml"
+vscode "redis.redis-for-vscode"
+vscode "richie5um2.vscode-sort-json"
+vscode "rifi2k.format-html-in-php"
+vscode "ritwickdey.liveserver"
+vscode "shardulm94.trailing-spaces"
+vscode "shd101wyy.markdown-preview-enhanced"
+vscode "slevesque.vscode-zipexplorer"
+vscode "sonarsource.sonarlint-vscode"
+vscode "syler.sass-indented"
+vscode "tatsy.vscode-3d-preview"
+vscode "thekalinga.bootstrap4-vscode"
+vscode "tomoki1207.pdf"
+vscode "trabpukcip.vscode-npm-scripts"
+vscode "tylerleonhardt.vscode-inline-values-powershell"
+vscode "usernamehw.errorlens"
+vscode "vmware.vscode-boot-dev-pack"
+vscode "vmware.vscode-spring-boot"
+vscode "vscjava.vscode-gradle"
+vscode "vscjava.vscode-java-debug"
+vscode "vscjava.vscode-java-dependency"
+vscode "vscjava.vscode-java-pack"
+vscode "vscjava.vscode-java-test"
+vscode "vscjava.vscode-maven"
+vscode "vscjava.vscode-spring-boot-dashboard"
+vscode "vscjava.vscode-spring-initializr"
+vscode "vscode-icons-team.vscode-icons"
+vscode "vsls-contrib.codetour"
+vscode "vsls-contrib.gistfs"
+vscode "vsls-contrib.gitdoc"
+vscode "waderyan.gitblame"
+vscode "wallabyjs.console-ninja"
+vscode "wayou.vscode-todo-highlight"
+vscode "wix.vscode-import-cost"
+vscode "yoavbls.pretty-ts-errors"
+vscode "yzane.markdown-pdf"
+vscode "yzhang.markdown-all-in-one"
+vscode "zainchen.json"
+vscode "zignd.html-css-class-completion"
+vscode "ziyasal.vscode-open-in-github"
+uv "serena-agent"

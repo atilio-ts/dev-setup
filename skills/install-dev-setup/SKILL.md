@@ -231,17 +231,27 @@ lms --version
 
 The `lms` binary should be at `~/.lmstudio/bin/lms`. The zshrc already adds this to PATH.
 
-## Step 13 — Manual: apps to install manually
+## Step 13 — Manual: apps that need a password prompt, and true manual installs
 
-These require manual download and installation. Check and note which are missing:
+Docker Desktop, IntelliJ IDEA, Rider, WebStorm, LM Studio, Obsidian, Postman, Spotify and the rest of the GUI apps are all in the Brewfile now (Step 2's `brew bundle install` gets them — no JetBrains Toolbox, install each IDE cask directly). A handful of casks run a privileged `.pkg`/installer post-install step that needs `sudo` — these fail silently if Step 2 ran headless/non-interactively, so re-run them here from an interactive terminal if they're missing:
 
 ```bash
-echo "Docker Desktop:"; [ -d "/Applications/Docker.app" ] && echo "  installed" || echo "  MISSING — https://www.docker.com/products/docker-desktop/"
-echo "JetBrains Toolbox:"; [ -d "/Applications/JetBrains Toolbox.app" ] && echo "  installed" || echo "  MISSING — https://www.jetbrains.com/toolbox-app/"
-echo "LM Studio:"; [ -d "/Applications/LM Studio.app" ] && echo "  installed" || echo "  MISSING — https://lmstudio.ai/"
-echo "Obsidian:"; [ -d "/Applications/Obsidian.app" ] && echo "  installed" || echo "  MISSING — https://obsidian.md/"
-echo "Postman:"; [ -d "/Applications/Postman.app" ] && echo "  installed" || echo "  MISSING — https://www.postman.com/downloads/"
-echo "Spotify:"; [ -d "/Applications/Spotify.app" ] && echo "  installed" || echo "  MISSING — https://www.spotify.com/download/"
+brew install --cask docker-desktop logitech-g-hub logi-options+ openvpn-connect realvnc-connect-viewer windows-app microsoft-teams
+```
+
+Verify:
+
+```bash
+for app in "Docker" "IntelliJ IDEA" "Rider" "WebStorm" "LM Studio" "Obsidian" "Postman" "Spotify" "Logitech G HUB" "Logi Options+" "OpenVPN Connect" "RealVNC Connect Viewer" "Windows App" "Microsoft Teams"; do
+  [ -d "/Applications/$app.app" ] && echo "  installed: $app" || echo "  MISSING: $app"
+done
+```
+
+Truly manual (no cask exists — download from vendor):
+
+```bash
+echo "FineTune:"; [ -d "/Applications/FineTune.app" ] && echo "  installed" || echo "  MISSING — https://www.finetuneapp.com"
+echo "DBeaver Community:"; [ -d "/Applications/DBeaver.app" ] && echo "  installed" || echo "  MISSING — https://dbeaver.io/download/ (or brew install --cask dbeaver-community)"
 ```
 
 ## Step 14 — Terminal font for Powerlevel10k
