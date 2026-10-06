@@ -154,6 +154,15 @@ else
   warn "omp not installed (brew install can1357/tap/omp) — skipping config copy"
 fi
 
+# ─── RTK hooks for other agents ──────────────────────────────────────────────
+step "RTK hooks (hermes)"
+if command -v rtk &>/dev/null && command -v hermes &>/dev/null; then
+  rtk init -g --agent hermes --auto-patch
+  ok "RTK hook installed for hermes (opencode and omp get theirs from the tracked rtk.ts files)"
+else
+  warn "rtk or hermes not installed — skipping hermes hook"
+fi
+
 # ─── Claude Code ─────────────────────────────────────────────────────────────
 step "Claude Code"
 mkdir -p "$HOME/.claude"

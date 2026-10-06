@@ -1757,6 +1757,10 @@ Not tracked: `node_modules/`, lockfiles (`bun.lock`, `package-lock.json` — reg
 
 Not portable: `token-optimizer` has no opencode version; the `rtk` rewrite hook is Claude-specific (`rtk init -g --opencode` installs the opencode equivalent); statusline and the other Claude hooks (session reminders, file-stash/graph guards) have no equivalent.
 
+### RTK
+
+`plugins/rtk.ts` rewrites shell commands through `rtk`. It was generated with `rtk init -g --opencode` and is tracked here, so `setup.sh` restores it with the rest of the config.
+
 ### Restore
 
 ```bash
@@ -1782,6 +1786,10 @@ Tracked at `omp/`:
 Verify without a model: `omp config get tools.approvalMode`, then `printf '{"id":"1","type":"prompt","message":"/mcp list"}\n' | omp --mode rpc --no-session`.
 
 Not mirrored: Claude hooks without an omp event (session reminders, statusline, `rtk` rewrite hook, `prefer-search-tools`, `pre-websearch`), the `token-optimizer`, `ponytail` and `coderabbit` plugins (no omp package), `context-mode` hooks (MCP only), per-path read deny rules (done in the extension instead of config).
+
+### RTK
+
+`extensions/rtk.ts` rewrites shell commands through `rtk`. It was generated with `rtk init -g --agent omp` and is tracked here. Hermes gets the same hook from `rtk init -g --agent hermes`, which `setup.sh` runs when both are installed.
 
 ### Restore
 
