@@ -1191,6 +1191,18 @@ GUI for managing Java keystores, truststores, and certificates (JKS, PKCS12). No
 
 Git GUI for visual diffs, branch management, and PR workflows. Sign in with GitHub account after install to restore repository access.
 
+#### aws-vault — `brew install --cask aws-vault-binary`
+
+Stores AWS credentials in the macOS Keychain instead of plaintext `~/.aws/credentials`, and vends temporary session credentials to the shell on demand. `~/.aws/config` only holds profile names/regions (no secrets) but isn't tracked in this repo — profile names are environment-specific. Re-create profiles with `aws-vault add <profile>` after install.
+
+#### CodexBar — `brew install --cask codexbar`
+
+Menu bar usage tracker for AI coding CLI token spend. No config to restore — connects to local tool state automatically.
+
+#### Handy — `brew install --cask handy`
+
+Push-to-talk speech-to-text. No config to restore — set the trigger hotkey once from its menu bar preferences after install.
+
 ---
 
 ### Communication
@@ -1237,6 +1249,14 @@ Standalone AI assistant window that integrates with the iTerm2 terminal. Install
 #### Pinta `v3.1.2` — `brew install --cask pinta`
 
 Simple raster image editor (similar to MS Paint). Used for quick image annotations and crops. No configuration needed.
+
+#### HiPixel — `brew install --cask hipixel`
+
+Image upscaling tool. No configuration needed — used ad hoc.
+
+#### PokeTokenBar — `brew install --cask chattymin/tap/poke-token-bar`
+
+Menu bar novelty that turns AI coding token usage into a growing Pokémon. No config to restore.
 
 ---
 
@@ -1799,4 +1819,5 @@ cd ~/.config/opencode && bun install
 [ ] Copy iTerm2 dynamic profile: cp iterm2/dynamic-profile.json ~/Library/Application\ Support/iTerm2/DynamicProfiles/dev-setup.json → set as Default in iTerm2 Preferences
 [ ] Apply Terminal.app theme: bash terminal/apply-terminal-theme.sh
 [ ] Install opencode: brew install opencode → cp -r opencode/* ~/.config/opencode/ → bun install
+[ ] Set up aws-vault profiles: aws-vault add <profile>
 ```
