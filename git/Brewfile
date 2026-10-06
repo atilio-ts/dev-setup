@@ -148,6 +148,8 @@ brew "zoxide"
 brew "zsh-autosuggestions"
 # Coding agent with the IDE wired in
 brew "can1357/tap/omp", trusted: true
+# Terminal-based AI coding agent, alternative to Claude Code (config: opencode/)
+brew "anomalyco/tap/opencode", trusted: true
 # Terminal multiplexer (installed as an overmind dependency, tracked explicitly so a
 # fresh `brew bundle install` gets it too — config: tmux/tmux.conf)
 brew "tmux"

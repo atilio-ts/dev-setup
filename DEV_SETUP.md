@@ -24,6 +24,7 @@
 15. [Claude Code](#15-claude-code)
 16. [Spicetify](#16-spicetify)
 17. [Claude Code Stats](#17-claude-code-stats)
+18. [opencode](#18-opencode)
 
 ---
 
@@ -1719,6 +1720,30 @@ This keeps the dashboard up to date in the background. Open `public/index.html` 
 
 ---
 
+## 18. opencode
+
+An alternative terminal-based AI coding CLI, used alongside Claude Code. Config lives at `~/.config/opencode/` and mirrors the same caveman-plugin setup used in Claude Code (`caveman` skills/commands/agents — see section 15).
+
+**Install:**
+
+```bash
+brew install opencode
+```
+
+### Config
+
+Tracked in this repo at `opencode/` — `opencode.json` (MCP server: `filestash`; plugin: `caveman`), `AGENTS.md`, `package.json`, and the `agents/`, `commands/`, `skills/`, `plugins/` directories. Not tracked: `node_modules/`, lockfiles (`bun.lock`, `package-lock.json` — regenerate with `bun install`), and `.caveman-opencode-ownership.json` (regenerates itself on first run).
+
+### Restore
+
+```bash
+mkdir -p ~/.config/opencode
+cp -r opencode/* ~/.config/opencode/
+cd ~/.config/opencode && bun install
+```
+
+---
+
 ## Appendix: Quick Replication Checklist
 
 ```
@@ -1771,4 +1796,5 @@ This keeps the dashboard up to date in the background. Open `public/index.html` 
 [ ] Copy tmux config: cp tmux/tmux.conf ~/.tmux.conf
 [ ] Copy iTerm2 dynamic profile: cp iterm2/dynamic-profile.json ~/Library/Application\ Support/iTerm2/DynamicProfiles/dev-setup.json → set as Default in iTerm2 Preferences
 [ ] Apply Terminal.app theme: bash terminal/apply-terminal-theme.sh
+[ ] Install opencode: brew install opencode → cp -r opencode/* ~/.config/opencode/ → bun install
 ```

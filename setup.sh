@@ -126,6 +126,20 @@ else
   warn "Terminal.app not found at expected path — skipping"
 fi
 
+# ─── opencode ────────────────────────────────────────────────────────────────
+step "opencode"
+if command -v opencode &>/dev/null || brew list opencode &>/dev/null 2>&1; then
+  mkdir -p "$HOME/.config/opencode"
+  cp -r "$REPO/opencode/"* "$HOME/.config/opencode/"
+  if command -v bun &>/dev/null; then
+    (cd "$HOME/.config/opencode" && bun install) && ok "opencode config copied and dependencies installed"
+  else
+    warn "bun not found — run 'bun install' in ~/.config/opencode manually"
+  fi
+else
+  warn "opencode not installed (brew install opencode) — skipping config copy"
+fi
+
 # ─── Claude Code ─────────────────────────────────────────────────────────────
 step "Claude Code"
 mkdir -p "$HOME/.claude"
