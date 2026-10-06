@@ -29,7 +29,7 @@ plugins=(
   docker-compose
   git-commit
   git-extras
-  github
+  gh
   gitignore
   gradle
   iterm2
@@ -78,7 +78,7 @@ export EDITOR=nvim
 export VISUAL=nvim
 
 # Python — prefer 3.13 (3.14 is pre-release)
-export PATH="/opt/homebrew/opt/python@3.13/libexec/bin:$PATH"
+export PATH="/opt/homebrew/opt/python@3.14/libexec/bin:$PATH"
 
 # PATH extras
 PATH=~/.console-ninja/.bin:$PATH
