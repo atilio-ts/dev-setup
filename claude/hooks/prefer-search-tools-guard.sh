@@ -1,22 +1,23 @@
 #!/usr/bin/env bash
-# Hard-blocks unbounded find/grep in Bash, pushing toward fd/rg (both already
-# pre-approved in permissions.allow). Does NOT touch test/build commands or
-# scoped find/grep usage -- only root-wide find and any bare grep invocation.
+# Hard-blocks the grep command and unbounded find / in Bash, pushing toward rg/fd
+# (both already pre-approved in permissions.allow). Only the executed command is checked:
+# text inside quotes or heredocs (commit messages, echo, file contents) is ignored.
 
 input=$(cat)
 cmd=$(echo "$input" | jq -r '.tool_input.command // empty')
 [ -z "$cmd" ] && exit 0
 
-# Strip "--grep" (mocha/jest/etc test-filter flag) before checking for a bare grep command,
-# so test runner flags don't get misflagged as grep invocations.
-cmd_for_grep_check=$(echo "$cmd" | sed -E 's/--grep([^a-zA-Z0-9_]|$)/\1/g')
+source "$(dirname "$0")/strip-quoted.sh"
+check=$(strip_quoted "$cmd")
 
-if echo "$cmd_for_grep_check" | grep -qE '\bgrep\b'; then
+COMMAND_POSITION='(^|[|;&(`]|\$\()[[:space:]]*(sudo[[:space:]]+|xargs[[:space:]]+)?'
+
+if echo "$check" | grep -qE "${COMMAND_POSITION}(e|f)?grep([[:space:]]|$)"; then
   echo "Bloqueado: usa rg (ripgrep) en vez de grep -- mismo resultado, mejor rendimiento, respeta .gitignore. Comando: $cmd" >&2
   exit 2
 fi
 
-if echo "$cmd" | grep -qE '\bfind[[:space:]]+/([[:space:]]|$)' && ! echo "$cmd" | grep -qE '\-maxdepth\b'; then
+if echo "$check" | grep -qE "${COMMAND_POSITION}find[[:space:]]+/([[:space:]]|$)" && ! echo "$check" | grep -qE '\-maxdepth\b'; then
   echo "Bloqueado: find / sin acotar puede generar output enorme. Usa fd (respeta .gitignore, ya preaprobado) o agrega -maxdepth. Comando: $cmd" >&2
   exit 2
 fi

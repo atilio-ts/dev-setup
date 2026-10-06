@@ -3,6 +3,9 @@
 input=$(cat)
 cmd=$(echo "$input" | jq -r '.tool_input.command // empty')
 
+source "$(dirname "$0")/strip-quoted.sh"
+check=$(strip_quoted "$cmd" | sed -E 's/(&&|\|\||;)/\n/g')
+
 destructive_patterns=(
   # git — force / rewrite history
   "git reset --hard"
@@ -10,7 +13,7 @@ destructive_patterns=(
   "git push -f "
   "git push -f$"
   "git push.*--force-with-lease"
-  "git rebase.*-i"
+  "git rebase( .*)? (-i|--interactive)( |$)"
   "git rebase.*--onto"
   "git filter-branch"
   "git filter-repo"
@@ -24,7 +27,7 @@ destructive_patterns=(
   "git clean -fx"
   "git checkout \."
   "git restore \."
-  "git checkout.*--"
+  "git checkout( .*)? -- "
 
   # git — delete branches / tags / remotes
   "git branch -D"
@@ -119,7 +122,7 @@ destructive_patterns=(
 )
 
 for pattern in "${destructive_patterns[@]}"; do
-  if echo "$cmd" | grep -qE "$pattern"; then
+  if echo "$check" | grep -qE "$pattern"; then
     echo "Destructive command blocked: $cmd" >&2
     exit 2
   fi

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Reminds/enforces use of code-review-graph, filestash, and houtini-lm per ~/.claude/CLAUDE.md.
+# Reminds to use code-review-graph when the repo has one.
 # SessionStart hook: emits additionalContext only for tools that actually apply this session.
 
 input=$(cat)
@@ -18,13 +18,6 @@ if [ -n "$repo_root" ] && { [ -d "$repo_root/.code-review-graph" ] || [ -d "$rep
 "
 fi
 
-context="${context}REMINDER: Per CLAUDE.md, check file-stash status now with mcp__filestash__stash_status, and prefer mcp__filestash__read_file / read_files over the built-in Read tool for read-only exploration this session.
-"
-
-if curl -s -o /dev/null --max-time 1 "http://192.168.0.13:1234/v1/models"; then
-  context="${context}REMINDER: houtini-lm (local LM Studio) is reachable. Per CLAUDE.md, offload bounded single-message tasks under 4K tokens to mcp__houtini-lm__code_task/chat/custom_prompt instead of a Claude subagent.
-"
-fi
 
 if [ -n "$context" ]; then
   jq -n --arg ctx "$context" '{hookSpecificOutput: {hookEventName: "SessionStart", additionalContext: $ctx}}'
