@@ -55,21 +55,33 @@ else
   lines_str="-"
 fi
 
+# Context quality score from token-optimizer (per-session cache, falls back to the global one)
+session_id=$(echo "$input" | jq -r '.session_id // empty')
+q_dir="$HOME/.claude/token-optimizer"
+q_file="$q_dir/quality-cache-${session_id}.json"
+[ -f "$q_file" ] || q_file="$q_dir/quality-cache.json"
+q_score=$(jq -r '.score // empty' "$q_file" 2>/dev/null)
+q_str=""
+if [ -n "$q_score" ]; then
+  q_int=$(printf "%.0f" "$q_score")
+  q_str="${sep}◎ ctxQ: ${q_int}"
+fi
+
 if [ -n "$used" ]; then
   used_int=$(printf "%.0f" "$used")
-  printf "◆ %s%s● ctx: %d%%%s$ cost: %s%s⬡ tokens: %s%s⚡ session: %s%s~ lines: %s" \
+  printf "◆ %s%s● ctx: %d%%%s$ cost: %s%s⬡ tokens: %s%s⚡ session: %s%s~ lines: %s%s" \
     "$model" "$sep" \
     "$used_int" "$sep" \
     "$cost_str" "$sep" \
     "$tokens_str" "$sep" \
     "$duration_str" "$sep" \
-    "$lines_str"
+    "$lines_str" "$q_str"
 else
-  printf "◆ %s%s● ctx: --%s%s$ cost: %s%s⬡ tokens: %s%s⚡ session: %s%s~ lines: %s" \
+  printf "◆ %s%s● ctx: --%s%s$ cost: %s%s⬡ tokens: %s%s⚡ session: %s%s~ lines: %s%s" \
     "$model" "$sep" \
     "%" "$sep" \
     "$cost_str" "$sep" \
     "$tokens_str" "$sep" \
     "$duration_str" "$sep" \
-    "$lines_str"
+    "$lines_str" "$q_str"
 fi

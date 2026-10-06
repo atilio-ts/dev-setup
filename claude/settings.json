@@ -1,494 +1,13 @@
 {
-  "advisorModel" : "opus",
-  "autoCompactEnabled" : false,
-  "autoUpdatesChannel" : "stable",
-  "cleanupPeriodDays" : 99999,
-  "enableAllProjectMcpServers" : true,
-  "enabledPlugins" : {
-    "caveman@caveman" : true,
-    "coderabbit@claude-plugins-official" : true,
-    "context-mode@context-mode" : true,
-    "ponytail@ponytail" : true,
-    "token-optimizer@alexgreensh-token-optimizer" : true
+  "cleanupPeriodDays": 1095,
+  "env": {
+    "CLAUDE_CODE_MAX_THINKING_TOKENS": "10000",
+    "MAX_MCP_OUTPUT_TOKENS": "8192",
+    "NO_UPDATE_NOTIFIER": "1",
+    "PONYTAIL_SUBAGENT_MATCHER": "general-purpose|^plan$|^fork$|^claude$|builder"
   },
-  "env" : {
-    "CLAUDE_CODE_MAX_THINKING_TOKENS" : "10000",
-    "MAX_MCP_OUTPUT_TOKENS" : "8192",
-    "NO_UPDATE_NOTIFIER" : "1"
-  },
-  "extraKnownMarketplaces" : {
-    "alexgreensh-token-optimizer" : {
-      "source" : {
-        "repo" : "alexgreensh\/token-optimizer",
-        "source" : "github"
-      }
-    },
-    "caveman" : {
-      "source" : {
-        "repo" : "JuliusBrussee\/caveman",
-        "source" : "github"
-      }
-    },
-    "context-mode" : {
-      "source" : {
-        "repo" : "mksglu\/context-mode",
-        "source" : "github"
-      }
-    },
-    "everything-claude-code" : {
-      "source" : {
-        "repo" : "affaan-m\/everything-claude-code",
-        "source" : "github"
-      }
-    },
-    "fullstack-dev-skills" : {
-      "source" : {
-        "repo" : "jeffallan\/claude-skills",
-        "source" : "github"
-      }
-    },
-    "ponytail" : {
-      "source" : {
-        "repo" : "DietrichGebert\/ponytail",
-        "source" : "github"
-      }
-    }
-  },
-  "hooks" : {
-    "Notification" : [
-      {
-        "hooks" : [
-          {
-            "command" : "node \"\/Users\/atilio\/.pixel-agents\/hooks\/claude-hook.js\"",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : ""
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "\/Users\/atilio\/.config\/iterm2\/cc-status",
-            "type" : "command"
-          }
-        ]
-      }
-    ],
-    "PermissionRequest" : [
-      {
-        "hooks" : [
-          {
-            "command" : "if [ -z \"${HOME-}\" ]; then { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; else case \"${OSTYPE-}\" in msys*|cygwin*|win32*) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ]; then case \"${HOME-}\" in *\\&*|*\\^*|*\\(*|*\\)*|*\\;*|*,*|*=*|*%*|*\\!*) if [ -f \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" ]; then \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" -NoProfile -EncodedCommand JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAIAB0AHIAeQAgAHsAIABTAGUAdAAtAEUAeABlAGMAdQB0AGkAbwBuAFAAbwBsAGkAYwB5ACAALQBTAGMAbwBwAGUAIABQAHIAbwBjAGUAcwBzACAALQBFAHgAZQBjAHUAdABpAG8AbgBQAG8AbABpAGMAeQAgAEIAeQBwAGEAcwBzACAALQBGAG8AcgBjAGUAIAAtAEUAcgByAG8AcgBBAGMAdABpAG8AbgAgAFMAaQBsAGUAbgB0AGwAeQBDAG8AbgB0AGkAbgB1AGUAIAB9ACAAYwBhAHQAYwBoACAAewB9ADsAIAAkAGgAbwBtAGUAUABhAHQAaAAgAD0AIAAkAGUAbgB2ADoASABPAE0ARQAgAC0AcgBlAHAAbABhAGMAZQAgACcAXgAvACgAWwBBAC0AWgBhAC0AegBdACkALwAnACwAIAAnACQAMQA6AC8AJwA7ACAAJABzAGMAcgBpAHAAdABQAGEAdABoACAAPQAgAEoAbwBpAG4ALQBQAGEAdABoACAAJABoAG8AbQBlAFAAYQB0AGgAIAAnAC4AbwByAGMAYQBcAGEAZwBlAG4AdAAtAGgAbwBvAGsAcwBcAGMAbABhAHUAZABlAC0AaABvAG8AawAuAGMAbQBkACcAOwAgAGkAZgAgACgAVABlAHMAdAAtAFAAYQB0AGgAIAAtAEwAaQB0AGUAcgBhAGwAUABhAHQAaAAgACQAcwBjAHIAaQBwAHQAUABhAHQAaAAgAC0AUABhAHQAaABUAHkAcABlACAATABlAGEAZgApACAAewAgACYAIAAkAHMAYwByAGkAcAB0AFAAYQB0AGgAOwAgAGUAeABpAHQAIAAkAEwAQQBTAFQARQBYAEkAVABDAE8ARABFACAAfQA7ACAAWwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgAuAFIAZQBhAGQAVABvAEUAbgBkACgAKQAgAHwAIABPAHUAdAAtAE4AdQBsAGwAOwAgAFcAcgBpAHQAZQAtAE8AdQB0AHAAdQB0ACAAJwB7AH0AJwA7ACAAZQB4AGkAdAAgADAA; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ;; esac; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -r \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -x \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ]; then \/bin\/sh \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\"; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; esac; fi",
-            "timeout" : 10,
-            "type" : "command"
-          }
-        ],
-        "matcher" : "*"
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "node \"\/Users\/atilio\/.pixel-agents\/hooks\/claude-hook.js\"",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : ""
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "\/Users\/atilio\/.config\/iterm2\/cc-status",
-            "type" : "command"
-          }
-        ]
-      }
-    ],
-    "PostCompact" : [
-      {
-        "hooks" : [
-          {
-            "command" : "if [ -z \"${HOME-}\" ]; then { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; else case \"${OSTYPE-}\" in msys*|cygwin*|win32*) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ]; then case \"${HOME-}\" in *\\&*|*\\^*|*\\(*|*\\)*|*\\;*|*,*|*=*|*%*|*\\!*) if [ -f \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" ]; then \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" -NoProfile -EncodedCommand JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAIAB0AHIAeQAgAHsAIABTAGUAdAAtAEUAeABlAGMAdQB0AGkAbwBuAFAAbwBsAGkAYwB5ACAALQBTAGMAbwBwAGUAIABQAHIAbwBjAGUAcwBzACAALQBFAHgAZQBjAHUAdABpAG8AbgBQAG8AbABpAGMAeQAgAEIAeQBwAGEAcwBzACAALQBGAG8AcgBjAGUAIAAtAEUAcgByAG8AcgBBAGMAdABpAG8AbgAgAFMAaQBsAGUAbgB0AGwAeQBDAG8AbgB0AGkAbgB1AGUAIAB9ACAAYwBhAHQAYwBoACAAewB9ADsAIAAkAGgAbwBtAGUAUABhAHQAaAAgAD0AIAAkAGUAbgB2ADoASABPAE0ARQAgAC0AcgBlAHAAbABhAGMAZQAgACcAXgAvACgAWwBBAC0AWgBhAC0AegBdACkALwAnACwAIAAnACQAMQA6AC8AJwA7ACAAJABzAGMAcgBpAHAAdABQAGEAdABoACAAPQAgAEoAbwBpAG4ALQBQAGEAdABoACAAJABoAG8AbQBlAFAAYQB0AGgAIAAnAC4AbwByAGMAYQBcAGEAZwBlAG4AdAAtAGgAbwBvAGsAcwBcAGMAbABhAHUAZABlAC0AaABvAG8AawAuAGMAbQBkACcAOwAgAGkAZgAgACgAVABlAHMAdAAtAFAAYQB0AGgAIAAtAEwAaQB0AGUAcgBhAGwAUABhAHQAaAAgACQAcwBjAHIAaQBwAHQAUABhAHQAaAAgAC0AUABhAHQAaABUAHkAcABlACAATABlAGEAZgApACAAewAgACYAIAAkAHMAYwByAGkAcAB0AFAAYQB0AGgAOwAgAGUAeABpAHQAIAAkAEwAQQBTAFQARQBYAEkAVABDAE8ARABFACAAfQA7ACAAWwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgAuAFIAZQBhAGQAVABvAEUAbgBkACgAKQAgAHwAIABPAHUAdAAtAE4AdQBsAGwAOwAgAFcAcgBpAHQAZQAtAE8AdQB0AHAAdQB0ACAAJwB7AH0AJwA7ACAAZQB4AGkAdAAgADAA; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ;; esac; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -r \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -x \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ]; then \/bin\/sh \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\"; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; esac; fi",
-            "timeout" : 10,
-            "type" : "command"
-          }
-        ]
-      }
-    ],
-    "PostToolUse" : [
-      {
-        "hooks" : [
-          {
-            "command" : "bash $HOME\/.claude\/hooks\/post-edit-encoding.sh",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : "Edit|Write"
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "if [ -z \"${HOME-}\" ]; then { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; else case \"${OSTYPE-}\" in msys*|cygwin*|win32*) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ]; then case \"${HOME-}\" in *\\&*|*\\^*|*\\(*|*\\)*|*\\;*|*,*|*=*|*%*|*\\!*) if [ -f \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" ]; then \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" -NoProfile -EncodedCommand JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAIAB0AHIAeQAgAHsAIABTAGUAdAAtAEUAeABlAGMAdQB0AGkAbwBuAFAAbwBsAGkAYwB5ACAALQBTAGMAbwBwAGUAIABQAHIAbwBjAGUAcwBzACAALQBFAHgAZQBjAHUAdABpAG8AbgBQAG8AbABpAGMAeQAgAEIAeQBwAGEAcwBzACAALQBGAG8AcgBjAGUAIAAtAEUAcgByAG8AcgBBAGMAdABpAG8AbgAgAFMAaQBsAGUAbgB0AGwAeQBDAG8AbgB0AGkAbgB1AGUAIAB9ACAAYwBhAHQAYwBoACAAewB9ADsAIAAkAGgAbwBtAGUAUABhAHQAaAAgAD0AIAAkAGUAbgB2ADoASABPAE0ARQAgAC0AcgBlAHAAbABhAGMAZQAgACcAXgAvACgAWwBBAC0AWgBhAC0AegBdACkALwAnACwAIAAnACQAMQA6AC8AJwA7ACAAJABzAGMAcgBpAHAAdABQAGEAdABoACAAPQAgAEoAbwBpAG4ALQBQAGEAdABoACAAJABoAG8AbQBlAFAAYQB0AGgAIAAnAC4AbwByAGMAYQBcAGEAZwBlAG4AdAAtAGgAbwBvAGsAcwBcAGMAbABhAHUAZABlAC0AaABvAG8AawAuAGMAbQBkACcAOwAgAGkAZgAgACgAVABlAHMAdAAtAFAAYQB0AGgAIAAtAEwAaQB0AGUAcgBhAGwAUABhAHQAaAAgACQAcwBjAHIAaQBwAHQAUABhAHQAaAAgAC0AUABhAHQAaABUAHkAcABlACAATABlAGEAZgApACAAewAgACYAIAAkAHMAYwByAGkAcAB0AFAAYQB0AGgAOwAgAGUAeABpAHQAIAAkAEwAQQBTAFQARQBYAEkAVABDAE8ARABFACAAfQA7ACAAWwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgAuAFIAZQBhAGQAVABvAEUAbgBkACgAKQAgAHwAIABPAHUAdAAtAE4AdQBsAGwAOwAgAFcAcgBpAHQAZQAtAE8AdQB0AHAAdQB0ACAAJwB7AH0AJwA7ACAAZQB4AGkAdAAgADAA; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ;; esac; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -r \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -x \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ]; then \/bin\/sh \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\"; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; esac; fi",
-            "timeout" : 10,
-            "type" : "command"
-          }
-        ],
-        "matcher" : "*"
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "node \"\/Users\/atilio\/.pixel-agents\/hooks\/claude-hook.js\"",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : ""
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "\/Users\/atilio\/.config\/iterm2\/cc-status",
-            "type" : "command"
-          }
-        ]
-      }
-    ],
-    "PostToolUseFailure" : [
-      {
-        "hooks" : [
-          {
-            "command" : "if [ -z \"${HOME-}\" ]; then { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; else case \"${OSTYPE-}\" in msys*|cygwin*|win32*) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ]; then case \"${HOME-}\" in *\\&*|*\\^*|*\\(*|*\\)*|*\\;*|*,*|*=*|*%*|*\\!*) if [ -f \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" ]; then \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" -NoProfile -EncodedCommand JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAIAB0AHIAeQAgAHsAIABTAGUAdAAtAEUAeABlAGMAdQB0AGkAbwBuAFAAbwBsAGkAYwB5ACAALQBTAGMAbwBwAGUAIABQAHIAbwBjAGUAcwBzACAALQBFAHgAZQBjAHUAdABpAG8AbgBQAG8AbABpAGMAeQAgAEIAeQBwAGEAcwBzACAALQBGAG8AcgBjAGUAIAAtAEUAcgByAG8AcgBBAGMAdABpAG8AbgAgAFMAaQBsAGUAbgB0AGwAeQBDAG8AbgB0AGkAbgB1AGUAIAB9ACAAYwBhAHQAYwBoACAAewB9ADsAIAAkAGgAbwBtAGUAUABhAHQAaAAgAD0AIAAkAGUAbgB2ADoASABPAE0ARQAgAC0AcgBlAHAAbABhAGMAZQAgACcAXgAvACgAWwBBAC0AWgBhAC0AegBdACkALwAnACwAIAAnACQAMQA6AC8AJwA7ACAAJABzAGMAcgBpAHAAdABQAGEAdABoACAAPQAgAEoAbwBpAG4ALQBQAGEAdABoACAAJABoAG8AbQBlAFAAYQB0AGgAIAAnAC4AbwByAGMAYQBcAGEAZwBlAG4AdAAtAGgAbwBvAGsAcwBcAGMAbABhAHUAZABlAC0AaABvAG8AawAuAGMAbQBkACcAOwAgAGkAZgAgACgAVABlAHMAdAAtAFAAYQB0AGgAIAAtAEwAaQB0AGUAcgBhAGwAUABhAHQAaAAgACQAcwBjAHIAaQBwAHQAUABhAHQAaAAgAC0AUABhAHQAaABUAHkAcABlACAATABlAGEAZgApACAAewAgACYAIAAkAHMAYwByAGkAcAB0AFAAYQB0AGgAOwAgAGUAeABpAHQAIAAkAEwAQQBTAFQARQBYAEkAVABDAE8ARABFACAAfQA7ACAAWwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgAuAFIAZQBhAGQAVABvAEUAbgBkACgAKQAgAHwAIABPAHUAdAAtAE4AdQBsAGwAOwAgAFcAcgBpAHQAZQAtAE8AdQB0AHAAdQB0ACAAJwB7AH0AJwA7ACAAZQB4AGkAdAAgADAA; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ;; esac; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -r \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -x \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ]; then \/bin\/sh \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\"; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; esac; fi",
-            "timeout" : 10,
-            "type" : "command"
-          }
-        ],
-        "matcher" : "*"
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "node \"\/Users\/atilio\/.pixel-agents\/hooks\/claude-hook.js\"",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : ""
-      }
-    ],
-    "PreToolUse" : [
-      {
-        "hooks" : [
-          {
-            "command" : "bash \/Users\/atilio\/.claude\/hooks\/pre-bash.sh",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : "Bash"
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "bash \/Users\/atilio\/.claude\/hooks\/code-review-graph-guard.sh",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : "Glob|Grep"
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "bash \/Users\/atilio\/.claude\/hooks\/file-stash-guard.sh",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : "Read"
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "bash \/Users\/atilio\/.claude\/hooks\/pre-websearch.sh",
-            "timeout" : 10,
-            "type" : "command"
-          }
-        ],
-        "matcher" : "WebSearch"
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "rtk hook claude",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : "Bash"
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "bash \/Users\/atilio\/.claude\/hooks\/prefer-search-tools-guard.sh",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : "Bash"
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "if [ -z \"${HOME-}\" ]; then { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; else case \"${OSTYPE-}\" in msys*|cygwin*|win32*) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ]; then case \"${HOME-}\" in *\\&*|*\\^*|*\\(*|*\\)*|*\\;*|*,*|*=*|*%*|*\\!*) if [ -f \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" ]; then \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" -NoProfile -EncodedCommand JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAIAB0AHIAeQAgAHsAIABTAGUAdAAtAEUAeABlAGMAdQB0AGkAbwBuAFAAbwBsAGkAYwB5ACAALQBTAGMAbwBwAGUAIABQAHIAbwBjAGUAcwBzACAALQBFAHgAZQBjAHUAdABpAG8AbgBQAG8AbABpAGMAeQAgAEIAeQBwAGEAcwBzACAALQBGAG8AcgBjAGUAIAAtAEUAcgByAG8AcgBBAGMAdABpAG8AbgAgAFMAaQBsAGUAbgB0AGwAeQBDAG8AbgB0AGkAbgB1AGUAIAB9ACAAYwBhAHQAYwBoACAAewB9ADsAIAAkAGgAbwBtAGUAUABhAHQAaAAgAD0AIAAkAGUAbgB2ADoASABPAE0ARQAgAC0AcgBlAHAAbABhAGMAZQAgACcAXgAvACgAWwBBAC0AWgBhAC0AegBdACkALwAnACwAIAAnACQAMQA6AC8AJwA7ACAAJABzAGMAcgBpAHAAdABQAGEAdABoACAAPQAgAEoAbwBpAG4ALQBQAGEAdABoACAAJABoAG8AbQBlAFAAYQB0AGgAIAAnAC4AbwByAGMAYQBcAGEAZwBlAG4AdAAtAGgAbwBvAGsAcwBcAGMAbABhAHUAZABlAC0AaABvAG8AawAuAGMAbQBkACcAOwAgAGkAZgAgACgAVABlAHMAdAAtAFAAYQB0AGgAIAAtAEwAaQB0AGUAcgBhAGwAUABhAHQAaAAgACQAcwBjAHIAaQBwAHQAUABhAHQAaAAgAC0AUABhAHQAaABUAHkAcABlACAATABlAGEAZgApACAAewAgACYAIAAkAHMAYwByAGkAcAB0AFAAYQB0AGgAOwAgAGUAeABpAHQAIAAkAEwAQQBTAFQARQBYAEkAVABDAE8ARABFACAAfQA7ACAAWwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgAuAFIAZQBhAGQAVABvAEUAbgBkACgAKQAgAHwAIABPAHUAdAAtAE4AdQBsAGwAOwAgAFcAcgBpAHQAZQAtAE8AdQB0AHAAdQB0ACAAJwB7AH0AJwA7ACAAZQB4AGkAdAAgADAA; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ;; esac; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -r \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -x \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ]; then \/bin\/sh \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\"; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; esac; fi",
-            "timeout" : 10,
-            "type" : "command"
-          }
-        ],
-        "matcher" : "*"
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "node \"\/Users\/atilio\/.pixel-agents\/hooks\/claude-hook.js\"",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : ""
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "\/Users\/atilio\/.config\/iterm2\/cc-status",
-            "type" : "command"
-          }
-        ]
-      }
-    ],
-    "SessionEnd" : [
-      {
-        "hooks" : [
-          {
-            "command" : "node \"\/Users\/atilio\/.pixel-agents\/hooks\/claude-hook.js\"",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : ""
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "\/Users\/atilio\/.config\/iterm2\/cc-status",
-            "type" : "command"
-          }
-        ]
-      }
-    ],
-    "SessionStart" : [
-      {
-        "hooks" : [
-          {
-            "command" : "zsh -c '\"\/Users\/atilio\/.claude\/hooks\/context-mode-cache-heal.mjs\"'",
-            "type" : "command"
-          }
-        ]
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "bash \"\/Users\/atilio\/.claude\/hooks\/session-start-tool-reminders.sh\"",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : ""
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "if [ -z \"${HOME-}\" ]; then { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; else case \"${OSTYPE-}\" in msys*|cygwin*|win32*) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ]; then case \"${HOME-}\" in *\\&*|*\\^*|*\\(*|*\\)*|*\\;*|*,*|*=*|*%*|*\\!*) if [ -f \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" ]; then \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" -NoProfile -EncodedCommand JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAIAB0AHIAeQAgAHsAIABTAGUAdAAtAEUAeABlAGMAdQB0AGkAbwBuAFAAbwBsAGkAYwB5ACAALQBTAGMAbwBwAGUAIABQAHIAbwBjAGUAcwBzACAALQBFAHgAZQBjAHUAdABpAG8AbgBQAG8AbABpAGMAeQAgAEIAeQBwAGEAcwBzACAALQBGAG8AcgBjAGUAIAAtAEUAcgByAG8AcgBBAGMAdABpAG8AbgAgAFMAaQBsAGUAbgB0AGwAeQBDAG8AbgB0AGkAbgB1AGUAIAB9ACAAYwBhAHQAYwBoACAAewB9ADsAIAAkAGgAbwBtAGUAUABhAHQAaAAgAD0AIAAkAGUAbgB2ADoASABPAE0ARQAgAC0AcgBlAHAAbABhAGMAZQAgACcAXgAvACgAWwBBAC0AWgBhAC0AegBdACkALwAnACwAIAAnACQAMQA6AC8AJwA7ACAAJABzAGMAcgBpAHAAdABQAGEAdABoACAAPQAgAEoAbwBpAG4ALQBQAGEAdABoACAAJABoAG8AbQBlAFAAYQB0AGgAIAAnAC4AbwByAGMAYQBcAGEAZwBlAG4AdAAtAGgAbwBvAGsAcwBcAGMAbABhAHUAZABlAC0AaABvAG8AawAuAGMAbQBkACcAOwAgAGkAZgAgACgAVABlAHMAdAAtAFAAYQB0AGgAIAAtAEwAaQB0AGUAcgBhAGwAUABhAHQAaAAgACQAcwBjAHIAaQBwAHQAUABhAHQAaAAgAC0AUABhAHQAaABUAHkAcABlACAATABlAGEAZgApACAAewAgACYAIAAkAHMAYwByAGkAcAB0AFAAYQB0AGgAOwAgAGUAeABpAHQAIAAkAEwAQQBTAFQARQBYAEkAVABDAE8ARABFACAAfQA7ACAAWwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgAuAFIAZQBhAGQAVABvAEUAbgBkACgAKQAgAHwAIABPAHUAdAAtAE4AdQBsAGwAOwAgAFcAcgBpAHQAZQAtAE8AdQB0AHAAdQB0ACAAJwB7AH0AJwA7ACAAZQB4AGkAdAAgADAA; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ;; esac; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -r \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -x \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ]; then \/bin\/sh \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\"; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; esac; fi",
-            "timeout" : 10,
-            "type" : "command"
-          }
-        ]
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "node \"\/Users\/atilio\/.pixel-agents\/hooks\/claude-hook.js\"",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : ""
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "\/Users\/atilio\/.config\/iterm2\/cc-status",
-            "type" : "command"
-          }
-        ]
-      }
-    ],
-    "Stop" : [
-      {
-        "hooks" : [
-          {
-            "command" : "if [ -z \"${HOME-}\" ]; then { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; else case \"${OSTYPE-}\" in msys*|cygwin*|win32*) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ]; then case \"${HOME-}\" in *\\&*|*\\^*|*\\(*|*\\)*|*\\;*|*,*|*=*|*%*|*\\!*) if [ -f \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" ]; then \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" -NoProfile -EncodedCommand JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAIAB0AHIAeQAgAHsAIABTAGUAdAAtAEUAeABlAGMAdQB0AGkAbwBuAFAAbwBsAGkAYwB5ACAALQBTAGMAbwBwAGUAIABQAHIAbwBjAGUAcwBzACAALQBFAHgAZQBjAHUAdABpAG8AbgBQAG8AbABpAGMAeQAgAEIAeQBwAGEAcwBzACAALQBGAG8AcgBjAGUAIAAtAEUAcgByAG8AcgBBAGMAdABpAG8AbgAgAFMAaQBsAGUAbgB0AGwAeQBDAG8AbgB0AGkAbgB1AGUAIAB9ACAAYwBhAHQAYwBoACAAewB9ADsAIAAkAGgAbwBtAGUAUABhAHQAaAAgAD0AIAAkAGUAbgB2ADoASABPAE0ARQAgAC0AcgBlAHAAbABhAGMAZQAgACcAXgAvACgAWwBBAC0AWgBhAC0AegBdACkALwAnACwAIAAnACQAMQA6AC8AJwA7ACAAJABzAGMAcgBpAHAAdABQAGEAdABoACAAPQAgAEoAbwBpAG4ALQBQAGEAdABoACAAJABoAG8AbQBlAFAAYQB0AGgAIAAnAC4AbwByAGMAYQBcAGEAZwBlAG4AdAAtAGgAbwBvAGsAcwBcAGMAbABhAHUAZABlAC0AaABvAG8AawAuAGMAbQBkACcAOwAgAGkAZgAgACgAVABlAHMAdAAtAFAAYQB0AGgAIAAtAEwAaQB0AGUAcgBhAGwAUABhAHQAaAAgACQAcwBjAHIAaQBwAHQAUABhAHQAaAAgAC0AUABhAHQAaABUAHkAcABlACAATABlAGEAZgApACAAewAgACYAIAAkAHMAYwByAGkAcAB0AFAAYQB0AGgAOwAgAGUAeABpAHQAIAAkAEwAQQBTAFQARQBYAEkAVABDAE8ARABFACAAfQA7ACAAWwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgAuAFIAZQBhAGQAVABvAEUAbgBkACgAKQAgAHwAIABPAHUAdAAtAE4AdQBsAGwAOwAgAFcAcgBpAHQAZQAtAE8AdQB0AHAAdQB0ACAAJwB7AH0AJwA7ACAAZQB4AGkAdAAgADAA; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ;; esac; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -r \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -x \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ]; then \/bin\/sh \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\"; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; esac; fi",
-            "timeout" : 10,
-            "type" : "command"
-          }
-        ]
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "node \"\/Users\/atilio\/.pixel-agents\/hooks\/claude-hook.js\"",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : ""
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "\/Users\/atilio\/.config\/iterm2\/cc-status",
-            "type" : "command"
-          }
-        ]
-      }
-    ],
-    "StopFailure" : [
-      {
-        "hooks" : [
-          {
-            "command" : "if [ -z \"${HOME-}\" ]; then { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; else case \"${OSTYPE-}\" in msys*|cygwin*|win32*) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ]; then case \"${HOME-}\" in *\\&*|*\\^*|*\\(*|*\\)*|*\\;*|*,*|*=*|*%*|*\\!*) if [ -f \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" ]; then \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" -NoProfile -EncodedCommand JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAIAB0AHIAeQAgAHsAIABTAGUAdAAtAEUAeABlAGMAdQB0AGkAbwBuAFAAbwBsAGkAYwB5ACAALQBTAGMAbwBwAGUAIABQAHIAbwBjAGUAcwBzACAALQBFAHgAZQBjAHUAdABpAG8AbgBQAG8AbABpAGMAeQAgAEIAeQBwAGEAcwBzACAALQBGAG8AcgBjAGUAIAAtAEUAcgByAG8AcgBBAGMAdABpAG8AbgAgAFMAaQBsAGUAbgB0AGwAeQBDAG8AbgB0AGkAbgB1AGUAIAB9ACAAYwBhAHQAYwBoACAAewB9ADsAIAAkAGgAbwBtAGUAUABhAHQAaAAgAD0AIAAkAGUAbgB2ADoASABPAE0ARQAgAC0AcgBlAHAAbABhAGMAZQAgACcAXgAvACgAWwBBAC0AWgBhAC0AegBdACkALwAnACwAIAAnACQAMQA6AC8AJwA7ACAAJABzAGMAcgBpAHAAdABQAGEAdABoACAAPQAgAEoAbwBpAG4ALQBQAGEAdABoACAAJABoAG8AbQBlAFAAYQB0AGgAIAAnAC4AbwByAGMAYQBcAGEAZwBlAG4AdAAtAGgAbwBvAGsAcwBcAGMAbABhAHUAZABlAC0AaABvAG8AawAuAGMAbQBkACcAOwAgAGkAZgAgACgAVABlAHMAdAAtAFAAYQB0AGgAIAAtAEwAaQB0AGUAcgBhAGwAUABhAHQAaAAgACQAcwBjAHIAaQBwAHQAUABhAHQAaAAgAC0AUABhAHQAaABUAHkAcABlACAATABlAGEAZgApACAAewAgACYAIAAkAHMAYwByAGkAcAB0AFAAYQB0AGgAOwAgAGUAeABpAHQAIAAkAEwAQQBTAFQARQBYAEkAVABDAE8ARABFACAAfQA7ACAAWwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgAuAFIAZQBhAGQAVABvAEUAbgBkACgAKQAgAHwAIABPAHUAdAAtAE4AdQBsAGwAOwAgAFcAcgBpAHQAZQAtAE8AdQB0AHAAdQB0ACAAJwB7AH0AJwA7ACAAZQB4AGkAdAAgADAA; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ;; esac; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -r \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -x \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ]; then \/bin\/sh \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\"; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; esac; fi",
-            "timeout" : 10,
-            "type" : "command"
-          }
-        ]
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "\/Users\/atilio\/.config\/iterm2\/cc-status",
-            "type" : "command"
-          }
-        ]
-      }
-    ],
-    "SubagentStart" : [
-      {
-        "hooks" : [
-          {
-            "command" : "if [ -z \"${HOME-}\" ]; then { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; else case \"${OSTYPE-}\" in msys*|cygwin*|win32*) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ]; then case \"${HOME-}\" in *\\&*|*\\^*|*\\(*|*\\)*|*\\;*|*,*|*=*|*%*|*\\!*) if [ -f \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" ]; then \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" -NoProfile -EncodedCommand JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAIAB0AHIAeQAgAHsAIABTAGUAdAAtAEUAeABlAGMAdQB0AGkAbwBuAFAAbwBsAGkAYwB5ACAALQBTAGMAbwBwAGUAIABQAHIAbwBjAGUAcwBzACAALQBFAHgAZQBjAHUAdABpAG8AbgBQAG8AbABpAGMAeQAgAEIAeQBwAGEAcwBzACAALQBGAG8AcgBjAGUAIAAtAEUAcgByAG8AcgBBAGMAdABpAG8AbgAgAFMAaQBsAGUAbgB0AGwAeQBDAG8AbgB0AGkAbgB1AGUAIAB9ACAAYwBhAHQAYwBoACAAewB9ADsAIAAkAGgAbwBtAGUAUABhAHQAaAAgAD0AIAAkAGUAbgB2ADoASABPAE0ARQAgAC0AcgBlAHAAbABhAGMAZQAgACcAXgAvACgAWwBBAC0AWgBhAC0AegBdACkALwAnACwAIAAnACQAMQA6AC8AJwA7ACAAJABzAGMAcgBpAHAAdABQAGEAdABoACAAPQAgAEoAbwBpAG4ALQBQAGEAdABoACAAJABoAG8AbQBlAFAAYQB0AGgAIAAnAC4AbwByAGMAYQBcAGEAZwBlAG4AdAAtAGgAbwBvAGsAcwBcAGMAbABhAHUAZABlAC0AaABvAG8AawAuAGMAbQBkACcAOwAgAGkAZgAgACgAVABlAHMAdAAtAFAAYQB0AGgAIAAtAEwAaQB0AGUAcgBhAGwAUABhAHQAaAAgACQAcwBjAHIAaQBwAHQAUABhAHQAaAAgAC0AUABhAHQAaABUAHkAcABlACAATABlAGEAZgApACAAewAgACYAIAAkAHMAYwByAGkAcAB0AFAAYQB0AGgAOwAgAGUAeABpAHQAIAAkAEwAQQBTAFQARQBYAEkAVABDAE8ARABFACAAfQA7ACAAWwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgAuAFIAZQBhAGQAVABvAEUAbgBkACgAKQAgAHwAIABPAHUAdAAtAE4AdQBsAGwAOwAgAFcAcgBpAHQAZQAtAE8AdQB0AHAAdQB0ACAAJwB7AH0AJwA7ACAAZQB4AGkAdAAgADAA; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ;; esac; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -r \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -x \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ]; then \/bin\/sh \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\"; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; esac; fi",
-            "timeout" : 10,
-            "type" : "command"
-          }
-        ]
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "node \"\/Users\/atilio\/.pixel-agents\/hooks\/claude-hook.js\"",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : ""
-      }
-    ],
-    "SubagentStop" : [
-      {
-        "hooks" : [
-          {
-            "command" : "if [ -z \"${HOME-}\" ]; then { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; else case \"${OSTYPE-}\" in msys*|cygwin*|win32*) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ]; then case \"${HOME-}\" in *\\&*|*\\^*|*\\(*|*\\)*|*\\;*|*,*|*=*|*%*|*\\!*) if [ -f \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" ]; then \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" -NoProfile -EncodedCommand JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAIAB0AHIAeQAgAHsAIABTAGUAdAAtAEUAeABlAGMAdQB0AGkAbwBuAFAAbwBsAGkAYwB5ACAALQBTAGMAbwBwAGUAIABQAHIAbwBjAGUAcwBzACAALQBFAHgAZQBjAHUAdABpAG8AbgBQAG8AbABpAGMAeQAgAEIAeQBwAGEAcwBzACAALQBGAG8AcgBjAGUAIAAtAEUAcgByAG8AcgBBAGMAdABpAG8AbgAgAFMAaQBsAGUAbgB0AGwAeQBDAG8AbgB0AGkAbgB1AGUAIAB9ACAAYwBhAHQAYwBoACAAewB9ADsAIAAkAGgAbwBtAGUAUABhAHQAaAAgAD0AIAAkAGUAbgB2ADoASABPAE0ARQAgAC0AcgBlAHAAbABhAGMAZQAgACcAXgAvACgAWwBBAC0AWgBhAC0AegBdACkALwAnACwAIAAnACQAMQA6AC8AJwA7ACAAJABzAGMAcgBpAHAAdABQAGEAdABoACAAPQAgAEoAbwBpAG4ALQBQAGEAdABoACAAJABoAG8AbQBlAFAAYQB0AGgAIAAnAC4AbwByAGMAYQBcAGEAZwBlAG4AdAAtAGgAbwBvAGsAcwBcAGMAbABhAHUAZABlAC0AaABvAG8AawAuAGMAbQBkACcAOwAgAGkAZgAgACgAVABlAHMAdAAtAFAAYQB0AGgAIAAtAEwAaQB0AGUAcgBhAGwAUABhAHQAaAAgACQAcwBjAHIAaQBwAHQAUABhAHQAaAAgAC0AUABhAHQAaABUAHkAcABlACAATABlAGEAZgApACAAewAgACYAIAAkAHMAYwByAGkAcAB0AFAAYQB0AGgAOwAgAGUAeABpAHQAIAAkAEwAQQBTAFQARQBYAEkAVABDAE8ARABFACAAfQA7ACAAWwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgAuAFIAZQBhAGQAVABvAEUAbgBkACgAKQAgAHwAIABPAHUAdAAtAE4AdQBsAGwAOwAgAFcAcgBpAHQAZQAtAE8AdQB0AHAAdQB0ACAAJwB7AH0AJwA7ACAAZQB4AGkAdAAgADAA; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ;; esac; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -r \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -x \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ]; then \/bin\/sh \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\"; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; esac; fi",
-            "timeout" : 10,
-            "type" : "command"
-          }
-        ]
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "node \"\/Users\/atilio\/.pixel-agents\/hooks\/claude-hook.js\"",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : ""
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "\/Users\/atilio\/.config\/iterm2\/cc-status",
-            "type" : "command"
-          }
-        ]
-      }
-    ],
-    "TaskCompleted" : [
-      {
-        "hooks" : [
-          {
-            "command" : "node \"\/Users\/atilio\/.pixel-agents\/hooks\/claude-hook.js\"",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : ""
-      }
-    ],
-    "TeammateIdle" : [
-      {
-        "hooks" : [
-          {
-            "command" : "if [ -z \"${HOME-}\" ]; then { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; else case \"${OSTYPE-}\" in msys*|cygwin*|win32*) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ]; then case \"${HOME-}\" in *\\&*|*\\^*|*\\(*|*\\)*|*\\;*|*,*|*=*|*%*|*\\!*) if [ -f \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" ]; then \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" -NoProfile -EncodedCommand JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAIAB0AHIAeQAgAHsAIABTAGUAdAAtAEUAeABlAGMAdQB0AGkAbwBuAFAAbwBsAGkAYwB5ACAALQBTAGMAbwBwAGUAIABQAHIAbwBjAGUAcwBzACAALQBFAHgAZQBjAHUAdABpAG8AbgBQAG8AbABpAGMAeQAgAEIAeQBwAGEAcwBzACAALQBGAG8AcgBjAGUAIAAtAEUAcgByAG8AcgBBAGMAdABpAG8AbgAgAFMAaQBsAGUAbgB0AGwAeQBDAG8AbgB0AGkAbgB1AGUAIAB9ACAAYwBhAHQAYwBoACAAewB9ADsAIAAkAGgAbwBtAGUAUABhAHQAaAAgAD0AIAAkAGUAbgB2ADoASABPAE0ARQAgAC0AcgBlAHAAbABhAGMAZQAgACcAXgAvACgAWwBBAC0AWgBhAC0AegBdACkALwAnACwAIAAnACQAMQA6AC8AJwA7ACAAJABzAGMAcgBpAHAAdABQAGEAdABoACAAPQAgAEoAbwBpAG4ALQBQAGEAdABoACAAJABoAG8AbQBlAFAAYQB0AGgAIAAnAC4AbwByAGMAYQBcAGEAZwBlAG4AdAAtAGgAbwBvAGsAcwBcAGMAbABhAHUAZABlAC0AaABvAG8AawAuAGMAbQBkACcAOwAgAGkAZgAgACgAVABlAHMAdAAtAFAAYQB0AGgAIAAtAEwAaQB0AGUAcgBhAGwAUABhAHQAaAAgACQAcwBjAHIAaQBwAHQAUABhAHQAaAAgAC0AUABhAHQAaABUAHkAcABlACAATABlAGEAZgApACAAewAgACYAIAAkAHMAYwByAGkAcAB0AFAAYQB0AGgAOwAgAGUAeABpAHQAIAAkAEwAQQBTAFQARQBYAEkAVABDAE8ARABFACAAfQA7ACAAWwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgAuAFIAZQBhAGQAVABvAEUAbgBkACgAKQAgAHwAIABPAHUAdAAtAE4AdQBsAGwAOwAgAFcAcgBpAHQAZQAtAE8AdQB0AHAAdQB0ACAAJwB7AH0AJwA7ACAAZQB4AGkAdAAgADAA; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ;; esac; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -r \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -x \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ]; then \/bin\/sh \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\"; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; esac; fi",
-            "timeout" : 10,
-            "type" : "command"
-          }
-        ]
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "node \"\/Users\/atilio\/.pixel-agents\/hooks\/claude-hook.js\"",
-            "timeout" : 5,
-            "type" : "command"
-          }
-        ],
-        "matcher" : ""
-      }
-    ],
-    "UserPromptSubmit" : [
-      {
-        "hooks" : [
-          {
-            "command" : "if [ -z \"${HOME-}\" ]; then { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; else case \"${OSTYPE-}\" in msys*|cygwin*|win32*) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ]; then case \"${HOME-}\" in *\\&*|*\\^*|*\\(*|*\\)*|*\\;*|*,*|*=*|*%*|*\\!*) if [ -f \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" ]; then \"${SYSTEMROOT-}\/System32\/WindowsPowerShell\/v1.0\/powershell.exe\" -NoProfile -EncodedCommand JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAIAB0AHIAeQAgAHsAIABTAGUAdAAtAEUAeABlAGMAdQB0AGkAbwBuAFAAbwBsAGkAYwB5ACAALQBTAGMAbwBwAGUAIABQAHIAbwBjAGUAcwBzACAALQBFAHgAZQBjAHUAdABpAG8AbgBQAG8AbABpAGMAeQAgAEIAeQBwAGEAcwBzACAALQBGAG8AcgBjAGUAIAAtAEUAcgByAG8AcgBBAGMAdABpAG8AbgAgAFMAaQBsAGUAbgB0AGwAeQBDAG8AbgB0AGkAbgB1AGUAIAB9ACAAYwBhAHQAYwBoACAAewB9ADsAIAAkAGgAbwBtAGUAUABhAHQAaAAgAD0AIAAkAGUAbgB2ADoASABPAE0ARQAgAC0AcgBlAHAAbABhAGMAZQAgACcAXgAvACgAWwBBAC0AWgBhAC0AegBdACkALwAnACwAIAAnACQAMQA6AC8AJwA7ACAAJABzAGMAcgBpAHAAdABQAGEAdABoACAAPQAgAEoAbwBpAG4ALQBQAGEAdABoACAAJABoAG8AbQBlAFAAYQB0AGgAIAAnAC4AbwByAGMAYQBcAGEAZwBlAG4AdAAtAGgAbwBvAGsAcwBcAGMAbABhAHUAZABlAC0AaABvAG8AawAuAGMAbQBkACcAOwAgAGkAZgAgACgAVABlAHMAdAAtAFAAYQB0AGgAIAAtAEwAaQB0AGUAcgBhAGwAUABhAHQAaAAgACQAcwBjAHIAaQBwAHQAUABhAHQAaAAgAC0AUABhAHQAaABUAHkAcABlACAATABlAGEAZgApACAAewAgACYAIAAkAHMAYwByAGkAcAB0AFAAYQB0AGgAOwAgAGUAeABpAHQAIAAkAEwAQQBTAFQARQBYAEkAVABDAE8ARABFACAAfQA7ACAAWwBDAG8AbgBzAG8AbABlAF0AOgA6AEkAbgAuAFIAZQBhAGQAVABvAEUAbgBkACgAKQAgAHwAIABPAHUAdAAtAE4AdQBsAGwAOwAgAFcAcgBpAHQAZQAtAE8AdQB0AHAAdQB0ACAAJwB7AH0AJwA7ACAAZQB4AGkAdAAgADAA; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) \"${HOME-}\/.orca\/agent-hooks\/claude-hook.cmd\" ;; esac; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; *) if [ -f \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -r \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ] && [ -x \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\" ]; then \/bin\/sh \"${HOME-}\/.orca\/agent-hooks\/claude-hook.sh\"; else { command -p cat 2>\/dev\/null || cat; } >\/dev\/null 2>&1 || :; printf '{}\\n'; fi ;; esac; fi",
-            "timeout" : 10,
-            "type" : "command"
-          }
-        ]
-      },
-      {
-        "hooks" : [
-          {
-            "command" : "\/Users\/atilio\/.config\/iterm2\/cc-status",
-            "type" : "command"
-          }
-        ]
-      }
-    ]
-  },
-  "model" : "sonnet",
-  "permissions" : {
-    "allow" : [
+  "permissions": {
+    "allow": [
       "mcp__code-review-graph__get_architecture_overview_tool",
       "mcp__code-review-graph__get_hub_nodes_tool",
       "mcp__code-review-graph__list_communities_tool",
@@ -503,13 +22,6 @@
       "mcp__filestash__stash_status",
       "mcp__filestash__read_file",
       "mcp__filestash__read_files",
-      "mcp__houtini-lm__chat",
-      "mcp__houtini-lm__code_task",
-      "mcp__houtini-lm__code_task_files",
-      "mcp__houtini-lm__custom_prompt",
-      "mcp__houtini-lm__discover",
-      "mcp__houtini-lm__embed",
-      "mcp__houtini-lm__list_models",
       "Read",
       "Glob",
       "Grep",
@@ -532,16 +44,15 @@
       "Bash(git branch*)",
       "Bash(git fetch*)",
       "Bash(git remote*)",
-      "Bash(rtk *)",
-      "mcp__github__*"
+      "Bash(rtk *)"
     ],
-    "deny" : [
-      "Read(\/Users\/atilio\/.ssh\/**)",
-      "Read(\/Users\/atilio\/.aws\/**)",
-      "Read(**\/.env)",
-      "Read(**\/*.env.*)",
-      "Read(**\/*.pem)",
-      "Read(**\/*.key)",
+    "deny": [
+      "Read(/Users/atilio/.ssh/**)",
+      "Read(/Users/atilio/.aws/**)",
+      "Read(**/.env)",
+      "Read(**/*.env.*)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
       "Bash(git reset --hard*)",
       "Bash(git push --force*)",
       "Bash(git push -f *)",
@@ -597,16 +108,516 @@
       "Bash(truncate *)"
     ]
   },
-  "remoteControlAtStartup" : false,
-  "skillOverrides" : {
-    "coderabbit:autofix" : "off",
-    "context-mode:ctx-insight" : "off",
-    "token-optimizer:quick" : "off"
+  "model": "sonnet",
+  "enableAllProjectMcpServers": false,
+  "skillOverrides": {
+    "coderabbit:autofix": "off",
+    "context-mode:ctx-insight": "off",
+    "token-optimizer:quick": "off"
   },
-  "spinnerTipsEnabled" : false,
-  "statusLine" : {
-    "command" : "bash \/Users\/atilio\/.claude\/statusline-command.sh",
-    "type" : "command"
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/atilio/.config/iterm2/cc-status"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/atilio/.pixel-agents/hooks/claude-hook.js\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/atilio/.config/iterm2/cc-status"
+          }
+        ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x \"$HOME/.orca/agent-hooks/claude-hook.sh\" ]; then /bin/sh \"$HOME/.orca/agent-hooks/claude-hook.sh\"; else cat >/dev/null; printf '{}\\n'; fi",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/atilio/.pixel-agents/hooks/claude-hook.js\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x \"$HOME/.orca/agent-hooks/claude-hook.sh\" ]; then /bin/sh \"$HOME/.orca/agent-hooks/claude-hook.sh\"; else cat >/dev/null; printf '{}\\n'; fi",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash $HOME/.claude/hooks/post-edit-encoding.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/atilio/.config/iterm2/cc-status"
+          }
+        ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x \"$HOME/.orca/agent-hooks/claude-hook.sh\" ]; then /bin/sh \"$HOME/.orca/agent-hooks/claude-hook.sh\"; else cat >/dev/null; printf '{}\\n'; fi",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/atilio/.pixel-agents/hooks/claude-hook.js\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x \"$HOME/.orca/agent-hooks/claude-hook.sh\" ]; then /bin/sh \"$HOME/.orca/agent-hooks/claude-hook.sh\"; else cat >/dev/null; printf '{}\\n'; fi",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/atilio/.pixel-agents/hooks/claude-hook.js\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/atilio/.claude/hooks/pre-bash.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/atilio/.claude/hooks/code-review-graph-guard.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/atilio/.claude/hooks/file-stash-guard.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "WebSearch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/atilio/.claude/hooks/pre-websearch.sh",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rtk hook claude",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/atilio/.claude/hooks/prefer-search-tools-guard.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/atilio/.config/iterm2/cc-status"
+          }
+        ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x \"$HOME/.orca/agent-hooks/claude-hook.sh\" ]; then /bin/sh \"$HOME/.orca/agent-hooks/claude-hook.sh\"; else cat >/dev/null; printf '{}\\n'; fi",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/atilio/.pixel-agents/hooks/claude-hook.js\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/atilio/.config/iterm2/cc-status"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x \"$HOME/.orca/agent-hooks/claude-hook.sh\" ]; then /bin/sh \"$HOME/.orca/agent-hooks/claude-hook.sh\"; else cat >/dev/null; printf '{}\\n'; fi",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/atilio/.pixel-agents/hooks/claude-hook.js\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "zsh -c '\"/Users/atilio/.claude/hooks/context-mode-cache-heal.mjs\"'"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"/Users/atilio/.claude/hooks/session-start-tool-reminders.sh\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/atilio/.config/iterm2/cc-status"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x \"$HOME/.orca/agent-hooks/claude-hook.sh\" ]; then /bin/sh \"$HOME/.orca/agent-hooks/claude-hook.sh\"; else cat >/dev/null; printf '{}\\n'; fi",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/atilio/.pixel-agents/hooks/claude-hook.js\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/atilio/.config/iterm2/cc-status"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x \"$HOME/.orca/agent-hooks/claude-hook.sh\" ]; then /bin/sh \"$HOME/.orca/agent-hooks/claude-hook.sh\"; else cat >/dev/null; printf '{}\\n'; fi",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/atilio/.pixel-agents/hooks/claude-hook.js\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/atilio/.config/iterm2/cc-status"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x \"$HOME/.orca/agent-hooks/claude-hook.sh\" ]; then /bin/sh \"$HOME/.orca/agent-hooks/claude-hook.sh\"; else cat >/dev/null; printf '{}\\n'; fi",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x \"$HOME/.orca/agent-hooks/claude-hook.sh\" ]; then /bin/sh \"$HOME/.orca/agent-hooks/claude-hook.sh\"; else cat >/dev/null; printf '{}\\n'; fi",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/atilio/.pixel-agents/hooks/claude-hook.js\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/atilio/.config/iterm2/cc-status"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x \"$HOME/.orca/agent-hooks/claude-hook.sh\" ]; then /bin/sh \"$HOME/.orca/agent-hooks/claude-hook.sh\"; else cat >/dev/null; printf '{}\\n'; fi",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/atilio/.pixel-agents/hooks/claude-hook.js\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/atilio/.pixel-agents/hooks/claude-hook.js\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "TeammateIdle": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x \"$HOME/.orca/agent-hooks/claude-hook.sh\" ]; then /bin/sh \"$HOME/.orca/agent-hooks/claude-hook.sh\"; else cat >/dev/null; printf '{}\\n'; fi",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/atilio/.pixel-agents/hooks/claude-hook.js\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/atilio/.config/iterm2/cc-status"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x \"$HOME/.orca/agent-hooks/claude-hook.sh\" ]; then /bin/sh \"$HOME/.orca/agent-hooks/claude-hook.sh\"; else cat >/dev/null; printf '{}\\n'; fi",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
   },
-  "tui" : "fullscreen"
+  "statusLine": {
+    "type": "command",
+    "command": "bash /Users/atilio/.claude/statusline-command.sh # ctxQ from token-optimizer (statusline.js equivalent)"
+  },
+  "enabledPlugins": {
+    "caveman@caveman": true,
+    "coderabbit@claude-plugins-official": true,
+    "ponytail@ponytail": true,
+    "token-optimizer@alexgreensh-token-optimizer": true,
+    "context-mode@context-mode": true
+  },
+  "extraKnownMarketplaces": {
+    "alexgreensh-token-optimizer": {
+      "source": {
+        "source": "github",
+        "repo": "alexgreensh/token-optimizer"
+      }
+    },
+    "caveman": {
+      "source": {
+        "source": "github",
+        "repo": "JuliusBrussee/caveman"
+      }
+    },
+    "context-mode": {
+      "source": {
+        "source": "github",
+        "repo": "mksglu/context-mode"
+      }
+    },
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    }
+  },
+  "spinnerTipsEnabled": false,
+  "modelSettings": {
+    "claude-opus-5-5": {
+      "effortLevel": "high"
+    }
+  },
+  "advisorModel": "opus",
+  "autoUpdatesChannel": "stable",
+  "tui": "fullscreen",
+  "autoCompactEnabled": false,
+  "remoteControlAtStartup": false,
+  "autoMode": {
+    "soft_deny": [
+      "$defaults",
+      "git commit or git push in any repo without the user explicit authorization for that specific commit/push (no standing approval)"
+    ],
+    "environment": [
+      "### General",
+      "**Primary use of Claude Code**: software development on work and personal repositories (Java/Spring, .NET, TypeScript, Docker, AWS)",
+      "**Repository visibility**: treat every work repository as private; public paste or gist services are outside the trust boundary",
+      "**Trusted source control**: each repository's own origin remote only",
+      "**Secrets**: never read, print, or move credentials, keys, certificates (*.pem, *.key), .env files, ~/.ssh or ~/.aws",
+      "**Sensitive remote targets**: any host, namespace, cluster, database, or container whose name carries `prod` or `production` as a whole word or name segment",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources, and anything tagged `prod` or `production`",
+      "**Commits and pushes**: never commit or push without the user's explicit authorization for that specific commit/push, in any repository"
+    ]
+  }
 }
