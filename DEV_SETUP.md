@@ -1829,6 +1829,7 @@ mkdir -p ~/.omp/agent && cp -r omp/* ~/.omp/agent/   # setup.sh does this and ba
 [ ] Run setup.sh — links ~/.claude config (CLAUDE.md, RTK.md, statusline, rules, hooks, commands) to claude/ in this repo and copies settings.json
 [ ] Verify hooks: bash ~/.claude/hooks/test-hooks.sh
 [ ] Install Claude Code plugins: caveman + ponytail + context-mode + token-optimizer + coderabbit (setup.sh does it if claude is installed)
+[ ] Project repos: setup.sh creates ~/Projects/{Github,Personal} and clones every repo listed in its "Project repos" section (add new repos there)
 [ ] Clone personal skills: git clone https://github.com/atilio-ts/claude-skills ~/Projects/Personal/claude-skills + create symlinks (see section 15)
 [ ] Install and configure file-stash MCP server (see section 15)
 [ ] Seed user profile memory files under ~/.claude/projects/.../memory/

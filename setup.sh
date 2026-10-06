@@ -60,6 +60,33 @@ git config --global core.excludesfile "$HOME/.gitignore_global"
 ok "Git config copied and global gitignore registered"
 warn "Update name/email in ~/.gitconfig if this is a different user"
 
+# ─── Project repos ───────────────────────────────────────────────────────────
+step "Project repos (~/Projects/{Github,Personal})"
+clone_repo() {
+  local dir="$HOME/Projects/$1" url="$2"
+  if [ -d "$dir/.git" ]; then
+    ok "$1 already cloned"
+  elif git clone "$url" "$dir"; then
+    ok "$1 cloned"
+  else
+    warn "$1 clone failed ($url) — check access and re-run"
+  fi
+}
+
+mkdir -p "$HOME/Projects/Github" "$HOME/Projects/Personal"
+
+clone_repo Github/agent-skills       https://github.com/vercel-labs/agent-skills
+clone_repo Github/claude-code-stats  https://github.com/AeternaLabsHQ/claude-code-stats
+clone_repo Github/ECC                https://github.com/affaan-m/ECC
+clone_repo Github/gstack             https://github.com/garrytan/gstack
+clone_repo Github/humanlayer-skills  https://github.com/humanlayer/skills
+clone_repo Github/pixijs-skills      https://github.com/pixijs/pixijs-skills
+
+clone_repo Personal/agent-file-stash          https://github.com/atilio-ts/agent-file-stash
+clone_repo Personal/claude-skills             https://github.com/atilio-ts/claude-skills
+clone_repo Personal/dev-setup                 https://github.com/atilio-ts/dev-setup
+clone_repo Personal/fullstack-nest-js-starter https://github.com/atilio-ts/fullstack-nestjs-starter
+
 # ─── Neovim (LazyVim) ────────────────────────────────────────────────────────
 step "Neovim"
 if [ ! -d "$HOME/.config/nvim" ]; then
