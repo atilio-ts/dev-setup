@@ -19,7 +19,7 @@
 10. [Docker](#10-docker)
 11. [JetBrains IDEs](#11-jetbrains-ides)
 12. [VS Code](#12-vs-code)
-13. [iTerm2](#13-iterm2)
+13. [Terminal Emulators — iTerm2 & Terminal.app](#13-terminal-emulators--iterm2--terminalapp)
 14. [macOS Apps & System Config](#14-macos-apps--system-config)
 15. [Claude Code](#15-claude-code)
 16. [Spicetify](#16-spicetify)
@@ -847,11 +847,13 @@ code --install-extension ziyasal.vscode-open-in-github
 
 ---
 
-## 13. iTerm2
+## 13. Terminal Emulators — iTerm2 & Terminal.app
+
+### iTerm2
 
 iTerm2 is the primary terminal emulator (`/Applications/iTerm.app`).
 
-### Install
+#### Install
 
 Download from https://iterm2.com/ or install via brew:
 
@@ -859,7 +861,7 @@ Download from https://iterm2.com/ or install via brew:
 brew install --cask iterm2
 ```
 
-### Profile settings (Default profile)
+#### Profile settings (Default profile)
 
 | Setting | Value |
 |---------|-------|
@@ -870,12 +872,36 @@ brew install --cask iterm2
 | Scrollback lines | 1000 |
 | Unlimited scrollback | off |
 | Transparency | 0 (opaque) |
+| Theme | Dark — 16 ANSI colors + background/foreground/cursor customized |
 
 > The font must be installed first — it comes from the `font-meslo-for-powerlevel10k` brew cask.
 
-### Restore settings
+#### Restore settings
 
-iTerm2 settings can be exported from **Preferences → General → Preferences → Load preferences from a custom folder**. Export the plist from the old machine and import on the new one, or reconfigure manually using the values above.
+The color/font/behavior subset of the Default profile is tracked at `iterm2/dynamic-profile.json` (colors, ANSI palette, font, ligatures, scrollback — window position and other machine-local noise excluded on purpose). Copy it into iTerm2's Dynamic Profiles folder and it shows up as a selectable profile automatically, no plist surgery required:
+
+```bash
+mkdir -p ~/Library/Application\ Support/iTerm2/DynamicProfiles
+cp iterm2/dynamic-profile.json ~/Library/Application\ Support/iTerm2/DynamicProfiles/dev-setup.json
+```
+
+Then in iTerm2: **Preferences → Profiles**, select **dev-setup**, and **Other Actions → Set as Default**.
+
+Alternative for a full 1:1 clone (not used here — see note below): **Preferences → General → Preferences → Load preferences from a custom folder**, pointed at a synced folder.
+
+### Terminal.app
+
+Apple's built-in terminal (`/Applications/Utilities/Terminal.app`). Not the daily driver, but kept in sync as a fallback (e.g. before iTerm2 is installed on a fresh machine, or when iTerm2 is unavailable).
+
+#### Restore settings
+
+```bash
+terminal/apply-terminal-theme.sh
+```
+
+Sets the **Basic** profile's font (MesloLGS NF, 15pt), background/text/cursor colors to match iTerm2's dark theme, and makes it the default + startup profile.
+
+> **Known limitation:** Terminal.app's AppleScript API only exposes 4 color properties (background, normal text, bold text, cursor) — not the 16 ANSI colors. So the 16-color palette stays macOS default, and colored `ls`/`git`/p10k output won't match iTerm2 exactly. A pixel-perfect match would need a `.terminal` file import or hand-written NSKeyedArchiver `NSColor` blobs in the plist — not worth it for a fallback terminal.
 
 ### iTermAI
 
@@ -1741,4 +1767,6 @@ This keeps the dashboard up to date in the background. Open `public/index.html` 
 [ ] Configure claude-code-stats: cp config.example.json config.json → edit plan_history
 [ ] Set up cron job: */10 * * * * cd ~/Projects/Github/claude-code-stats && python3 extract_stats.py 2>&1 >> update.log
 [ ] Create ~/.config/git/ignore with **/.claude/settings.local.json → git config --global core.excludesfile ~/.config/git/ignore
+[ ] Copy iTerm2 dynamic profile: cp iterm2/dynamic-profile.json ~/Library/Application\ Support/iTerm2/DynamicProfiles/dev-setup.json → set as Default in iTerm2 Preferences
+[ ] Apply Terminal.app theme: bash terminal/apply-terminal-theme.sh
 ```

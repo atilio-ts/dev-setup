@@ -107,6 +107,20 @@ else
   warn "VS Code not found — install it first, then re-run this section"
 fi
 
+# ─── Terminal emulators ──────────────────────────────────────────────────────
+step "iTerm2 dynamic profile"
+mkdir -p "$HOME/Library/Application Support/iTerm2/DynamicProfiles"
+cp "$REPO/iterm2/dynamic-profile.json" "$HOME/Library/Application Support/iTerm2/DynamicProfiles/dev-setup.json"
+ok "iTerm2 dynamic profile installed — set 'dev-setup' as Default in Preferences → Profiles"
+
+step "Terminal.app theme"
+if [ -d "/Applications/Utilities/Terminal.app" ] || [ -d "/System/Applications/Utilities/Terminal.app" ]; then
+  bash "$REPO/terminal/apply-terminal-theme.sh"
+  ok "Terminal.app 'Basic' profile themed and set as default"
+else
+  warn "Terminal.app not found at expected path — skipping"
+fi
+
 # ─── Claude Code ─────────────────────────────────────────────────────────────
 step "Claude Code"
 mkdir -p "$HOME/.claude"
