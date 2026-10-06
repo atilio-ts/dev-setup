@@ -109,33 +109,24 @@ fi
 
 # ─── Claude Code ─────────────────────────────────────────────────────────────
 step "Claude Code"
-mkdir -p "$HOME/.claude/hooks" "$HOME/.claude/agents" "$HOME/.claude/memory" \
-  "$HOME/.claude/rules/common" "$HOME/.claude/rules/kotlin" \
-  "$HOME/.claude/rules/python" "$HOME/.claude/rules/typescript"
-cp "$REPO/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+mkdir -p "$HOME/.claude"
+for item in CLAUDE.md RTK.md statusline-command.sh rules hooks commands; do
+  target="$HOME/.claude/$item"
+  if [ -e "$target" ] && [ ! -L "$target" ]; then
+    mv "$target" "$target.pre-dev-setup"
+    warn "Existing ~/.claude/$item moved to $item.pre-dev-setup"
+  fi
+  ln -sfn "$REPO/claude/$item" "$target"
+done
+chmod +x "$REPO/claude/statusline-command.sh" "$REPO/claude/hooks/"*.sh
+if [ -e "$HOME/.claude/settings.json" ] && [ ! -L "$HOME/.claude/settings.json" ]; then
+  cp "$HOME/.claude/settings.json" "$HOME/.claude/settings.json.pre-dev-setup"
+  warn "Existing ~/.claude/settings.json backed up as settings.json.pre-dev-setup"
+fi
+[ -L "$HOME/.claude/settings.json" ] && unlink "$HOME/.claude/settings.json"
 cp "$REPO/claude/settings.json" "$HOME/.claude/settings.json"
-cp "$REPO/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh"
-cp "$REPO/claude/RTK.md" "$HOME/.claude/RTK.md"
-cp "$REPO/claude/houtini-ref.md" "$HOME/.claude/houtini-ref.md"
-cp "$REPO/claude/hooks/pre-bash.sh" "$HOME/.claude/hooks/pre-bash.sh"
-cp "$REPO/claude/hooks/pre-websearch.sh" "$HOME/.claude/hooks/pre-websearch.sh"
-cp "$REPO/claude/hooks/post-edit-encoding.sh" "$HOME/.claude/hooks/post-edit-encoding.sh"
-cp "$REPO/claude/hooks/hooks.json" "$HOME/.claude/hooks/hooks.json"
-cp "$REPO/claude/hooks/README.md" "$HOME/.claude/hooks/README.md"
-chmod +x "$HOME/.claude/statusline-command.sh" "$HOME/.claude/hooks/"*.sh
-cp "$REPO/claude/agents/"*.md "$HOME/.claude/agents/"
-cp "$REPO/claude/rules/README.md" "$HOME/.claude/rules/README.md"
-cp "$REPO/claude/rules/common/"*.md "$HOME/.claude/rules/common/"
-cp "$REPO/claude/rules/kotlin/"*.md "$HOME/.claude/rules/kotlin/"
-cp "$REPO/claude/rules/python/"*.md "$HOME/.claude/rules/python/"
-cp "$REPO/claude/rules/typescript/"*.md "$HOME/.claude/rules/typescript/"
-ok "Claude Code config, hooks, agents, and rules copied"
-warn "Update name/email in ~/.gitconfig and username paths in ~/.claude/settings.json"
-
-# Seed global memory
-cp "$REPO/claude/memory/MEMORY.md" "$HOME/.claude/MEMORY.md"
-cp "$REPO/claude/memory/"*.md "$HOME/.claude/memory/"
-ok "Claude global memory seeded"
+ok "Claude Code config linked from $REPO/claude (CLAUDE.md, RTK.md, statusline, rules, hooks, commands); settings.json copied"
+warn "Update username paths in ~/.claude/settings.json if your home directory is not /Users/atilio"
 
 # ─── code-review-graph ───────────────────────────────────────────────────────
 step "code-review-graph"
@@ -146,8 +137,8 @@ else
   ok "code-review-graph already installed"
 fi
 mkdir -p "$HOME/.claude/code-review-graph"
-cp "$REPO/claude/code-review-graph/languages.toml" "$HOME/.claude/code-review-graph/languages.toml"
-ok "Global languages.toml (markdown) copied to ~/.claude/code-review-graph/"
+ln -sfn "$REPO/claude/code-review-graph/languages.toml" "$HOME/.claude/code-review-graph/languages.toml"
+ok "Global languages.toml (markdown) linked into ~/.claude/code-review-graph/"
 bash "$REPO/code-review-graph/apply-patches.sh"
 ok "code-review-graph patches applied (.vscode visibility, global languages.toml fallback, .vscode-scoped config path)"
 warn "Reapply patches after every 'pipx upgrade code-review-graph' — run: $REPO/code-review-graph/apply-patches.sh"
@@ -191,53 +182,19 @@ defaults write com.apple.dock tilesize -int 66
 killall Dock
 ok "Dock configured (left, autohide, size 66)"
 
-# ─── Claude Code skills ───────────────────────────────────────────────────────
-step "Claude Code skills"
+# ─── Claude Code plugins ──────────────────────────────────────────────────────
+step "Claude Code plugins"
 if command -v claude &>/dev/null; then
-  claude plugins marketplace add jeffallan/claude-skills 2>/dev/null || true
-  claude plugin install fullstack-dev-skills@fullstack-dev-skills 2>/dev/null || true
-  ok "fullstack-dev-skills plugin installed"
-  claude plugin install everything-claude-code@everything-claude-code 2>/dev/null || true
-  ok "everything-claude-code plugin installed"
-  claude plugin install coderabbit@claude-plugins-official 2>/dev/null || true
-  ok "coderabbit plugin installed"
-  npx skills add vercel-labs/agent-skills --yes --global 2>/dev/null || true
-  ok "vercel-labs/agent-skills installed"
-  claude plugins install gstack 2>/dev/null || true
-  ok "gstack skills installed"
-
-  # Remove unused skills from fullstack-dev-skills
-  FDS="$HOME/.claude/plugins/marketplaces/fullstack-dev-skills/skills"
-  for skill in atlassian-mcp cli-developer cpp-pro django-expert embedded-systems \
-    fastapi-expert flutter-expert golang-pro graphql-architect kotlin-specialist \
-    laravel-specialist pandas-pro php-pro playwright-expert rag-architect \
-    rails-expert rust-engineer salesforce-developer shopify-expert swift-expert \
-    vue-expert vue-expert-js wordpress-pro; do
-    rm -r "$FDS/$skill" 2>/dev/null && echo "  removed fds: $skill" || true
+  for marketplace in JuliusBrussee/caveman DietrichGebert/ponytail mksglu/context-mode alexgreensh/token-optimizer; do
+    claude plugin marketplace add "$marketplace" 2>/dev/null || true
   done
-  ok "unused fullstack-dev-skills skills removed"
-
-  # Remove unused skills from everything-claude-code
-  ECC="$HOME/.claude/plugins/marketplaces/everything-claude-code/skills"
-  for skill in claude-api clickhouse-io content-engine cpp-coding-standards cpp-testing \
-    crosspost django-patterns django-security django-tdd django-verification dmux-workflows \
-    fal-ai-media golang-patterns golang-testing kotlin-coroutines-flows kotlin-exposed-patterns \
-    kotlin-ktor-patterns kotlin-patterns kotlin-testing liquid-glass-design perl-patterns \
-    perl-security perl-testing plankton-code-quality ralphinho-rfc-pipeline \
-    returns-reverse-logistics swift-actor-persistence swift-concurrency-6-2 \
-    swift-protocol-di-testing swiftui-patterns visa-doc-translate x-api; do
-    rm -r "$ECC/$skill" 2>/dev/null && echo "  removed ecc: $skill" || true
+  for plugin in caveman@caveman ponytail@ponytail context-mode@context-mode \
+    token-optimizer@alexgreensh-token-optimizer coderabbit@claude-plugins-official; do
+    claude plugin install "$plugin" 2>/dev/null || true
   done
-  ok "unused everything-claude-code skills removed"
-
-  # Remove unused everything-claude-code commands
-  ECC_CMD="$HOME/.claude/plugins/marketplaces/everything-claude-code/commands"
-  for cmd in go-build go-review go-test kotlin-build kotlin-review kotlin-test python-review; do
-    rm "$ECC_CMD/$cmd.md" 2>/dev/null && echo "  removed cmd: $cmd" || true
-  done
-  ok "unused everything-claude-code commands removed"
+  ok "Plugins installed: caveman, ponytail, context-mode, token-optimizer, coderabbit"
 else
-  warn "Claude Code not found — install it first, then run skills setup"
+  warn "Claude Code not found — install it first, then run plugins setup"
 fi
 
 # ─── Personal Claude skills ───────────────────────────────────────────────────
@@ -269,70 +226,44 @@ for skill_dir in "$REPO/skills/"/*/; do
   fi
 done
 
-# ─── file-stash MCP ───────────────────────────────────────────────────────────
-step "file-stash MCP"
-npm install -g file-stash 2>/dev/null || true
-FILESTASH_BIN="$(npm prefix -g)/bin/file-stash"
-
-if [ -f "$FILESTASH_BIN" ]; then
-  if [ -f "$HOME/.claude.json" ]; then
-    if ! grep -q '"filestash"' "$HOME/.claude.json"; then
-      python3 - <<PYEOF
-import json
-path = "$HOME/.claude.json"
-with open(path) as f:
-    data = json.load(f)
-data.setdefault("mcpServers", {})["filestash"] = {
-    "command": "$FILESTASH_BIN",
-    "args": ["serve"]
-}
-with open(path, "w") as f:
-    json.dump(data, f, indent=2)
-print("filestash added to ~/.claude.json")
-PYEOF
-    else
-      ok "filestash already in ~/.claude.json"
-    fi
-  else
-    warn "~/.claude.json not found — add file-stash MCP manually (see DEV_SETUP.md)"
-  fi
-  ok "file-stash configured at $FILESTASH_BIN — restart Claude Code to activate"
-else
-  warn "file-stash binary not found after install — add MCP config manually (see DEV_SETUP.md)"
+# ─── Third-party Claude skills ────────────────────────────────────────────────
+step "Third-party Claude skills (humanlayer/skills)"
+HUMANLAYER_DIR="$HOME/Projects/Github/humanlayer-skills"
+if [ ! -d "$HUMANLAYER_DIR" ]; then
+  mkdir -p "$HOME/Projects/Github"
+  git clone https://github.com/humanlayer/skills "$HUMANLAYER_DIR"
 fi
 
-# ─── GitHub MCP ──────────────────────────────────────────────────────────────
-step "GitHub MCP"
-if [ -f "$HOME/.claude.json" ]; then
-  if ! grep -q '"github"' "$HOME/.claude.json"; then
-    python3 - <<PYEOF
-import json
-path = "$HOME/.claude.json"
-with open(path) as f:
-    data = json.load(f)
-data.setdefault("mcpServers", {})["github"] = {
-    "command": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-github"],
-    "env": {
-        "GITHUB_TOKEN": "${GITHUB_TOKEN:-}"
-    }
-}
-with open(path, "w") as f:
-    json.dump(data, f, indent=2)
-print("github MCP added to ~/.claude.json")
-PYEOF
+# ─── MCP servers (user scope, stored in ~/.claude.json) ───────────────────────
+step "MCP servers"
+if command -v claude &>/dev/null; then
+  /opt/homebrew/bin/npm install -g agent-file-stash 2>/dev/null || true
+  claude mcp remove filestash -s user >/dev/null 2>&1 || true
+  claude mcp add --scope user filestash -e FILESTASH_DIR=.vscode/file-stash -- /opt/homebrew/bin/agent-file-stash serve
+  ok "filestash MCP registered"
+
+  claude mcp remove code-review-graph -s user >/dev/null 2>&1 || true
+  claude mcp add --scope user code-review-graph -- "$HOME/.local/bin/code-review-graph" serve
+  ok "code-review-graph MCP registered"
+
+  if [ -n "${CONTEXT7_API_KEY:-}" ]; then
+    claude mcp remove context7 -s user >/dev/null 2>&1 || true
+    claude mcp add --scope user --transport http context7 https://mcp.context7.com/mcp --header "Authorization: Bearer $CONTEXT7_API_KEY"
+    ok "context7 MCP registered"
   else
-    ok "github MCP already in ~/.claude.json"
+    warn "CONTEXT7_API_KEY not set — export it (key from context7.com/dashboard) and re-run to register context7"
   fi
-  warn "Set GITHUB_TOKEN env var before using the GitHub MCP server"
 else
-  warn "~/.claude.json not found — add GitHub MCP manually (see DEV_SETUP.md)"
+  warn "Claude Code not found — install it first, then re-run to register MCP servers"
 fi
-ok "GitHub MCP configured — restart Claude Code to activate"
 
 # ─── claude-code-stats ───────────────────────────────────────────────────────
 step "claude-code-stats"
 STATS_DIR="$HOME/Projects/Github/claude-code-stats"
+for skill in improve-claude-md show-me; do
+  ln -sfn "$HUMANLAYER_DIR/plugins/$skill/skills/$skill" "$HOME/.claude/skills/$skill"
+done
+ok "humanlayer skills linked: improve-claude-md, show-me"
 if [ ! -d "$STATS_DIR" ]; then
   mkdir -p "$HOME/Projects/Github"
   git clone https://github.com/AeternaLabsHQ/claude-code-stats "$STATS_DIR"

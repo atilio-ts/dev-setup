@@ -59,7 +59,7 @@ cd ~/Projects/Personal/dev-setup
 
 ## Step 2 — Run setup.sh
 
-Run the automated setup script. This handles Homebrew, brew packages, shell, git, Neovim, nano, vim, atuin, gh, VS Code settings, Claude Code config, Spicetify, LaunchAgents, navi, macOS Dock, Claude skills, file-stash MCP, GitHub MCP, and claude-code-stats.
+Run the automated setup script. This handles Homebrew, brew packages, shell, git, Neovim, nano, vim, atuin, gh, VS Code settings, Claude Code config, Spicetify, LaunchAgents, navi, macOS Dock, Claude plugins and skills, MCP servers (filestash, code-review-graph, context7), and claude-code-stats.
 
 ```bash
 cd ~/Projects/Personal/dev-setup && bash setup.sh
@@ -177,15 +177,15 @@ After first login, install the active plugins from the marketplace:
 4. **caveman** — `caveman@caveman`
 5. **ponytail** — `ponytail@ponytail`
 
-### Set GITHUB_TOKEN for GitHub MCP
+### Set CONTEXT7_API_KEY before running setup.sh
 
-Add to `~/.zshrc` (if not already there):
+Add to `~/.zshrc` (if not already there), so `setup.sh` can register the context7 MCP:
 
 ```bash
-export GITHUB_TOKEN="ghp_your_token_here"
+export CONTEXT7_API_KEY="ctx7sk-your-key-here"
 ```
 
-Get a token at: GitHub → Settings → Developer settings → Personal access tokens
+Get a key at: context7.com/dashboard
 
 ### Verify hooks are executable
 
@@ -219,19 +219,8 @@ pipx install code-review-graph
 code-review-graph --version
 ```
 
-## Step 12 — Manual: LM Studio CLI
 
-If using LM Studio for local LLM inference (houtini-lm):
-
-```bash
-# Download LM Studio from https://lmstudio.ai/
-# After installing, enable the CLI from LM Studio settings
-lms --version
-```
-
-The `lms` binary should be at `~/.lmstudio/bin/lms`. The zshrc already adds this to PATH.
-
-## Step 13 — Manual: apps that need a password prompt, and true manual installs
+## Step 12 — Manual: apps that need a password prompt, and true manual installs
 
 Docker Desktop, IntelliJ IDEA, Rider, WebStorm, LM Studio, Obsidian, Postman, Spotify and the rest of the GUI apps are all in the Brewfile now (Step 2's `brew bundle install` gets them — no JetBrains Toolbox, install each IDE cask directly). A handful of casks run a privileged `.pkg`/installer post-install step that needs `sudo` — these fail silently if Step 2 ran headless/non-interactively, so re-run them here from an interactive terminal if they're missing:
 
@@ -254,7 +243,7 @@ echo "FineTune:"; [ -d "/Applications/FineTune.app" ] && echo "  installed" || e
 echo "DBeaver Community:"; [ -d "/Applications/DBeaver.app" ] && echo "  installed" || echo "  MISSING — https://dbeaver.io/download/ (or brew install --cask dbeaver-community)"
 ```
 
-## Step 14 — Terminal font for Powerlevel10k
+## Step 13 — Terminal emulators & font for Powerlevel10k
 
 If the prompt is showing garbled characters, install MesloLGS NF font:
 
@@ -262,13 +251,17 @@ If the prompt is showing garbled characters, install MesloLGS NF font:
 brew install --cask font-meslo-lg-nerd-font
 ```
 
-Then set your terminal (iTerm2 / Terminal.app / VS Code integrated terminal) to use **MesloLGS NF** and run:
+`setup.sh` already installed the iTerm2 dynamic profile (`iterm2/dynamic-profile.json` → `~/Library/Application Support/iTerm2/DynamicProfiles/dev-setup.json`) and themed Terminal.app's Basic profile (`terminal/apply-terminal-theme.sh`). One manual step remains for iTerm2 — dynamic profiles don't auto-become the default:
+
+- **iTerm2 → Preferences → Profiles → dev-setup → Other Actions → Set as Default**
+
+Then, for whichever terminal you actually use day to day (iTerm2 / Terminal.app / VS Code integrated terminal), confirm it's set to **MesloLGS NF** and run:
 
 ```bash
 p10k configure
 ```
 
-## Step 15 — Final verification
+## Step 14 — Final verification
 
 ```bash
 echo "=== Shell ===" && echo $SHELL && echo $ZSH_VERSION
@@ -294,6 +287,8 @@ Present a final summary: what's configured, what still needs manual attention.
 - **Hooks**: 8 hooks total — `pre-bash.sh` (safety guards), `pre-websearch.sh` (search guard), `post-edit-encoding.sh` (encoding check), `context-mode-cache-heal.mjs` (SessionStart, fixes plugin cache path bug), `code-review-graph-guard.sh` (nudges toward code-review-graph over Glob/Grep), `file-stash-guard.sh` (nudges toward file-stash reads), `prefer-search-tools-guard.sh` (nudges toward rg/fd over grep/find), `session-start-tool-reminders.sh` (SessionStart, prints tool-priority reminders). `settings.json` additionally wires `pixel-agents`/`orca`/iTerm2 integrations — see "Verify hooks are executable" above.
 - **Spicetify**: Requires Spotify to be installed first. Theme (Comfy) needs to be installed via Spicetify Marketplace after first launch.
 - **claude-code-stats**: Config file at `~/Projects/Github/claude-code-stats/config.json` — update `display_name` and `plan_history` after install.
-- **GITHUB_TOKEN**: Required for the GitHub MCP server. Without it, the MCP loads but API calls fail.
+- **CONTEXT7_API_KEY**: Needed only to register the context7 MCP. Without it, `setup.sh` skips context7 and prints a warning.
 - **atuin login**: Requires an atuin account. History sync is optional — atuin works offline without login.
-- **LM Studio**: Powers the `houtini-lm` MCP tool for local LLM inference. Start the local server in LM Studio before using houtini tools in Claude Code.
+- **opencode**: Alternative AI coding CLI to Claude Code, config mirrors the same caveman plugin setup. `setup.sh` copies `opencode/` to `~/.config/opencode/` and runs `bun install` if `bun` is present — install `bun` first if the step warned it was skipped.
+- **tmux**: Config copied to `~/.tmux.conf` by `setup.sh` (prefix `Ctrl+a`, mouse on, vi copy-mode). Not required for anything else in this setup — just restores the same keybindings.
+- **aws-vault**: No credentials are restored automatically (by design — see `sync-configuration`'s security notes). Run `aws-vault add <profile>` per profile you need after install.

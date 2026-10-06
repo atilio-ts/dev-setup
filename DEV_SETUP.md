@@ -1263,140 +1263,93 @@ brew install --cask claude-code
 npm install -g @anthropic-ai/claude-code
 ```
 
+### How the config is installed: symlinks
+
+Everything in `claude/` is the source of truth. `setup.sh` links each item into `~/.claude/`, so any change made on the machine lands directly in this repo and is versioned. The exception is `settings.json`: Claude Code and plugins rewrite it, so the live file stays in `~/.claude/` and this repo keeps a copy that is refreshed by hand (see below).
+
+| `~/.claude/` | → `claude/` in this repo |
+|---|---|
+| `CLAUDE.md` | Global rules (behavior, scope, commits, editing safety, code style) |
+| `RTK.md` | RTK usage, imported from `CLAUDE.md` |
+| `settings.json` (copy, not a link) | Model, permissions, hooks, plugins, statusline, autoMode |
+| `statusline-command.sh` | Custom status line |
+| `rules/` | Rules loaded every session |
+| `hooks/` | Hook scripts referenced from `settings.json` |
+| `commands/` | Slash commands (`/plan`, `/skill-create`) |
+| `code-review-graph/languages.toml` | Registers markdown so `.vscode/*.md` docs get indexed |
+
+**Refreshing the `settings.json` copy:** after changing settings, run the `sync-configuration` skill, or by hand:
+
+```bash
+cp ~/.claude/settings.json ~/Projects/Personal/dev-setup/claude/settings.json
+rg -n -i '\.corp\.|\.internal\b|\.elb\.|amazonaws\.com|ghp_|ctx7sk|sk-ant-|Bearer ' ~/Projects/Personal/dev-setup/claude/settings.json   # must print nothing
+```
+
 ### Global config — `~/.claude/CLAUDE.md`
 
-Create `~/.claude/CLAUDE.md` on the new machine with the following rules (the `.vscode/CLAUDE.md` project convention is specific to this machine and should not be carried over):
-
-See `claude/CLAUDE.md` in this repo — copy it verbatim to `~/.claude/CLAUDE.md` on the new machine.
+General rules: no AI mentions in any output, confirmation before destructive commands, reply in the user's language, scope discipline, commit workflow (always via `/commit-message`, never commit or push without explicit per-commit authorization), editing safety for accented text, and code style (project architecture first, otherwise the simplest solution; strict comment rules). The project-level `CLAUDE.md` lives at `.vscode/CLAUDE.md` in each repo.
 
 ### RTK (Rust Token Killer) — `~/.claude/RTK.md`
 
-RTK is a token-optimized CLI proxy that provides 60-90% savings on dev operations. See `claude/RTK.md` in this repo for usage instructions.
-
-### houtini-lm (local LLM) — `~/.claude/houtini-ref.md`
-
-Houtini connects Claude to a local LLM server (LM Studio) for offloading bounded tasks. See `claude/houtini-ref.md` in this repo for usage instructions.
-
-Key rules it enforces:
-- Never mention AI tools in any output (code, commits, docs, PRs)
-- Never run destructive commands without explicit confirmation (full blocked list inside)
-- Commit type is `feature` (not `feat`), max 50 chars first line, max 80 chars per body bullet
-- Always read `git log` before writing a commit message
-- Memory system: check project memory at conversation start, update after architectural decisions
+RTK is a CLI proxy that filters command output before it reaches Claude. A `PreToolUse` hook rewrites Bash commands (`git status` → `rtk git status`). Useful commands: `rtk gain`, `rtk discover`, `rtk proxy <cmd>`.
 
 ### Settings — `~/.claude/settings.json`
 
-See `claude/settings.json` in this repo — copy it verbatim to `~/.claude/settings.json`, then update the username in all hardcoded paths (`/Users/atilio/` → `/Users/<username>/`).
+- `permissions.allow` — read-only tools, safe git commands, rtk, file-stash, context-mode and code-review-graph overview tools
+- `permissions.deny` — secrets (`~/.ssh`, `~/.aws`, `.env`, keys), history rewrites, discarding work, deleting refs, `rm -rf`, `sudo`, package publishing
+- `enableAllProjectMcpServers: false` — a project `.mcp.json` needs approval the first time
+- `autoMode` — generic environment rules for auto mode (production = anything named `prod`, protected IaC scopes, no commit/push without authorization); no organization-specific hosts or paths
+- `hooks.*` — see below
+- `enabledPlugins` + `extraKnownMarketplaces` — caveman, ponytail, context-mode, token-optimizer, coderabbit
+- `model`, `advisorModel`, `env`, `skillOverrides`, `tui`, `autoCompactEnabled` — session behavior
+- `cleanupPeriodDays: 1095` — keeps transcripts for 3 years (used by claude-code-stats)
+- `env.PONYTAIL_SUBAGENT_MATCHER` — ponytail rules only go to code-writing subagents, not to read-only ones like Explore
 
-Key blocks it contains:
-- `statusLine` — wires the custom statusline script
-- `permissions.allow` — pre-approves read-only tools, file-stash, houtini-lm, context-mode, and safe git/bash commands
-- `permissions.deny` — blocks all destructive commands at the permission layer
-- `enableAllProjectMcpServers` — auto-enables any `.mcp.json` found in a project root without per-project config
-- `hooks.*` — Bash safety, WebSearch approval, encoding check, context-mode self-heal, code-review-graph/file-stash/search-tool guard rails, session-start reminders, plus third-party `pixel-agents`/`orca`/iTerm2 integrations (see the Hooks subsection below)
-- `enabledPlugins` + `extraKnownMarketplaces` — coderabbit, context-mode, token-optimizer, caveman, ponytail marketplace plugins
-- `model`, `skillOverrides`, `tui`, `advisorModel`, `autoCompactEnabled`, `autoUpdatesChannel`, `remoteControlAtStartup` — session behavior tuning, added since the last sync
-
-> **`autoMode` intentionally excluded.** Live `settings.json` carries an `autoMode.environment`/`soft_deny` block auto-learned by a specific project session — it is per-project, not portable machine config, and must never leave this machine's disk: it names an internal corporate git host and an institutional (OCA) repo. Never copy `autoMode` into this repo. If it reappears on a future sync, strip it again before committing.
-
-> Update the username in all paths before copying.
+Paths in `settings.json` use `/Users/atilio/`; update them if the home directory differs.
 
 ### Status Line — `~/.claude/statusline-command.sh`
 
-A custom shell script that displays a rich status bar inside Claude Code with:
+Shows model, context usage, session cost, total tokens, session duration and lines changed.
 
-- **Model name** (`◆ model-name`)
-- **Context window usage** bar `[####.....]` with percentage
-- **Next quota reset** countdown (fixed schedule: 00:00, 04:00, 09:00, 14:00, 19:00) with `(!)` warning when ≤30 min away
-- **Session cost** in USD (`$ 0.042`)
-- **Session duration** (`⚡ 3m`)
-- **Lines changed** (`~ +42/-7`)
+### Hooks — `~/.claude/hooks/`
 
-Copy `~/.claude/statusline-command.sh` to the new machine verbatim.
-
-### Hooks
-
-Copy all hook files to `~/.claude/hooks/` on the new machine.
-
-#### `~/.claude/hooks/pre-bash.sh` (PreToolUse — Bash)
-
-Blocks destructive shell commands before they run. Checked patterns:
-
-```
-git reset --hard
-git push --force / git push -f
-git clean -f
-git branch -D
-git checkout .
-git restore .
-rm -rf /  rm -rf *  rm -rf $  rm -rf ~
-```
-
-Returns exit code `2` to block, `0` to allow.
-
-#### `~/.claude/hooks/pre-websearch.sh` (PreToolUse — WebSearch)
-
-Intercepts `WebSearch` tool calls and surfaces an approval prompt showing the query before consuming tokens.
-
-#### `~/.claude/hooks/post-edit-encoding.sh` (PostToolUse — Edit/Write)
-
-Verifies UTF-8 encoding integrity after file edits to ensure non-ASCII characters (Spanish accents, etc.) are not corrupted.
-
-#### `~/.claude/hooks/context-mode-cache-heal.mjs` (SessionStart)
-
-Fixes a known Claude Code bug (#46915) where auto-updates can break the context-mode plugin's install path. Runs at session start and self-heals the symlink if broken. Pure Node.js — no shell dependency.
-
-#### `~/.claude/hooks/code-review-graph-guard.sh` (PreToolUse)
-
-Blocks Glob/Grep in a project that has a code-review-graph database, nudging toward the MCP graph tools instead.
-
-#### `~/.claude/hooks/file-stash-guard.sh` (PreToolUse)
-
-Blocks the built-in Read tool for pure exploration when file-stash is available, nudging toward `mcp__filestash__read_file`/`read_files`.
-
-#### `~/.claude/hooks/prefer-search-tools-guard.sh` (PreToolUse)
-
-Blocks `grep`/`find` in Bash commands, nudging toward `rg`/`fd` (faster, respects `.gitignore`).
-
-#### `~/.claude/hooks/session-start-tool-reminders.sh` (SessionStart)
-
-Prints tool-priority reminders (file-stash, context-mode, code-review-graph) at the start of every session.
-
-#### `~/.claude/hooks/hooks.json`
-
-Hook configuration used by the context-mode and token-optimizer plugins. Defines PreCompact, PostCompact, and session lifecycle hooks.
+| Hook | Event | What it does |
+|---|---|---|
+| `pre-bash.sh` | PreToolUse — Bash | Blocks destructive commands (history rewrites, `rm -rf`, `sudo`, destructive SQL, `curl \| sh`) |
+| `prefer-search-tools-guard.sh` | PreToolUse — Bash | Blocks `grep` and unbounded `find /`, pushing toward `rg` / `fd` |
+| `strip-quoted.sh` | helper | Removes quoted text and heredoc bodies, and splits chained commands, so the two guards above only check what actually runs |
+| `code-review-graph-guard.sh` | PreToolUse — Glob/Grep | Blocks text search when the repo has a code-review-graph database |
+| `file-stash-guard.sh` | PreToolUse — Read | Denies the first Read of each file to force file-stash; the retry passes (needed before Edit) |
+| `pre-websearch.sh` | PreToolUse — WebSearch | Asks for approval showing the query |
+| `post-edit-encoding.sh` | PostToolUse — Edit/Write | Warns if a file stops being UTF-8 (protects accents) |
+| `context-mode-cache-heal.mjs` | SessionStart | Re-links a broken context-mode plugin cache path |
+| `session-start-tool-reminders.sh` | SessionStart | code-review-graph reminder when the repo has a graph |
+| `test-hooks.sh` | manual | Self-check for the two Bash guards: `bash ~/.claude/hooks/test-hooks.sh` |
 
 #### Third-party tool hooks (not provisioned by this repo)
 
-`settings.json` also wires nearly every hook event (`Notification`, `PermissionRequest`, `PostToolUse`, `Stop`, `SessionStart`, etc.) to two locally-installed tools:
+`settings.json` also wires most hook events to tools installed independently of `setup.sh`:
 
-- `~/.pixel-agents/hooks/claude-hook.js` — pane/session tracking for the **pixel-agents** multi-agent orchestration tool
-- `~/.orca/agent-hooks/claude-hook.sh` — same purpose for the **orca** tool, plus a Windows-only PowerShell branch that never runs on macOS
-- `~/.config/iterm2/cc-status` — feeds session state to an iTerm2 status widget
+- `~/.orca/agent-hooks/claude-hook.sh` — Orca agent orchestration (one short line per event that calls Orca's own script)
+- `~/.pixel-agents/hooks/claude-hook.js` — Pixel Agents visualizer
+- `~/.config/iterm2/cc-status` — iTerm2 session status
 
-These are machine-specific examples tied to tools installed independently of `setup.sh` — a new machine's owner decides whether to install `pixel-agents`/`orca`/the iTerm2 integration. All three hook scripts are written to no-op safely (`exit 0`) when their target tool/server isn't present, so leaving the entries in `settings.json` on a machine without those tools is harmless.
+If a tool is not installed, its hook is a no-op.
 
-### Rules — `~/.claude/rules/common/`
-
-Common rule files for consistent development practices:
+### Rules — `~/.claude/rules/`
 
 | File | Purpose |
 |------|---------|
-| `agents.md` | Agent orchestration guidelines |
-| `coding-style.md` | Immutability, file organization, error handling |
-| `development-workflow.md` | Feature implementation workflow |
-| `git-workflow.md` | Commit message format, PR workflow |
-| `hooks.md` | Hooks system usage |
-| `patterns.md` | Common design patterns |
-| `performance.md` | Model selection, context window management |
-| `security.md` | Security guidelines and checks |
-| `testing.md` | Testing requirements and TDD |
+| `tools.md` | code-review-graph, file-stash, model routing and the tool-priority list |
+| `coding-style.md` | Size limits, error handling, input validation, pre-commit security checks |
+| `context7.md` | When and how to use Context7 for library docs |
 
-Copy all files from `claude/rules/common/` in this repo to `~/.claude/rules/common/` on the new machine.
+### Commands — `~/.claude/commands/`
 
-### Agents — `~/.claude/agents/`
-
-No custom agents configured. The `~/.claude/agents/` directory is empty — all agent functionality is handled through marketplace plugins and skills.
+| Command | Purpose |
+|---------|---------|
+| `/plan` | Restate requirements, risks and phases; wait for confirmation before editing |
+| `/skill-create` | Extract coding patterns from git history into a `SKILL.md` |
 
 ### Skills / Plugins
 
@@ -1414,7 +1367,7 @@ No custom agents configured. The `~/.claude/agents/` directory is empty — all 
 `~/Projects/Personal/claude-skills/` and symlinked into `~/.claude/skills/`:
 
 - `commit-message` — generates conventional commit messages reading git diff and project history
-- `custom-init` — bootstraps a new project with file-stash + houtini-lm + code-review-graph
+- `custom-init` — bootstraps a new project with file-stash + code-review-graph
 - `estimate` — technical analysis and effort estimation (Spanish/English)
 - `readme-generator` — generates README files from project context
 - `timesheet` — generates Clockify-format timesheet entries from git branch changes (English/Spanish, max 3h per task)
@@ -1551,26 +1504,6 @@ rmdir .code-review-graph
 
 Then remove any `.code-review-graph` line from `.gitignore` — it's redundant once everything lives under the already-ignored `.vscode/`.
 
-### MCP Server — houtini-lm (global)
-
-houtini-lm is a **global** MCP — registered once for all projects. It connects Claude Code to the local LLM running in LM Studio on `localhost:1234`.
-
-Install the binary globally first, then register with the direct path (more reliable than `npx -y`):
-
-```bash
-npm install -g @houtini/lm
-HOUTINI_BIN="$(npm prefix -g)/bin/houtini-lm"
-claude mcp add --scope user houtini-lm -- "$HOUTINI_BIN"
-```
-
-Requires LM Studio running with a model loaded on `localhost:1234` (default LM Studio port). No per-project `.mcp.json` needed.
-
-#### Install LM Studio
-
-`brew install --cask lm-studio`. The `lms` CLI is added automatically to `~/.lmstudio/bin/` during install — the zshrc already includes this in `$PATH`.
-
-After install, download at least one model from the LM Studio UI before running Claude Code sessions that use houtini.
-
 ### Memory System
 
 Claude uses a file-based memory system at `~/.claude/projects/<project-path>/memory/`. Each project gets its own `MEMORY.md` index that is auto-loaded when Claude opens in that directory. Memory entries are markdown files with frontmatter specifying type (`user`, `feedback`, `project`, `reference`).
@@ -1625,7 +1558,6 @@ These feedback memories apply broadly and should be seeded manually or will rebu
 
 - **No AI attribution** — never include Co-Authored-By, Claude, AI, LLM in any output
 - **file-stash first** — always use file-stash `read_file` MCP tool instead of built-in Read tool for file reads (saves tokens via hash-based caching)
-- **houtini without permission** — use `mcp__houtini-lm__*` tools freely without asking the user first
 - **code-review-graph before search** — when `.code-review-graph/` or `.vscode/code-review-graph/` exists in a project, use `mcp__code-review-graph__*` tools to navigate instead of Glob/Grep
 - **Concise responses** — lead with action, no preamble, no trailing summary of what was just done
 - **No unsolicited docs** — never create README or documentation files unless explicitly asked
@@ -1787,14 +1719,11 @@ This keeps the dashboard up to date in the background. Open `public/index.html` 
 [ ] Run: navi repo add denisidoro/cheats
 [ ] Install Spotify + run: spicetify backup apply + install Marketplace
 [ ] Install Claude Code (brew cask or npm)
-[ ] Create ~/.claude/CLAUDE.md (see section 15)
-[ ] Copy ~/.claude/settings.json
-[ ] Copy ~/.claude/statusline-command.sh
-[ ] Create ~/.claude/hooks/ and copy pre-bash.sh, pre-websearch.sh, post-edit-encoding.sh, context-mode-cache-heal.mjs + hooks.json
-[ ] Install Claude Code plugins: coderabbit + context-mode + token-optimizer (see section 15)
+[ ] Run setup.sh — links ~/.claude config (CLAUDE.md, RTK.md, statusline, rules, hooks, commands) to claude/ in this repo and copies settings.json
+[ ] Verify hooks: bash ~/.claude/hooks/test-hooks.sh
+[ ] Install Claude Code plugins: caveman + ponytail + context-mode + token-optimizer + coderabbit (setup.sh does it if claude is installed)
 [ ] Clone personal skills: git clone https://github.com/atilio-ts/claude-skills ~/Projects/Personal/claude-skills + create symlinks (see section 15)
 [ ] Install and configure file-stash MCP server (see section 15)
-[ ] Install LM Studio + download at least one model + install houtini-lm MCP (see section 15)
 [ ] Seed user profile memory files under ~/.claude/projects/.../memory/
 [ ] Apply macOS system preferences (see section 14 — Appearance, Trackpad, Keyboard, Finder, Dock, Mission Control, Accessibility, Energy)
 [ ] brew install --cask rectangle maccy appcleaner itsycal stats vlc

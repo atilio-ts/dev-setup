@@ -6,6 +6,8 @@ description: |
   Diffs all tracked config files (Claude, shell, git, nvim, vscode, atuin,
   gh, spicetify) between the live system and the repo, flags regressions,
   copies live → repo, updates DEV_SETUP.md, and commits the result.
+  Also the manual backup of ~/.claude/settings.json: the live file is a regular
+  file and claude/settings.json is a copy refreshed here after a sensitive-data check.
 allowed-tools:
   - Bash
   - Read
@@ -34,27 +36,8 @@ Before diffing, check for files that exist in the repo but NOT on the live machi
 ```bash
 REPO="$HOME/Projects/Personal/dev-setup"
 
-echo "=== REPO-ONLY hooks ==="
-for f in "$REPO/claude/hooks/"*; do
-  fname=$(basename "$f")
-  [ -e "$HOME/.claude/hooks/$fname" ] || echo "  REPO-ONLY: claude/hooks/$fname"
-done
-
-echo "=== REPO-ONLY agents ==="
-for f in "$REPO/claude/agents/"*.md 2>/dev/null; do
-  [ -e "$f" ] || continue
-  fname=$(basename "$f")
-  [ -e "$HOME/.claude/agents/$fname" ] || echo "  REPO-ONLY: claude/agents/$fname"
-done
-
-echo "=== REPO-ONLY rules ==="
-find "$REPO/claude/rules" -type f -name "*.md" | while read f; do
-  rel="${f#$REPO/claude/rules/}"
-  [ -e "$HOME/.claude/rules/$rel" ] || echo "  REPO-ONLY: claude/rules/$rel"
-done
+echo "=== Claude config is symlinked: no REPO-ONLY check needed (see Step 3) ==="
 ```
-
-Note: `claude/rules/{python,typescript,kotlin}/*` are expected to show REPO-ONLY — per `rules/README.md` they're opt-in per-project installs (`./install.sh <language>`), not meant to be globally present on `~/.claude/rules`. Don't flag these as drift.
 
 ```bash
 echo "=== Global skills not yet tracked in repo ==="
@@ -73,59 +56,30 @@ Run these diffs and collect a findings list. Report `[ok]` or `[DIFF]` for each 
 
 ### Claude config
 
-```bash
-REPO="$HOME/Projects/Personal/dev-setup"
-diff "$REPO/claude/CLAUDE.md"             "$HOME/.claude/CLAUDE.md"             > /dev/null && echo "[ok] CLAUDE.md"             || echo "[DIFF] CLAUDE.md"
-diff "$REPO/claude/settings.json"         "$HOME/.claude/settings.json"         > /dev/null && echo "[ok] settings.json"         || echo "[DIFF] settings.json"
-diff "$REPO/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh" > /dev/null && echo "[ok] statusline-command.sh" || echo "[DIFF] statusline-command.sh"
-diff "$REPO/claude/RTK.md"               "$HOME/.claude/RTK.md"                > /dev/null && echo "[ok] RTK.md"               || echo "[DIFF] RTK.md"
-diff "$REPO/claude/houtini-ref.md"       "$HOME/.claude/houtini-ref.md"        > /dev/null && echo "[ok] houtini-ref.md"       || echo "[DIFF] houtini-ref.md"
-```
+`~/.claude` items are symlinks into `$REPO/claude/`, except `settings.json`, which is a regular file with a copy in the repo. Check the links, then diff `settings.json`:
 
 ```bash
 REPO="$HOME/Projects/Personal/dev-setup"
-# Hooks: discover dynamically, include .sh, .json, .md, .mjs
-for f in "$HOME/.claude/hooks/"*; do
-  fname=$(basename "$f")
-  repo_f="$REPO/claude/hooks/$fname"
-  [ -e "$repo_f" ] && { diff "$repo_f" "$f" > /dev/null 2>&1 && echo "[ok] hooks/$fname" || echo "[DIFF] hooks/$fname"; } \
-    || echo "[NEW] hooks/$fname (not in repo yet)"
+for item in CLAUDE.md RTK.md statusline-command.sh rules hooks commands code-review-graph/languages.toml; do
+  live="$HOME/.claude/$item"
+  if [ -L "$live" ] && [ "$(readlink "$live")" = "$REPO/claude/$item" ]; then
+    echo "[ok] $item"
+  elif [ -e "$live" ]; then
+    echo "[BROKEN LINK] $item is a regular file/dir — see Step 5"
+  else
+    echo "[MISSING] $item"
+  fi
 done
 ```
 
 ```bash
-REPO="$HOME/Projects/Personal/dev-setup"
-# Agents: discover dynamically (directory may be empty)
-shopt -s nullglob
-for f in "$HOME/.claude/agents/"*.md; do
-  fname=$(basename "$f")
-  repo_f="$REPO/claude/agents/$fname"
-  [ -e "$repo_f" ] && { diff "$repo_f" "$f" > /dev/null 2>&1 && echo "[ok] agents/$fname" || echo "[DIFF] agents/$fname"; } \
-    || echo "[NEW] agents/$fname (not in repo yet)"
-done
-shopt -u nullglob
+diff <(jq -S . "$HOME/.claude/settings.json") <(jq -S . "$REPO/claude/settings.json") > /dev/null && echo "[ok] settings.json" || echo "[DIFF] settings.json"
 ```
 
-```bash
-REPO="$HOME/Projects/Personal/dev-setup"
-# Rules: discover dynamically
-find "$HOME/.claude/rules" -type f -name "*.md" | while read f; do
-  rel="${f#$HOME/.claude/rules/}"
-  repo_f="$REPO/claude/rules/$rel"
-  [ -e "$repo_f" ] && { diff "$repo_f" "$f" > /dev/null 2>&1 && echo "[ok] rules/$rel" || echo "[DIFF] rules/$rel"; } \
-    || echo "[NEW] rules/$rel (not in repo yet)"
-done
-```
+Before committing, confirm `claude/settings.json` has no organization-specific hosts, paths, or credentials (this repo is public):
 
 ```bash
-REPO="$HOME/Projects/Personal/dev-setup"
-# Global memory files
-for f in "$HOME/.claude/memory/"*.md; do
-  fname=$(basename "$f")
-  repo_f="$REPO/claude/memory/$fname"
-  [ -e "$repo_f" ] && { diff "$repo_f" "$f" > /dev/null 2>&1 && echo "[ok] memory/$fname" || echo "[DIFF] memory/$fname"; } \
-    || echo "[NEW] memory/$fname (not in repo yet)"
-done
+rg -n -i '\.corp\.|\.internal\b|\.elb\.|amazonaws\.com|ghp_|ctx7sk|sk-ant-|Bearer ' "$HOME/Projects/Personal/dev-setup/claude/settings.json"
 ```
 
 ### Other configs
@@ -142,7 +96,58 @@ diff "$REPO/atuin/config.toml"         "$HOME/.config/atuin/config.toml"        
 diff "$REPO/gh/config.yml"             "$HOME/.config/gh/config.yml"                               > /dev/null && echo "[ok] gh/config.yml"     || echo "[DIFF] gh/config.yml"
 diff "$REPO/nvim/init.lua"             "$HOME/.config/nvim/init.lua"                               > /dev/null && echo "[ok] nvim/init.lua"     || echo "[DIFF] nvim/init.lua"
 diff "$REPO/spicetify/config-xpui.ini" "$HOME/.config/spicetify/config-xpui.ini"                  > /dev/null && echo "[ok] spicetify"         || echo "[DIFF] spicetify (likely version bump)"
+diff "$REPO/tmux/tmux.conf"            "$HOME/.tmux.conf"                                          > /dev/null && echo "[ok] tmux.conf"         || echo "[DIFF] tmux.conf"
 ```
+
+### Brewfile — installed-app manifest
+
+```bash
+REPO="$HOME/Projects/Personal/dev-setup"
+brew bundle dump --force --file=/tmp/Brewfile.live
+diff "$REPO/git/Brewfile" /tmp/Brewfile.live
+```
+
+> **Do not blindly copy this diff.** `mise`/`fnm`/`jenv` are a deliberate per-machine exception: this machine runs `fnm` + `jenv` instead of `mise` (see `DEV_SETUP.md` sections 6–7), but the repo's `Brewfile`/`setup.sh` intentionally keep `mise` as the default for *other* machines — never add `fnm`/`jenv` or remove `mise` from the tracked Brewfile because of a live diff on this machine. Everything else in the diff (new casks/formulae genuinely installed, taps, vscode extensions) is fair game to copy. Note also that `brew bundle dump` only lists leaves — a formula installed as someone else's dependency (like `tmux`, a dependency of `overmind`) won't show up even if you use it directly; check `brew info <name>` for `installed_on_request` before assuming it's missing.
+
+### Terminal emulators & opencode
+
+```bash
+REPO="$HOME/Projects/Personal/dev-setup"
+python3 -c "
+import plistlib, json, subprocess
+subprocess.run(['plutil','-convert','xml1','-o','/tmp/iterm_live.plist',
+  '$HOME/Library/Preferences/com.googlecode.iterm2.plist'])
+bm = plistlib.load(open('/tmp/iterm_live.plist','rb'))['New Bookmarks'][0]
+allow = ('Ansi ','Background Color','Foreground Color','Cursor','Selection',
+  'Bold Color','Link Color','Match Color','Badge Color','Tab Color',
+  'Normal Font','Non Ascii Font','ASCII','Ambiguous','Use Bold','Use Bright',
+  'Horizontal Spacing','Vertical Spacing','Blink','Minimum Contrast',
+  'Cursor Boost','Unlimited Scrollback','Scrollback Lines','Silence Bell',
+  'Visual Bell','Flashing Bell','Option Key Sends','Right Option')
+safe = {k:v for k,v in bm.items() if k.startswith(allow)}
+safe['Name'] = 'dev-setup'
+safe['Guid'] = 'com.atilio.dev-setup.default'
+json.dump({'Profiles':[safe]}, open('/tmp/iterm_live_profile.json','w'), indent=2, sort_keys=True)
+"
+diff "$REPO/iterm2/dynamic-profile.json" /tmp/iterm_live_profile.json > /dev/null && echo "[ok] iterm2/dynamic-profile.json" || echo "[DIFF] iterm2/dynamic-profile.json"
+```
+
+> **Never widen this to a full-domain plist export.** `defaults export com.googlecode.iterm2 -` (or converting the whole file with `plutil -convert json`) carries recent-directory and command history alongside the colors — always regenerate through the allowlist above, never `cp` the raw plist.
+
+Terminal.app has no equivalent export path — `terminal/apply-terminal-theme.sh` is hand-maintained, only touch it when the theme itself changes, not on every sync.
+
+opencode:
+
+```bash
+REPO="$HOME/Projects/Personal/dev-setup"
+diff "$REPO/opencode/opencode.json" "$HOME/.config/opencode/opencode.json" > /dev/null && echo "[ok] opencode/opencode.json" || echo "[DIFF] opencode/opencode.json"
+diff -rq "$REPO/opencode/commands" "$HOME/.config/opencode/commands" 2>&1
+diff -rq "$REPO/opencode/agents"   "$HOME/.config/opencode/agents"   2>&1
+diff -rq "$REPO/opencode/skills"   "$HOME/.config/opencode/skills"   2>&1
+diff -rq "$REPO/opencode/plugins"  "$HOME/.config/opencode/plugins"  2>&1
+```
+
+> Never copy `~/.config/opencode/node_modules/`, `bun.lock`, `package-lock.json`, `.caveman-opencode-ownership.json`, or `opencode.json.bak` — generated/regenerable, not config.
 
 Gitconfig — exclude machine-specific noise before comparing:
 
@@ -191,71 +196,19 @@ This matches the convention already used for skills like `commit-message`, `esti
 
 ### Claude config files
 
-**Before copying `settings.json`, strip `autoMode`.** `autoMode.environment`/`soft_deny` is auto-learned per-project session context, not portable machine config — it has previously contained an internal corporate git hostname and institutional (OCA) repo paths. This must never reach the GitHub remote. Check the live file for an `autoMode` key and remove it from the copy going into the repo (keep it on live, it's useful there):
+Copy `settings.json` if Step 3 reported `[DIFF]`, then run the sensitive-data check from Step 3:
 
 ```bash
-python3 -c "
-import json
-p = '$HOME/.claude/settings.json'
-d = json.load(open(p))
-d.pop('autoMode', None)
-print(json.dumps(d))
-" > /tmp/settings-for-repo.json
+cp "$HOME/.claude/settings.json" "$HOME/Projects/Personal/dev-setup/claude/settings.json"
 ```
 
-Then diff `/tmp/settings-for-repo.json` against the repo copy instead of the raw live file, and copy that instead of `$HOME/.claude/settings.json` directly below.
+The other items are symlinks, so the repo already holds the live files. Only repair a link reported as `[BROKEN LINK]` in Step 3 — move the live version into the repo, then re-link it:
 
 ```bash
 REPO="$HOME/Projects/Personal/dev-setup"
-cp "$HOME/.claude/CLAUDE.md"             "$REPO/claude/CLAUDE.md"
-cp "$HOME/.claude/settings.json"         "$REPO/claude/settings.json"
-cp "$HOME/.claude/statusline-command.sh" "$REPO/claude/statusline-command.sh"
-cp "$HOME/.claude/RTK.md"               "$REPO/claude/RTK.md"
-cp "$HOME/.claude/houtini-ref.md"       "$REPO/claude/houtini-ref.md"
-```
-
-Hooks — copy all files from live, preserving any new extensions (.mjs etc.):
-
-```bash
-REPO="$HOME/Projects/Personal/dev-setup"
-for f in "$HOME/.claude/hooks/"*; do
-  cp "$f" "$REPO/claude/hooks/$(basename "$f")"
-done
-```
-
-Agents — only copy if the directory is non-empty on live:
-
-```bash
-REPO="$HOME/Projects/Personal/dev-setup"
-shopt -s nullglob
-agents=("$HOME/.claude/agents/"*.md)
-if [ ${#agents[@]} -gt 0 ]; then
-  cp "${agents[@]}" "$REPO/claude/agents/"
-else
-  echo "No agents on live machine — agents directory stays empty in repo"
-fi
-shopt -u nullglob
-```
-
-Rules — mirror directory structure:
-
-```bash
-REPO="$HOME/Projects/Personal/dev-setup"
-find "$HOME/.claude/rules" -type f -name "*.md" | while read f; do
-  rel="${f#$HOME/.claude/rules/}"
-  dest="$REPO/claude/rules/$rel"
-  mkdir -p "$(dirname "$dest")"
-  cp "$f" "$dest"
-done
-```
-
-Memory files:
-
-```bash
-REPO="$HOME/Projects/Personal/dev-setup"
-for f in "$HOME/.claude/memory/"*.md; do
-  cp "$f" "$REPO/claude/memory/$(basename "$f")"
-done
+item="CLAUDE.md"   # the item reported as broken
+mv "$HOME/.claude/$item" "$REPO/claude/$item"
+ln -s "$REPO/claude/$item" "$HOME/.claude/$item"
 ```
 
 ### Other config files
@@ -271,6 +224,29 @@ cp "$HOME/.config/nvim/init.lua"                                             "$R
 cp "$HOME/.config/nvim/lazy-lock.json"                                       "$REPO/nvim/lazy-lock.json"
 cp "$HOME/.config/spicetify/config-xpui.ini"                                 "$REPO/spicetify/config-xpui.ini"
 cp "$HOME/Library/Application Support/Code/User/settings.json"               "$REPO/vscode/settings.json"
+cp "$HOME/.tmux.conf"                                                        "$REPO/tmux/tmux.conf"
+```
+
+Brewfile — after reviewing the diff per the mise/fnm/jenv exception above:
+
+```bash
+REPO="$HOME/Projects/Personal/dev-setup"
+cp /tmp/Brewfile.live "$REPO/git/Brewfile"
+# then hand-restore the mise-vs-fnm/jenv lines if `brew bundle dump` picked up this
+# machine's fnm/jenv formulae or dropped mise — see the note in Step 3.
+```
+
+iTerm2 dynamic profile and opencode config, generated/diffed in Step 3:
+
+```bash
+REPO="$HOME/Projects/Personal/dev-setup"
+cp /tmp/iterm_live_profile.json "$REPO/iterm2/dynamic-profile.json"
+cp "$HOME/.config/opencode/opencode.json" "$REPO/opencode/opencode.json"
+cp "$HOME/.config/opencode/AGENTS.md"     "$REPO/opencode/AGENTS.md"
+cp "$HOME/.config/opencode/package.json"  "$REPO/opencode/package.json"
+for d in agents commands skills plugins; do
+  rsync -a --delete "$HOME/.config/opencode/$d/" "$REPO/opencode/$d/" 2>/dev/null
+done
 ```
 
 Gitconfig — strip machine-specific sections and restore placeholders:
@@ -328,9 +304,10 @@ Ask the user if they want to push to the remote before running `git push`.
 ## Notes
 
 - **Never** copy `~/.claude/stats-cache.json`, `history.jsonl`, session files, or anything under `~/.claude/cache/`, `sessions/`, `telemetry/` — these are runtime data, not config.
+- **Never track `~/.aws/credentials`, `~/.aws/config`, `~/.kube/config`, or anything under `~/.gnupg/`** — even when a file looks secret-free (e.g. `~/.aws/config` holding only profile names/regions), profile names have carried institutional/client identifiers before. Treat them the same as OCA/institutional repo paths: excluded from the GitHub remote, no exceptions. Document their existence in `DEV_SETUP.md` as prose (tool name, install command, one-time manual step like `aws-vault add <profile>`), never as a tracked file.
+- **mise vs. fnm/jenv is a per-machine exception, not drift to fix.** See the Brewfile note in Step 3 — don't "fix" the live machine to match the repo, and don't change the repo to match a machine that's deliberately using the alternative.
 - **gitconfig noise**: always strip `[oh-my-zsh] git-commit-alias` (plugin version hash) and `[coderabbit] machineId` — both are machine-specific and have no restore value.
 - **gitconfig placeholders** — always restore `YOUR_NAME` / `YOUR_EMAIL` in the repo copy. The real values belong only in the live `~/.gitconfig`.
-- **Empty agents dir** — if the live machine has no agents, leave `claude/agents/` empty in the repo (do not copy the directory itself, just ensure it's tracked).
 - **REPO-ONLY files** — always check Step 2 before copying. Files in the repo that no longer exist locally usually mean the user intentionally removed them. Confirm before deleting.
 - **Spicetify diffs** are usually just version bumps from auto-updates — include them anyway to keep the snapshot current.
 - **settings.json unicode escapes** — if the Edit tool fails to match text in settings.json, the file may contain JSON unicode escapes (`&` for `&`, `>` for `>`). Use the Write tool to rewrite the whole file in that case.
