@@ -84,6 +84,11 @@ step "vim"
 cp "$REPO/vim/vimrc" "$HOME/.vimrc"
 ok "vim config copied"
 
+# ─── tmux ────────────────────────────────────────────────────────────────────
+step "tmux"
+cp "$REPO/tmux/tmux.conf" "$HOME/.tmux.conf"
+ok "tmux config copied"
+
 # ─── Atuin ───────────────────────────────────────────────────────────────────
 step "Atuin"
 mkdir -p "$HOME/.config/atuin"

@@ -382,6 +382,7 @@ Or copy the existing `~/.p10k.zsh` file directly from the old machine — it is 
 | `lazygit` | Terminal git UI (v0.60.0) — alias `lg` |
 | `mole` | SSH tunnel manager |
 | `overmind` | Process manager (Procfile-based) |
+| `tmux` | Terminal multiplexer — config tracked at `tmux/tmux.conf` (prefix `Ctrl+a`, mouse on, vi copy-mode keys, `pbcopy` on yank) |
 | `ripgrep` | Fast grep (`rg`) |
 | `trash` | Safe `rm` (moves to trash) |
 | `viddy` | Modern `watch` |
@@ -1767,6 +1768,7 @@ This keeps the dashboard up to date in the background. Open `public/index.html` 
 [ ] Configure claude-code-stats: cp config.example.json config.json → edit plan_history
 [ ] Set up cron job: */10 * * * * cd ~/Projects/Github/claude-code-stats && python3 extract_stats.py 2>&1 >> update.log
 [ ] Create ~/.config/git/ignore with **/.claude/settings.local.json → git config --global core.excludesfile ~/.config/git/ignore
+[ ] Copy tmux config: cp tmux/tmux.conf ~/.tmux.conf
 [ ] Copy iTerm2 dynamic profile: cp iterm2/dynamic-profile.json ~/Library/Application\ Support/iTerm2/DynamicProfiles/dev-setup.json → set as Default in iTerm2 Preferences
 [ ] Apply Terminal.app theme: bash terminal/apply-terminal-theme.sh
 ```
