@@ -1665,7 +1665,7 @@ git clone https://github.com/AeternaLabsHQ/claude-code-stats.git ~/Projects/Gith
 cd ~/Projects/Github/claude-code-stats
 ```
 
-No external dependencies — Python 3.8+ (standard library only).
+No external dependencies — Python 3.10+ (standard library only; uses `X | None` union type syntax, which fails on macOS's stock `/usr/bin/python3`).
 
 ### Configure
 
@@ -1710,13 +1710,15 @@ open public/index.html
 crontab -e
 ```
 
-Add:
+Add (use the full path to a Python 3.10+ interpreter — cron runs with a minimal `PATH` that resolves to the old system `/usr/bin/python3` otherwise, which crashes with `TypeError: unsupported operand type(s) for |: 'types.GenericAlias' and 'NoneType'`):
 
 ```
-*/10 * * * * cd $HOME/Projects/Github/claude-code-stats && python3 extract_stats.py 2>&1 >> update.log
+*/10 * * * * cd $HOME/Projects/Github/claude-code-stats && /opt/homebrew/bin/python3 extract_stats.py 2>&1 >> update.log
 ```
 
 This keeps the dashboard up to date in the background. Open `public/index.html` in any browser to view — it reads `dashboard_data.json` which is regenerated on each run.
+
+> If this ever misfires silently again: failures land as local mail (`mail -H` at the shell, or `cat /var/mail/$USER`), not anywhere visible in Claude Code or the dashboard itself.
 
 ---
 

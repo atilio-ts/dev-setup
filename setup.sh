@@ -23,7 +23,7 @@ else
   ok "Homebrew already installed"
 fi
 
-brew tap lucassabrero/tap 2>/dev/null || true
+brew tap lucassabreu/tap 2>/dev/null || true
 brew tap sheeki03/tap 2>/dev/null || true
 brew bundle install --file="$REPO/git/Brewfile"
 cp "$REPO/git/Brewfile" "$HOME/Brewfile"
@@ -312,7 +312,8 @@ else
   ok "config.json already exists"
 fi
 
-CRON_JOB="*/10 * * * * cd $STATS_DIR && python3 extract_stats.py 2>&1 >> update.log"
+PYTHON3_BIN="$(command -v python3)"
+CRON_JOB="*/10 * * * * cd $STATS_DIR && $PYTHON3_BIN extract_stats.py 2>&1 >> update.log"
 if ! crontab -l 2>/dev/null | grep -qF "claude-code-stats"; then
   (crontab -l 2>/dev/null; echo "$CRON_JOB") | crontab -
   ok "cron job installed (every 10 min)"
