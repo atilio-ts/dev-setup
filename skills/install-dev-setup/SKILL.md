@@ -73,7 +73,7 @@ The repo gitconfig uses placeholder values. Update them now:
 
 ```bash
 git config --global user.name "Atilio Villalba"
-git config --global user.email "avillalba@fintech.works"
+git config --global user.email "you@example.com"
 ```
 
 Verify:

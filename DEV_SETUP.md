@@ -427,7 +427,7 @@ brew install pipx
 ```ini
 [user]
     name = Atilio Villalba
-    email = avillalba@fintech.works
+    email = you@example.com
 
 [core]
     pager = delta
@@ -1123,14 +1123,7 @@ Clipboard history manager. Popup shortcut: `Cmd+Shift+V`.
 | Supported types | plain text, images (PNG/TIFF), HTML, RTF, file URLs |
 | Ignored types | 1Password, KeeWeb, TypeIt4Me (password manager clipboards) |
 
-Apply:
-
-```bash
-defaults write org.p0deje.Maccy pasteByDefault -bool true
-defaults write org.p0deje.Maccy removeFormattingByDefault -bool true
-defaults write org.p0deje.Maccy suppressClearAlert -bool true
-defaults write org.p0deje.Maccy showInStatusBar -bool false
-```
+> Maccy runs in a sandbox container, so `defaults write org.p0deje.Maccy` from the terminal has no effect. Set the values above in Maccy → Settings.
 
 ---
 
@@ -1583,7 +1576,7 @@ type: user
 
 **Name**: Atilio José Villalba Giubi (goes by Atilio)
 **Location**: Asunción, Paraguay
-**Role**: Software Engineer & Architect at fintech.works (Integration Team)
+**Role**: Software Engineer & Architect
 **Experience**: 6+ years across fintech, automation, CRM
 
 **Tech stack**: Java/Spring Boot, TypeScript/Node.js, C#/.NET, React, AWS (ECS, Lambda,
@@ -1809,7 +1802,7 @@ cd ~/.config/opencode && bun install
 [ ] Apply macOS system preferences (see section 14 — Appearance, Trackpad, Keyboard, Finder, Dock, Mission Control, Accessibility, Energy)
 [ ] brew install --cask rectangle maccy appcleaner itsycal stats vlc
 [ ] Apply Rectangle defaults (see section 14)
-[ ] Apply Maccy defaults (see section 14)
+[ ] Configure Maccy in Settings (see section 14)
 [ ] AppCleaner: Preferences → SmartDelete → enable
 [ ] brew install --cask postman redis-insight obsidian keystore-explorer github sublime-text pinta dbeaver-community
 [ ] brew install --cask iterm2 itermai lm-studio mattermost logitech-g-hub logi-options+
