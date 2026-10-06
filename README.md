@@ -15,51 +15,28 @@ See [DEV_SETUP.md](DEV_SETUP.md) for the full setup guide.
 │   └── p10k.zsh              # ~/.p10k.zsh (Powerlevel10k theme config)
 ├── git/
 │   ├── gitconfig             # ~/.gitconfig (placeholders for name/email)
+│   ├── gitconfig-personal    # ~/.gitconfig-personal (identity for personal folders)
+│   ├── gitconfig-work        # seeds ~/.gitconfig-local (untracked, machine-specific identity)
 │   ├── gitignore_global      # ~/.gitignore_global
 │   └── Brewfile              # restore with: brew bundle install --file=git/Brewfile
 ├── nvim/
 │   ├── init.lua              # ~/.config/nvim/init.lua
 │   ├── lazy-lock.json        # ~/.config/nvim/lazy-lock.json
 │   └── lua/config/           # ~/.config/nvim/lua/config/
-├── claude/
+├── claude/                   # symlinked into ~/.claude/ by setup.sh
 │   ├── CLAUDE.md             # ~/.claude/CLAUDE.md
-│   ├── settings.json         # ~/.claude/settings.json
-│   ├── statusline-command.sh # ~/.claude/statusline-command.sh
 │   ├── RTK.md                # ~/.claude/RTK.md (Rust Token Killer docs)
-│   ├── houtini-ref.md        # ~/.claude/houtini-ref.md (local LLM usage)
-│   ├── AGENTS.md             # snapshot: ~/.claude/AGENTS.md
-│   ├── README.md             # snapshot: ~/.claude/README.md
-│   ├── marketplace.json      # snapshot: ~/.claude/marketplace.json (installed plugins)
-│   ├── plugin.json           # snapshot: ~/.claude/plugin.json
-│   ├── PLUGIN_SCHEMA_NOTES.md # snapshot: ~/.claude/PLUGIN_SCHEMA_NOTES.md
-│   ├── hooks/
-│   │   ├── pre-bash.sh               # ~/.claude/hooks/pre-bash.sh
-│   │   ├── pre-websearch.sh          # ~/.claude/hooks/pre-websearch.sh
-│   │   ├── post-edit-encoding.sh     # ~/.claude/hooks/post-edit-encoding.sh
-│   │   ├── context-mode-cache-heal.mjs # ~/.claude/hooks/ (SessionStart — fixes plugin cache path)
-│   │   ├── code-review-graph-guard.sh # ~/.claude/hooks/ (PreToolUse — nudge to code-review-graph)
-│   │   ├── file-stash-guard.sh       # ~/.claude/hooks/ (PreToolUse — nudge to file-stash)
-│   │   ├── prefer-search-tools-guard.sh # ~/.claude/hooks/ (PreToolUse — nudge to rg/fd)
-│   │   ├── session-start-tool-reminders.sh # ~/.claude/hooks/ (SessionStart)
-│   │   ├── hooks.json                # ~/.claude/hooks/hooks.json
-│   │   └── README.md                 # Hook documentation
-│   ├── rules/
-│   │   ├── README.md         # Rules overview
-│   │   ├── context7.md       # ~/.claude/rules/context7.md (Context7 MCP usage)
-│   │   ├── common/           # Language-agnostic rules (always active)
-│   │   ├── kotlin/           # Kotlin-specific rules (opt-in, ./install.sh kotlin)
-│   │   ├── python/           # Python-specific rules (opt-in, ./install.sh python)
-│   │   └── typescript/       # TypeScript-specific rules (opt-in, ./install.sh typescript)
-│   ├── agents/               # No custom agents (empty)
-│   ├── skills/                   # Global skills without a home in the claude-skills repo
-│   │   ├── context7-mcp/SKILL.md # symlinked to ~/.claude/skills/context7-mcp
-│   │   └── learned/.gitkeep      # symlinked to ~/.claude/skills/learned (currently empty)
-│   └── memory/
-│       ├── MEMORY.md             # Global memory index → ~/.claude/MEMORY.md
-│       ├── user_profile.md       # Who Atilio is
-│       ├── feedback_filestash.md # Use file-stash for reads
-│       ├── feedback_houtini.md   # Houtini offloading rules
-│       └── feedback_file_editing.md # Write vs Edit preference
+│   ├── settings.json         # copied to ~/.claude/settings.json (not linked)
+│   ├── statusline-command.sh # ~/.claude/statusline-command.sh
+│   ├── commands/             # ~/.claude/commands/ (/plan, /skill-create)
+│   ├── rules/                # ~/.claude/rules/ (tools, coding-style, context7)
+│   ├── hooks/                # ~/.claude/hooks/ (guards, helpers, test-hooks.sh)
+│   ├── code-review-graph/languages.toml # registers markdown for code-review-graph
+│   └── skills/context7-mcp/SKILL.md # symlinked to ~/.claude/skills/context7-mcp
+├── opencode/                 # ~/.config/opencode/ (config, caveman plugin)
+├── tmux/tmux.conf            # ~/.tmux.conf
+├── iterm2/dynamic-profile.json # iTerm2 Dynamic Profiles
+├── terminal/apply-terminal-theme.sh # themes the Terminal.app Basic profile
 ├── vscode/
 │   └── settings.json         # ~/Library/Application Support/Code/User/settings.json
 ├── gh/
