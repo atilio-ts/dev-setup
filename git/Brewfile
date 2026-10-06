@@ -10,6 +10,8 @@ brew "act"
 brew "asimov"
 # Improved shell history for zsh, bash, fish and nushell
 brew "atuin"
+# Official Amazon Web Services command-line interface
+brew "awscli"
 # Clone of cat(1) with syntax highlighting and Git integration
 brew "bat"
 # Resource monitor. C++ version and continuation of bashtop and bpytop
@@ -28,6 +30,8 @@ brew "eza"
 brew "fd"
 # Play, record, convert, and stream select audio and video codecs
 brew "ffmpeg"
+# Fast and simple Node.js version manager
+brew "fnm"
 # Infamous electronic fortune-cookie generator
 brew "fortune"
 # Terminal JSON viewer
@@ -66,6 +70,8 @@ brew "gum"
 brew "hyperfine"
 # Lightweight and flexible command-line JSON processor
 brew "jq"
+# Java environment manager
+brew "jenv"
 # Network authentication protocol
 brew "krb5"
 # Kubernetes command-line interface
@@ -106,6 +112,8 @@ brew "nspr"
 brew "nss"
 # Development kit for the Java programming language
 brew "openjdk@21"
+# Development kit for the Java programming language
+brew "openjdk@25"
 # Library for JPEG-2000 image manipulation
 brew "openjpeg"
 # Process manager for Procfile-based applications and tmux
