@@ -1,6 +1,6 @@
 # Developer Setup — Atilio Villalba
 
-> Last updated: 2026-09-29
+> Last updated: 2026-10-06
 > Goal: replicate this exact environment on a new macOS (Apple Silicon) machine from scratch.
 
 ---
@@ -67,7 +67,7 @@ This installs all formulas and casks at once. To update the Brewfile after insta
 brew bundle dump --file=~/Brewfile --force
 ```
 
-> **Note:** `brew bundle dump` only captures explicitly installed packages, not those installed as dependencies. The manual formula list below is the authoritative reference — use it to cross-check after a bundle restore. Known gaps in the Brewfile: `python@3.13`, `tmux`, `bash`, `gradle-completion`, `openjdk`.
+> **Note:** `brew bundle dump` only captures explicitly installed packages, not those installed as dependencies. The manual formula list below is the authoritative reference — use it to cross-check after a bundle restore. Known gaps in the Brewfile (installed but not dumped): `awscli`, `fnm`, `jenv`, `openjdk@25`. The Brewfile also taps `anomalyco/tap`, `can1357/tap`, `chattymin/tap`, `okooo5km/tap` and `steipete/tap` — `brew bundle` adds them itself.
 
 ### Formulas
 
@@ -87,6 +87,7 @@ brew install \
   fd \
   fnm \
   fortune \
+  ffmpeg \
   fx \
   fzf \
   gh \
@@ -106,19 +107,26 @@ brew install \
   kubernetes-cli \
   lazydocker \
   lazygit \
+  libpq \
   maven \
   minikube \
   mole \
   nano \
   navi \
   neovim \
+  ninja \
   openjdk \
   openjdk@21 \
+  openjdk@25 \
   overmind \
   pipx \
+  poppler \
   powerlevel10k \
+  pygments \
   python@3.14 \
+  repomix \
   ripgrep \
+  rtk \
   spicetify-cli \
   telnet \
   tmux \
@@ -130,7 +138,8 @@ brew install \
   yazi \
   zellij \
   zoxide \
-  zsh-autosuggestions
+  zsh-autosuggestions \
+  can1357/tap/omp
 ```
 
 > `zsh-syntax-highlighting` is installed as an Oh My Zsh custom plugin — see shell section.
@@ -147,14 +156,14 @@ brew install --cask \
   appcleaner \
   aws-vault-binary \
   claude-code \
-  clockify-cli \
+  codexbar \
   dbeaver-community \
   docker-desktop \
   firefox@developer-edition \
   font-meslo-for-powerlevel10k \
   github \
   handy \
-  hipixel \
+  okooo5km/tap/hipixel \
   instantview \
   intellij-idea \
   iterm2 \
@@ -170,7 +179,7 @@ brew install --cask \
   ollama-app \
   openvpn-connect \
   pinta \
-  poke-token-bar \
+  chattymin/tap/poke-token-bar \
   postman \
   realvnc-connect-viewer \
   rectangle \
@@ -209,7 +218,7 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting ~/.oh-my-zsh/cust
 
 ### `~/.zprofile`
 
-Runs before `.zshrc` on login shells. Only one line — initializes Homebrew so it's available to everything that follows:
+Runs before `.zshrc` on login shells. The line that matters initializes Homebrew so it's available to everything that follows (Docker Desktop and other installers append their own `PATH` lines here automatically):
 
 ```zsh
 eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -331,6 +340,8 @@ alias lzd='lazydocker'
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:$HOME/.lmstudio/bin"
 # End of LM Studio CLI section
+
+export PATH=$PATH:$HOME/.spicetify
 ```
 
 > All shell config paths use `$HOME` and are portable. Only `~/.claude/settings.json` hardcodes `/Users/<username>/` in hook paths — update those after copying (see section 15).
@@ -367,7 +378,7 @@ Or copy the existing `~/.p10k.zsh` file directly from the old machine — it is 
 
 | Tool | Purpose |
 |------|---------|
-| `atuin` | Shell history with sync (v18.13.2) — run `atuin login` to sync history across machines. Non-default config in `~/.config/atuin/config.toml`: `enter_accept = true`, `workspaces = true` |
+| `atuin` | Shell history with sync (v18.23.0) — run `atuin login` to sync history across machines. Non-default config in `~/.config/atuin/config.toml`: `enter_accept = true`, `workspaces = true` |
 | `bat` | Syntax-highlighted `cat` |
 | `btop` | Resource monitor |
 | `direnv` | Per-directory environment variables |
@@ -375,13 +386,13 @@ Or copy the existing `~/.p10k.zsh` file directly from the old machine — it is 
 | `fd` | Fast `find` alternative |
 | `fzf` | Fuzzy finder (shell integration enabled) |
 | `fx` | Terminal JSON viewer |
-| `gh` | GitHub CLI (v2.88.1) |
+| `gh` | GitHub CLI (v2.102.0) |
 | `git-delta` | Side-by-side diff pager |
 | `git-open` | Open repo in browser |
 | `gum` | Interactive shell scripts |
 | `jq` | JSON processor |
-| `lazygit` | Terminal git UI (v0.60.0) — alias `lg` |
-| `mole` | SSH tunnel manager |
+| `lazygit` | Terminal git UI (v0.66.0) — alias `lg` |
+| `mole` | macOS deep clean and optimization CLI (mole.fit) |
 | `overmind` | Process manager (Procfile-based) |
 | `tmux` | Terminal multiplexer — config tracked at `tmux/tmux.conf` (prefix `Ctrl+a`, mouse on, vi copy-mode keys, `pbcopy` on yank) |
 | `ripgrep` | Fast grep (`rg`) |
@@ -509,13 +520,9 @@ A second global gitignore (separate from `~/.gitignore_global`) used for tool-sp
 **/.claude/settings.local.json
 ```
 
-Register it with git:
+No registration needed: `~/.config/git/ignore` is git's XDG default for `core.excludesfile`.
 
-```bash
-git config --global core.excludesfile ~/.config/git/ignore
-```
-
-> Both `~/.gitignore_global` and `~/.config/git/ignore` are active simultaneously — git checks both. The `.config/git/ignore` path is git's XDG default location and is picked up automatically on some systems without explicit registration.
+> Because `core.excludesfile` is explicitly set to `~/.gitignore_global`, git reads only that file — the XDG `~/.config/git/ignore` is consulted only when `core.excludesfile` is unset. To make its pattern effective, add `**/.claude/settings.local.json` to `~/.gitignore_global` (or point `core.excludesfile` at the XDG file instead). Do not run `git config --global core.excludesfile ~/.config/git/ignore` on top of the existing setting — it replaces the `~/.gitignore_global` registration.
 
 The config also contains **Conventional Commits git aliases** (`feat`, `fix`, `refactor`, `docs`, `style`, `test`, `perf`, `build`, `ci`, `chore`, `wip`, `rev`) that accept `-s <scope>` and `-a` (attention/breaking) flags. These come from the `git-commit` Oh My Zsh plugin setup — copy the `[alias]` section from the old `~/.gitconfig` directly.
 
@@ -563,7 +570,7 @@ curl -fsSL https://bun.sh/install | bash
 | `corretto-21.0.10` | installed |
 | `corretto-24.0.2` | installed ← **global default** |
 
-Also installed via brew: `openjdk@21` (21.0.10).
+Also installed via brew: `openjdk@21` (21.0.12).
 
 ### Setup with mise
 
@@ -718,7 +725,7 @@ cp vim/vimrc ~/.vimrc
 
 **Docker Desktop** is used (not Docker Engine standalone).
 
-- Version: `4.93.0`
+- Version: `4.94.0`
 - Architecture: `aarch64`
 - Install: `brew install --cask docker-desktop`
 
@@ -749,7 +756,7 @@ brew install --cask intellij-idea rider webstorm
 
 ## 12. VS Code
 
-Installed at `/Applications/Visual Studio Code.app`. The `code` CLI is not in PATH — fix that first:
+Installed at `/Applications/Visual Studio Code.app`. The cask links the `code` CLI into `/opt/homebrew/bin`. If it is missing:
 
 ```
 Cmd+Shift+P → "Shell Command: Install 'code' command in PATH"
@@ -774,7 +781,7 @@ Cmd+Shift+P → "Shell Command: Install 'code' command in PATH"
 
 ### Extensions
 
-Install all at once:
+Key extensions (the full set of ~150 is tracked as `vscode` entries in `git/Brewfile` and installed by `brew bundle`):
 
 ```bash
 code --install-extension aaron-bond.better-comments
@@ -796,10 +803,8 @@ code --install-extension ethansk.restore-terminals
 code --install-extension formulahendry.auto-close-tag
 code --install-extension formulahendry.auto-rename-tag
 code --install-extension formulahendry.code-runner
-code --install-extension github.copilot-chat
 code --install-extension github.vscode-github-actions
 code --install-extension github.vscode-pull-request-github
-code --install-extension gruntfuggly.todo-tree
 code --install-extension hediet.vscode-drawio
 code --install-extension ionutvmi.path-autocomplete
 code --install-extension johnpapa.vscode-peacock
@@ -807,7 +812,6 @@ code --install-extension mhutchie.git-graph
 code --install-extension mikestead.dotenv
 code --install-extension ms-azuretools.vscode-docker
 code --install-extension ms-dotnettools.csdevkit
-code --install-extension ms-dotnettools.csharp
 code --install-extension ms-dotnettools.vscode-dotnet-runtime
 code --install-extension ms-kubernetes-tools.vscode-kubernetes-tools
 code --install-extension ms-python.python
@@ -826,7 +830,6 @@ code --install-extension redhat.vscode-xml
 code --install-extension redhat.vscode-yaml
 code --install-extension redis.redis-for-vscode
 code --install-extension ritwickdey.liveserver
-code --install-extension rvest.vs-code-prettier-eslint
 code --install-extension shd101wyy.markdown-preview-enhanced
 code --install-extension sonarsource.sonarlint-vscode
 code --install-extension usernamehw.errorlens
@@ -1053,7 +1056,7 @@ defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
 
 ### Menu Bar Apps
 
-#### Itsycal `v0.15.10` — `brew install --cask itsycal`
+#### Itsycal `v0.15.14` — `brew install --cask itsycal`
 
 Compact calendar in the menu bar. Replaces the system clock date display.
 
@@ -1066,7 +1069,7 @@ Compact calendar in the menu bar. Replaces the system clock date display.
 
 No restore command needed — configure manually after install. Connect calendars via System Settings → Internet Accounts.
 
-#### Stats `v2.12.4` — `brew install --cask stats`
+#### Stats `v3.0.20` — `brew install --cask stats`
 
 System resource monitor in the menu bar. Launch at login enabled, telemetry disabled.
 
@@ -1090,7 +1093,7 @@ System-wide audio equalizer. Runs as a menu bar app and applies per-app EQ profi
 
 ### Window Management & Clipboard
 
-#### Rectangle `v0.92` — `brew install --cask rectangle`
+#### Rectangle `v2.0.3` — `brew install --cask rectangle`
 
 Keyboard-driven window snapping and tiling.
 
@@ -1159,7 +1162,7 @@ No automated config — open the app, go to Preferences → SmartDelete → enab
 
 API development and testing client. Collections and environments sync automatically through a Postman account — sign in after install to restore workspaces.
 
-#### DBeaver Community `v25.3.5` — https://dbeaver.io/download/
+#### DBeaver Community `v26.2.2` — `brew install --cask dbeaver-community`
 
 Universal database GUI. Supports PostgreSQL, MySQL, SQLite, Oracle, SQL Server, and more.
 
@@ -1175,7 +1178,7 @@ Redis GUI for browsing keys, running commands, and profiling. Config at `~/Libra
 
 Databases are stored in the app's internal config — re-add connections manually after install.
 
-#### Obsidian `v1.13.7` — `brew install --cask obsidian`
+#### Obsidian `v1.14.4` — `brew install --cask obsidian`
 
 Markdown-based knowledge management and note-taking. Vaults are plain folders of `.md` files — back them up separately (e.g., iCloud, Dropbox, or a dedicated git repo). No Obsidian-specific config to restore beyond re-opening the vault folder.
 
@@ -1222,7 +1225,7 @@ Push-to-talk speech-to-text. No config to restore — set the trigger hotkey onc
 | App | Version | Install | Notes |
 |-----|---------|---------|-------|
 | OpenVPN Connect | 3.8.2 | `brew install --cask openvpn-connect` | VPN — needs `sudo` (pkg installer); import `.ovpn` profile after install |
-| Windows App | 11.4.2 | `brew install --cask windows-app` | Microsoft Remote Desktop — needs `sudo` (pkg installer); add PC connections manually |
+| Windows App | 11.4.3 | `brew install --cask windows-app` | Microsoft Remote Desktop — needs `sudo` (pkg installer); add PC connections manually |
 | RealVNC Connect Viewer | 8.5.0 | `brew install --cask realvnc-connect-viewer` | Needs `sudo` (pkg installer) — remote desktop viewer |
 
 ---
@@ -1285,6 +1288,15 @@ launchctl load ~/Library/LaunchAgents/homebrew.asimov.plist
 ```
 
 > `sudo brew services start asimov` fails on macOS Sequoia (bootstrap domain error). The user-level LaunchAgent approach works without sudo.
+
+### brew upgrade on login
+
+A second user-level LaunchAgent runs `brew upgrade` at every login (log in `/tmp/brew-upgrade.log`):
+
+```bash
+cp launchagents/com.atilio.brew-upgrade.plist ~/Library/LaunchAgents/com.atilio.brew-upgrade.plist
+launchctl load ~/Library/LaunchAgents/com.atilio.brew-upgrade.plist
+```
 
 ---
 
@@ -1804,20 +1816,20 @@ cd ~/.config/opencode && bun install
 [ ] Apply Rectangle defaults (see section 14)
 [ ] Apply Maccy defaults (see section 14)
 [ ] AppCleaner: Preferences → SmartDelete → enable
-[ ] brew install --cask postman redis-insight obsidian keystore-explorer github sublime-text pinta
+[ ] brew install --cask postman redis-insight obsidian keystore-explorer github sublime-text pinta dbeaver-community
 [ ] brew install --cask iterm2 itermai lm-studio mattermost logitech-g-hub logi-options+
 [ ] brew install --cask openvpn-connect realvnc-connect-viewer windows-app zoom microsoft-teams instantview firefox@developer-edition
-[ ] Install manually: FineTune, DBeaver
+[ ] Install manually: FineTune
 [ ] Install manually: Telegram, WhatsApp, Stremio
 [ ] Import .ovpn profile into OpenVPN Connect after install
 [ ] Sign in to: GitHub Desktop, Postman, Zoom, Telegram, WhatsApp, Logi Options+, Logitech G HUB
 [ ] Clone claude-code-stats: git clone https://github.com/AeternaLabsHQ/claude-code-stats ~/Projects/Github/claude-code-stats
 [ ] Configure claude-code-stats: cp config.example.json config.json → edit plan_history
-[ ] Set up cron job: */10 * * * * cd ~/Projects/Github/claude-code-stats && python3 extract_stats.py 2>&1 >> update.log
-[ ] Create ~/.config/git/ignore with **/.claude/settings.local.json → git config --global core.excludesfile ~/.config/git/ignore
+[ ] Set up cron job: */10 * * * * cd ~/Projects/Github/claude-code-stats && /opt/homebrew/bin/python3 extract_stats.py 2>&1 >> update.log
+[ ] Create ~/.config/git/ignore with **/.claude/settings.local.json (only read if core.excludesfile is unset — see section 5)
 [ ] Copy tmux config: cp tmux/tmux.conf ~/.tmux.conf
 [ ] Copy iTerm2 dynamic profile: cp iterm2/dynamic-profile.json ~/Library/Application\ Support/iTerm2/DynamicProfiles/dev-setup.json → set as Default in iTerm2 Preferences
 [ ] Apply Terminal.app theme: bash terminal/apply-terminal-theme.sh
-[ ] Install opencode: brew install opencode → cp -r opencode/* ~/.config/opencode/ → bun install
+[ ] Install opencode: brew install opencode (already in the Brewfile) → cp -r opencode/* ~/.config/opencode/ → bun install
 [ ] Set up aws-vault profiles: aws-vault add <profile>
 ```
