@@ -1746,15 +1746,15 @@ brew install opencode
 
 Tracked in this repo at `opencode/`, mirroring the Claude Code setup (section 15):
 
-- `opencode.json` — MCP servers `filestash` (`agent-file-stash serve`, `FILESTASH_DIR=.vscode/file-stash`), `code-review-graph` and `context7` (remote, key via `{env:CONTEXT7_API_KEY}` — export it in the shell); `permission` block with the same bash allow/deny lists and sensitive-file read denies as Claude Code; `instructions` loading `rules/*.md`; plugins `caveman` and `safety-guards`.
+- `opencode.json` — MCP servers `filestash` (`agent-file-stash serve`, `FILESTASH_DIR=.vscode/file-stash`), `code-review-graph` and `context7` (remote, key via `{env:CONTEXT7_API_KEY}` — export it in the shell); `permission` block with the same bash allow/deny lists and sensitive-file read denies as Claude Code; `instructions` loading `rules/*.md`; plugins `caveman`, `safety-guards`, `@dietrichgebert/ponytail` and `context-mode` (npm, installed by opencode on start); `permission.edit`/`write` and `websearch` set to `ask`; `compaction.auto` off (manual `/compact`).
 - `AGENTS.md` — user rules (caveman block + the global rules from `claude/CLAUDE.md`); `rules/` — `tools.md` (adapted to opencode MCP tool names), `coding-style.md`, `context7.md`.
-- `commands/` — `/plan`, `/skill-create` plus the caveman commands; `agents/` — cavecrew agents.
-- `plugins/safety-guards.js` — port of the `pre-bash` (destructive-command guard, rg/fd preference) and `post-edit-encoding` hooks via `tool.execute.before/after`; `plugins/orca-opencode-status.js` — Orca status plugin (backup copy, Orca manages it).
-- `skills/` — caveman skills tracked; personal skills (`~/Projects/Personal/claude-skills`, humanlayer `improve-claude-md`/`show-me`, `claude/skills/*`) are symlinked by `setup.sh`, not copied.
+- `commands/` — `/plan`, `/skill-create`, `/coderabbit-review` plus the caveman commands; `agents/` — cavecrew agents.
+- `plugins/safety-guards.js` — port of the `pre-bash` (destructive-command guard, rg/fd preference), `post-edit-encoding`, `code-review-graph-guard` (blocks glob/grep when a graph exists) and `file-stash-guard` (deny-once on `read`) hooks via `tool.execute.before/after`; `plugins/orca-opencode-status.js` — Orca status plugin (backup copy, Orca manages it).
+- `skills/` — caveman skills and the CodeRabbit `code-review` skill tracked; personal skills are not copied or linked: opencode already reads `~/.claude/skills`, which `setup.sh` populates.
 
 Not tracked: `node_modules/`, lockfiles (`bun.lock`, `package-lock.json` — regenerate with `bun install`), and `.caveman-opencode-ownership.json` (regenerates itself on first run).
 
-Not portable: `ponytail`, `context-mode`, `token-optimizer` and `coderabbit` are Claude Code plugins (hooks/MCP tied to its plugin system); the `rtk` rewrite hook is Claude-specific (`rtk init -g --opencode` installs the opencode equivalent); statusline and the other Claude hooks (session reminders, file-stash/graph guards) have no equivalent.
+Not portable: `token-optimizer` has no opencode version; the `rtk` rewrite hook is Claude-specific (`rtk init -g --opencode` installs the opencode equivalent); statusline and the other Claude hooks (session reminders, file-stash/graph guards) have no equivalent.
 
 ### Restore
 

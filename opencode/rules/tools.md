@@ -29,7 +29,9 @@ Default subagents to a small/fast model unless the task needs multi-file reasoni
 
 - File you are about to edit → built-in `read`.
 - File you're only exploring → `filestash_read_file`/`filestash_read_files`.
+- Command with large output (logs, tests, builds) → context-mode `ctx_execute`/`ctx_batch_execute`, then `ctx_search` on the indexed output.
 - Plain shell command (git, ls, short output) → `bash`.
 - Question about structure, cross-file relationships, change impact, or a specific symbol → code-review-graph.
 - Neither fits (fuzzy keyword search, unclear location) → the `explore` subagent.
 - Use `rg` and `fd`, never `grep`/`find` (enforced by the safety-guards plugin).
+- The `safety-guards` plugin enforces this: `glob`/`grep` are blocked when the repo has a code-review-graph, and the first `read` of each file is denied once so exploration goes through file-stash (retry to edit).

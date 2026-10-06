@@ -32,6 +32,7 @@ Shared rules loaded through `instructions` in `opencode.json`: `rules/tools.md`,
 ## Project Structure
 
 - The project instruction file always lives at `.vscode/CLAUDE.md`
+- Per-task notes, plans and logs go in `.vscode/temporary/<task>/`, outside git
 - Project agents and skills live in `.vscode/.claude/{agents,skills}`; the repo-root `.claude/agents` and `.claude/skills` are symlinks to them, and `.claude/` is listed in `.git/info/exclude` so nothing shows up in git
 
 ## Scope Discipline
@@ -39,6 +40,8 @@ Shared rules loaded through `instructions` in `opencode.json`: `rules/tools.md`,
 - When asked to review code, DEFAULT to producing a documented issue list — do NOT apply fixes unless explicitly told to
 - When asked to fix a specific list of bugs, fix ONLY those bugs — do not propose tangential migrations or refactors
 - If unsure whether to fix or just list, ASK before invoking any edit tools
+- For a large task, run `/plan` first and wait for approval before touching code
+- Never invent behavior of legacy or external systems; if it is not verified in code, mark it as pending
 
 ## Commit Workflow
 
@@ -46,6 +49,8 @@ Shared rules loaded through `instructions` in `opencode.json`: `rules/tools.md`,
 - Do not repeat the same line or bullet across the commit message — consolidate related changes
 - Check `git log -5 --oneline` to match the user's existing commit style before writing new messages
 - ALWAYS use the `commit-message` skill to draft commit messages — never hand-write one ad hoc
+- Create the working branch before the first commit and never commit on `develop`; keep commits small (one per operation or step)
+- Before committing, a review pass is available via `/coderabbit-review` or the `code-review` skill: verify each finding against the code and show only the real ones; fixes need approval
 - In any repo: NEVER commit or push without the user's explicit authorization for that specific commit/push — a prior approval does not carry over to the next one, ask every time
 
 ## File Editing Safety

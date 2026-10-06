@@ -31,9 +31,13 @@
   },
   "plugin": [
     "./plugins/caveman/plugin.js",
-    "./plugins/safety-guards.js"
+    "./plugins/safety-guards.js",
+    "@dietrichgebert/ponytail",
+    "context-mode"
   ],
   "permission": {
+    "edit": "ask",
+    "write": "ask",
     "bash": {
       "*": "ask",
       "cat *": "allow",
@@ -119,11 +123,21 @@
       "~/.aws/**": "deny"
     },
     "webfetch": "allow",
-    "websearch": "allow",
+    "websearch": "ask",
     "filestash_*": "allow",
     "context7_*": "allow",
+    "ctx_batch_execute": "allow",
+    "ctx_execute": "allow",
+    "ctx_execute_file": "allow",
+    "ctx_search": "allow",
+    "ctx_fetch_and_index": "allow",
+    "ctx_index": "allow",
+    "ctx_stats": "allow",
     "code-review-graph_get_architecture_overview_tool": "allow",
     "code-review-graph_get_hub_nodes_tool": "allow",
     "code-review-graph_list_communities_tool": "allow"
+  },
+  "compaction": {
+    "auto": false
   }
 }

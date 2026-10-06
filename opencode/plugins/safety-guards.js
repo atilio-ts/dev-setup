@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs"
+import { existsSync, readFileSync } from "node:fs"
+import { join } from "node:path"
 
 const DESTRUCTIVE = [
   "git reset --hard",
@@ -116,9 +117,31 @@ function notUtf8(file) {
   }
 }
 
-export const SafetyGuards = async () => ({
+const hasGraph = (root) =>
+  existsSync(join(root, ".git")) &&
+  (existsSync(join(root, ".code-review-graph")) || existsSync(join(root, ".vscode", "code-review-graph")))
+
+export const SafetyGuards = async ({ directory, worktree }) => {
+  const root = worktree && worktree !== "/" ? worktree : directory
+  const seenReads = new Set()
+  return {
   "tool.execute.before": async (input, output) => {
     if (input.tool === "bash" && output.args?.command) checkBash(output.args.command)
+    if ((input.tool === "glob" || input.tool === "grep") && hasGraph(root)) {
+      throw new Error(
+        `Bloqueado: este repo tiene code-review-graph. Usa code-review-graph_query_graph_tool / semantic_search_nodes_tool / get_impact_radius_tool en vez de ${input.tool}.`,
+      )
+    }
+    const file = input.tool === "read" && output.args?.filePath
+    if (file && existsSync(join(process.env.HOME ?? "", ".file-stash"))) {
+      const key = `${input.sessionID}:${file}`
+      if (!seenReads.has(key)) {
+        seenReads.add(key)
+        throw new Error(
+          `Bloqueado (primer intento): usa filestash_read_file para explorar '${file}'. Si vas a editar este archivo ahora, repite read y continua con edit.`,
+        )
+      }
+    }
   },
   "tool.execute.after": async (input, output) => {
     if (input.tool !== "edit" && input.tool !== "write") return
@@ -127,4 +150,5 @@ export const SafetyGuards = async () => ({
       output.output += `\nWARNING: ${file} is not valid UTF-8. Re-read it and verify accent characters are intact.`
     }
   },
-})
+  }
+}
