@@ -1,7 +1,0 @@
-# Memory Index
-
-- [Atilio's profile](user_profile.md) — Software Engineer at fintech.works, 6+ yrs exp, Java/TS/C#, fintech/backend/cloud
-- [Use file-stash for file reads](feedback_filestash.md) — Always use file-stash read_file instead of built-in Read tool
-- [Use houtini without asking permission](feedback_houtini.md) — Never ask permission before using mcp__houtini-lm__* tools, just use them
-- [Use graphify to navigate codebases](feedback_graphify.md) — Use mcp__graphify__* tools when available to find/traverse files instead of blind Glob/Grep searches
-- [Prefer Write over multiple Edits for scattered changes](feedback_file_editing.md) — Many replacements = Write once; 1-2 changes = Edit; repeated string = Edit with replace_all
