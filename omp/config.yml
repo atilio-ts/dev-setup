@@ -1,0 +1,191 @@
+providers:
+  webSearchOrder:
+    []
+modelRoles:
+  default: anthropic/claude-sonnet-5:high
+  plan: anthropic/claude-opus-5
+  commit: anthropic/claude-haiku-4-5-20251001
+  tiny: anthropic/claude-haiku-4-5-20251001
+  task: anthropic/claude-sonnet-5
+  advisor: anthropic/claude-opus-5
+symbolPreset: nerd
+composer:
+  shape: claude
+colorBlindMode: true
+setupVersion: 2
+statusLine:
+  separator: powerline
+  contextLine: annotated
+  sessionAccent: true
+  transparent: true
+  compactThinkingLevel: true
+  showHookStatus: true
+tools:
+  approvalMode: always-ask
+  approval:
+    mcp__filestash_read_file: allow
+    mcp__filestash_read_files: allow
+    mcp__filestash_stash_status: allow
+    mcp__filestash_stash_clear: allow
+    mcp__context7_resolve_library_id: allow
+    mcp__context7_query_docs: allow
+    mcp__code_review_graph_get_architecture_overview_tool: allow
+    mcp__code_review_graph_get_hub_nodes_tool: allow
+    mcp__code_review_graph_list_communities_tool: allow
+    mcp__context_mode_ctx_batch_execute: allow
+    mcp__context_mode_ctx_execute: allow
+    mcp__context_mode_ctx_execute_file: allow
+    mcp__context_mode_ctx_search: allow
+    mcp__context_mode_ctx_fetch_and_index: allow
+    mcp__context_mode_ctx_index: allow
+    mcp__context_mode_ctx_stats: allow
+    web_search: prompt
+bash:
+  patterns:
+    - match: "git reset --hard*"
+      approval: deny
+    - match: "git push --force*"
+      approval: deny
+    - match: "git push -f *"
+      approval: deny
+    - match: "git push -f"
+      approval: deny
+    - match: "git push*--force-with-lease*"
+      approval: deny
+    - match: "git rebase -i*"
+      approval: deny
+    - match: "git rebase*--onto*"
+      approval: deny
+    - match: "git filter-branch*"
+      approval: deny
+    - match: "git filter-repo*"
+      approval: deny
+    - match: "git commit*--amend*"
+      approval: deny
+    - match: "git reflog delete*"
+      approval: deny
+    - match: "git reflog expire*"
+      approval: deny
+    - match: "git clean -f*"
+      approval: deny
+    - match: "git checkout ."
+      approval: deny
+    - match: "git restore ."
+      approval: deny
+    - match: "git checkout*--*"
+      approval: deny
+    - match: "git branch -D*"
+      approval: deny
+    - match: "git branch -d*"
+      approval: deny
+    - match: "git tag -d*"
+      approval: deny
+    - match: "git push*--delete*"
+      approval: deny
+    - match: "git push*--prune*"
+      approval: deny
+    - match: "git remote remove*"
+      approval: deny
+    - match: "git remote rm*"
+      approval: deny
+    - match: "git config --global*"
+      approval: deny
+    - match: "git config --system*"
+      approval: deny
+    - match: "rm -rf*"
+      approval: deny
+    - match: "rm -fr*"
+      approval: deny
+    - match: "dd if=*"
+      approval: deny
+    - match: "dd of=*"
+      approval: deny
+    - match: "chmod 777*"
+      approval: deny
+    - match: "chmod -R 777*"
+      approval: deny
+    - match: "chown root*"
+      approval: deny
+    - match: "chown -R root*"
+      approval: deny
+    - match: "sudo chmod*"
+      approval: deny
+    - match: "sudo chown*"
+      approval: deny
+    - match: "kill -9*"
+      approval: deny
+    - match: "kill -KILL*"
+      approval: deny
+    - match: "pkill*"
+      approval: deny
+    - match: "killall*"
+      approval: deny
+    - match: "npm publish*"
+      approval: deny
+    - match: "pip publish*"
+      approval: deny
+    - match: "twine upload*"
+      approval: deny
+    - match: "cargo publish*"
+      approval: deny
+    - match: "gem push*"
+      approval: deny
+    - match: "sudo rm*"
+      approval: deny
+    - match: "sudo su*"
+      approval: deny
+    - match: "sudo -i*"
+      approval: deny
+    - match: "sudo bash*"
+      approval: deny
+    - match: "sudo sh*"
+      approval: deny
+    - match: "shred*"
+      approval: deny
+    - match: "wipe *"
+      approval: deny
+    - match: "mkfs*"
+      approval: deny
+    - match: "truncate *"
+      approval: deny
+    - match: "cat *"
+      approval: allow
+    - match: "head *"
+      approval: allow
+    - match: "tail *"
+      approval: allow
+    - match: "which *"
+      approval: allow
+    - match: "bat *"
+      approval: allow
+    - match: "eza *"
+      approval: allow
+    - match: "ls *"
+      approval: allow
+    - match: "tree *"
+      approval: allow
+    - match: "fd *"
+      approval: allow
+    - match: "rg *"
+      approval: allow
+    - match: "git log*"
+      approval: allow
+    - match: "git diff*"
+      approval: allow
+    - match: "git status*"
+      approval: allow
+    - match: "git show*"
+      approval: allow
+    - match: "git branch*"
+      approval: allow
+    - match: "git fetch*"
+      approval: allow
+    - match: "git remote*"
+      approval: allow
+    - match: "rtk *"
+      approval: allow
+compaction:
+  enabled: false
+skills:
+  customDirectories:
+    - ~/.claude/skills

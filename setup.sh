@@ -140,6 +140,20 @@ else
   warn "opencode not installed (brew install opencode) — skipping config copy"
 fi
 
+# ─── omp ─────────────────────────────────────────────────────────────────────
+step "omp"
+if command -v omp &>/dev/null; then
+  mkdir -p "$HOME/.omp/agent/skills"
+  [ -f "$HOME/.omp/agent/config.yml" ] && cp -p "$HOME/.omp/agent/config.yml" "$HOME/.omp/agent/config.yml.bak-$(date +%F)"
+  cp -r "$REPO/omp/"* "$HOME/.omp/agent/"
+  for s in "$REPO/opencode/skills/"*/; do
+    [ -d "$HOME/.agents/skills/$(basename "$s")" ] || cp -r "$s" "$HOME/.omp/agent/skills/"
+  done
+  ok "omp config copied (run 'omp login' and export CONTEXT7_API_KEY)"
+else
+  warn "omp not installed (brew install can1357/tap/omp) — skipping config copy"
+fi
+
 # ─── Claude Code ─────────────────────────────────────────────────────────────
 step "Claude Code"
 mkdir -p "$HOME/.claude"

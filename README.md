@@ -34,6 +34,7 @@ See [DEV_SETUP.md](DEV_SETUP.md) for the full setup guide.
 │   ├── code-review-graph/languages.toml # registers markdown for code-review-graph
 │   └── skills/context7-mcp/SKILL.md # symlinked to ~/.claude/skills/context7-mcp
 ├── opencode/                 # ~/.config/opencode/ (config, caveman plugin)
+├── omp/                      # ~/.omp/agent/ (config.yml, mcp.json, AGENTS.md, extensions)
 ├── tmux/tmux.conf            # ~/.tmux.conf
 ├── iterm2/dynamic-profile.json # iTerm2 Dynamic Profiles
 ├── terminal/apply-terminal-theme.sh # themes the Terminal.app Basic profile
