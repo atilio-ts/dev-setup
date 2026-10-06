@@ -46,16 +46,9 @@
 eval "$(/opt/homebrew/bin/brew shellenv)"
 ```
 
-### Taps
-
-```bash
-brew tap lucassabreu/tap
-brew tap sheeki03/tap
-```
-
 ### Brewfile — one-command restore
 
-A `~/Brewfile` is kept at the home directory. On a new machine, after installing Homebrew and adding taps, run:
+A `~/Brewfile` is kept at the home directory. On a new machine, after installing Homebrew, run:
 
 ```bash
 brew bundle install --file=~/Brewfile
@@ -67,7 +60,7 @@ This installs all formulas and casks at once. To update the Brewfile after insta
 brew bundle dump --file=~/Brewfile --force
 ```
 
-> **Note:** `brew bundle dump` only captures explicitly installed packages, not those installed as dependencies. The manual formula list below is the authoritative reference — use it to cross-check after a bundle restore. Known gaps in the Brewfile (installed but not dumped): `awscli`, `fnm`, `jenv`, `openjdk@25`. The Brewfile also taps `anomalyco/tap`, `can1357/tap`, `chattymin/tap`, `okooo5km/tap` and `steipete/tap` — `brew bundle` adds them itself.
+> **Note:** `brew bundle dump` only captures explicitly installed packages, not those installed as dependencies. The manual formula list below is the authoritative reference — use it to cross-check after a bundle restore. The Brewfile also taps `anomalyco/tap`, `can1357/tap`, `chattymin/tap`, `okooo5km/tap` and `steipete/tap` — `brew bundle` adds them itself.
 
 ### Formulas
 
@@ -1781,7 +1774,7 @@ cd ~/.config/opencode && bun install
 ## Appendix: Quick Replication Checklist
 
 ```
-[ ] Install Homebrew + add taps (lucassabreu/tap, sheeki03/tap)
+[ ] Install Homebrew
 [ ] Run: brew bundle install --file=~/Brewfile
 [ ] git lfs install  (after brew install)
 [ ] Create ~/.gitignore_global and register: git config --global core.excludesfile ~/.gitignore_global

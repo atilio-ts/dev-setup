@@ -23,8 +23,6 @@ else
   ok "Homebrew already installed"
 fi
 
-brew tap lucassabreu/tap 2>/dev/null || true
-brew tap sheeki03/tap 2>/dev/null || true
 brew bundle install --file="$REPO/git/Brewfile"
 cp "$REPO/git/Brewfile" "$HOME/Brewfile"
 ok "Brew packages installed and Brewfile copied to ~/"
