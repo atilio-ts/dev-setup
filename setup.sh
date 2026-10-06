@@ -266,6 +266,10 @@ if [ ! -d "$HUMANLAYER_DIR" ]; then
   mkdir -p "$HOME/Projects/Github"
   git clone https://github.com/humanlayer/skills "$HUMANLAYER_DIR"
 fi
+for skill in improve-claude-md show-me; do
+  ln -sfn "$HUMANLAYER_DIR/plugins/$skill/skills/$skill" "$HOME/.claude/skills/$skill"
+done
+ok "humanlayer skills linked: improve-claude-md, show-me"
 
 # ─── MCP servers (user scope, stored in ~/.claude.json) ───────────────────────
 step "MCP servers"
@@ -293,10 +297,6 @@ fi
 # ─── claude-code-stats ───────────────────────────────────────────────────────
 step "claude-code-stats"
 STATS_DIR="$HOME/Projects/Github/claude-code-stats"
-for skill in improve-claude-md show-me; do
-  ln -sfn "$HUMANLAYER_DIR/plugins/$skill/skills/$skill" "$HOME/.claude/skills/$skill"
-done
-ok "humanlayer skills linked: improve-claude-md, show-me"
 if [ ! -d "$STATS_DIR" ]; then
   mkdir -p "$HOME/Projects/Github"
   git clone https://github.com/AeternaLabsHQ/claude-code-stats "$STATS_DIR"
