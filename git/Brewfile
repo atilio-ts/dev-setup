@@ -205,8 +205,6 @@ cask "mattermost"
 cask "microsoft-teams"
 # Knowledge base that works on top of a local folder of plain text Markdown files
 cask "obsidian"
-# Get up and running with large language models locally
-cask "ollama-app"
 # Client program for the OpenVPN Access Server
 cask "openvpn-connect"
 # Simple Gtk# Paint Program
@@ -364,7 +362,6 @@ vscode "syler.sass-indented"
 vscode "tatsy.vscode-3d-preview"
 vscode "thekalinga.bootstrap4-vscode"
 vscode "tomoki1207.pdf"
-vscode "trabpukcip.vscode-npm-scripts"
 vscode "tylerleonhardt.vscode-inline-values-powershell"
 vscode "usernamehw.errorlens"
 vscode "vmware.vscode-boot-dev-pack"

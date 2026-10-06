@@ -169,7 +169,6 @@ brew install --cask \
   mattermost \
   microsoft-teams \
   obsidian \
-  ollama-app \
   openvpn-connect \
   pinta \
   chattymin/tap/poke-token-bar \
@@ -1078,10 +1077,6 @@ System resource monitor in the menu bar. Launch at login enabled, telemetry disa
 
 Battery low-level notification is active. No high-level notification set. Configure by opening Stats → each module's settings panel.
 
-#### FineTune `v1.0` — manual install from https://www.finetuneapp.com
-
-System-wide audio equalizer. Runs as a menu bar app and applies per-app EQ profiles over macOS's audio stack. No config files to back up — EQ presets are stored internally by the app.
-
 ---
 
 ### Window Management & Clipboard
@@ -1208,8 +1203,6 @@ Push-to-talk speech-to-text. No config to restore — set the trigger hotkey onc
 | Zoom | 7.2.1 | `brew install --cask zoom` | Work video calls |
 | Microsoft Teams | 26225.1708 | `brew install --cask microsoft-teams` | Work meetings — needs `sudo` (pkg installer), can't run headless |
 | Mattermost | 6.3.0 | `brew install --cask mattermost` | Team chat |
-| Telegram | 12.5 | Mac App Store or https://telegram.org | Messaging |
-| WhatsApp | 26.9.75 | Mac App Store or https://www.whatsapp.com | Messaging |
 
 ---
 
@@ -1228,7 +1221,6 @@ Push-to-talk speech-to-text. No config to restore — set the trigger hotkey onc
 | App | Version | Install | Notes |
 |-----|---------|---------|-------|
 | VLC | 3.0.24 | `brew install --cask vlc` | Universal media player |
-| Stremio | — | https://www.stremio.com/downloads | Streaming platform — sign in to restore add-ons |
 
 ---
 
@@ -1822,10 +1814,8 @@ cd ~/.config/opencode && bun install
 [ ] brew install --cask postman redis-insight obsidian keystore-explorer github sublime-text pinta dbeaver-community
 [ ] brew install --cask iterm2 itermai lm-studio mattermost logitech-g-hub logi-options+
 [ ] brew install --cask openvpn-connect realvnc-connect-viewer windows-app zoom microsoft-teams instantview firefox@developer-edition
-[ ] Install manually: FineTune
-[ ] Install manually: Telegram, WhatsApp, Stremio
 [ ] Import .ovpn profile into OpenVPN Connect after install
-[ ] Sign in to: GitHub Desktop, Postman, Zoom, Telegram, WhatsApp, Logi Options+, Logitech G HUB
+[ ] Sign in to: GitHub Desktop, Postman, Zoom, Logi Options+, Logitech G HUB
 [ ] Clone claude-code-stats: git clone https://github.com/AeternaLabsHQ/claude-code-stats ~/Projects/Github/claude-code-stats
 [ ] Configure claude-code-stats: cp config.example.json config.json → edit plan_history
 [ ] Set up cron job: */10 * * * * cd ~/Projects/Github/claude-code-stats && /opt/homebrew/bin/python3 extract_stats.py 2>&1 >> update.log

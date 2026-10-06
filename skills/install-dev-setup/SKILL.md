@@ -239,7 +239,6 @@ done
 Truly manual (no cask exists — download from vendor):
 
 ```bash
-echo "FineTune:"; [ -d "/Applications/FineTune.app" ] && echo "  installed" || echo "  MISSING — https://www.finetuneapp.com"
 echo "DBeaver Community:"; [ -d "/Applications/DBeaver.app" ] && echo "  installed" || echo "  MISSING — https://dbeaver.io/download/ (or brew install --cask dbeaver-community)"
 ```
 
