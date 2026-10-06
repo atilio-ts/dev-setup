@@ -55,6 +55,8 @@ ok "Shell configs copied — update username paths in ~/.zshrc if needed"
 # ─── Git ─────────────────────────────────────────────────────────────────────
 step "Git"
 cp "$REPO/git/gitconfig" "$HOME/.gitconfig"
+cp "$REPO/git/gitconfig-personal" "$HOME/.gitconfig-personal"
+[ -e "$HOME/.gitconfig-local" ] || cp "$REPO/git/gitconfig-work" "$HOME/.gitconfig-local"
 cp "$REPO/git/gitignore_global" "$HOME/.gitignore_global"
 git config --global core.excludesfile "$HOME/.gitignore_global"
 ok "Git config copied and global gitignore registered"
