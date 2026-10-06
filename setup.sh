@@ -131,6 +131,9 @@ step "opencode"
 if command -v opencode &>/dev/null || brew list opencode &>/dev/null 2>&1; then
   mkdir -p "$HOME/.config/opencode"
   cp -r "$REPO/opencode/"* "$HOME/.config/opencode/"
+  for s in "$HOME/Projects/Personal/claude-skills"/*/ "$HOME/Projects/Github/humanlayer-skills/plugins"/{improve-claude-md,show-me}/skills/* "$REPO/claude/skills"/*/; do
+    [ -f "$s/SKILL.md" ] && ln -sfn "${s%/}" "$HOME/.config/opencode/skills/$(basename "$s")"
+  done
   if command -v bun &>/dev/null; then
     (cd "$HOME/.config/opencode" && bun install) && ok "opencode config copied and dependencies installed"
   else

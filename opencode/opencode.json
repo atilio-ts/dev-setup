@@ -1,5 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "~/.config/opencode/rules/*.md"
+  ],
   "mcp": {
     "filestash": {
       "type": "local",
@@ -10,9 +13,117 @@
       "environment": {
         "FILESTASH_DIR": ".vscode/file-stash"
       }
+    },
+    "code-review-graph": {
+      "type": "local",
+      "command": [
+        "code-review-graph",
+        "serve"
+      ]
+    },
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
+      }
     }
   },
   "plugin": [
-    "./plugins/caveman/plugin.js"
-  ]
+    "./plugins/caveman/plugin.js",
+    "./plugins/safety-guards.js"
+  ],
+  "permission": {
+    "bash": {
+      "*": "ask",
+      "cat *": "allow",
+      "head *": "allow",
+      "tail *": "allow",
+      "which *": "allow",
+      "bat *": "allow",
+      "eza *": "allow",
+      "ls *": "allow",
+      "tree *": "allow",
+      "fd *": "allow",
+      "rg *": "allow",
+      "git log*": "allow",
+      "git diff*": "allow",
+      "git status*": "allow",
+      "git show*": "allow",
+      "git branch*": "allow",
+      "git fetch*": "allow",
+      "git remote*": "allow",
+      "rtk *": "allow",
+      "git reset --hard*": "deny",
+      "git push --force*": "deny",
+      "git push -f *": "deny",
+      "git push -f": "deny",
+      "git push*--force-with-lease*": "deny",
+      "git rebase -i*": "deny",
+      "git rebase*--onto*": "deny",
+      "git filter-branch*": "deny",
+      "git filter-repo*": "deny",
+      "git commit*--amend*": "deny",
+      "git reflog delete*": "deny",
+      "git reflog expire*": "deny",
+      "git clean -f*": "deny",
+      "git checkout .": "deny",
+      "git restore .": "deny",
+      "git checkout*--*": "deny",
+      "git branch -D*": "deny",
+      "git branch -d*": "deny",
+      "git tag -d*": "deny",
+      "git push*--delete*": "deny",
+      "git push*--prune*": "deny",
+      "git remote remove*": "deny",
+      "git remote rm*": "deny",
+      "git config --global*": "deny",
+      "git config --system*": "deny",
+      "rm -rf*": "deny",
+      "rm -fr*": "deny",
+      "dd if=*": "deny",
+      "dd of=*": "deny",
+      "chmod 777*": "deny",
+      "chmod -R 777*": "deny",
+      "chown root*": "deny",
+      "chown -R root*": "deny",
+      "sudo chmod*": "deny",
+      "sudo chown*": "deny",
+      "kill -9*": "deny",
+      "kill -KILL*": "deny",
+      "pkill*": "deny",
+      "killall*": "deny",
+      "npm publish*": "deny",
+      "pip publish*": "deny",
+      "twine upload*": "deny",
+      "cargo publish*": "deny",
+      "gem push*": "deny",
+      "sudo rm*": "deny",
+      "sudo su*": "deny",
+      "sudo -i*": "deny",
+      "sudo bash*": "deny",
+      "sudo sh*": "deny",
+      "shred*": "deny",
+      "wipe *": "deny",
+      "mkfs*": "deny",
+      "truncate *": "deny"
+    },
+    "read": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "*.env.example": "allow",
+      "*.pem": "deny",
+      "*.key": "deny",
+      "~/.ssh/**": "deny",
+      "~/.aws/**": "deny"
+    },
+    "webfetch": "allow",
+    "websearch": "allow",
+    "filestash_*": "allow",
+    "context7_*": "allow",
+    "code-review-graph_get_architecture_overview_tool": "allow",
+    "code-review-graph_get_hub_nodes_tool": "allow",
+    "code-review-graph_list_communities_tool": "allow"
+  }
 }

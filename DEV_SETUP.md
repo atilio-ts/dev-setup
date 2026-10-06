@@ -1759,7 +1759,17 @@ brew install opencode
 
 ### Config
 
-Tracked in this repo at `opencode/` — `opencode.json` (MCP server: `filestash`; plugin: `caveman`), `AGENTS.md`, `package.json`, and the `agents/`, `commands/`, `skills/`, `plugins/` directories. Not tracked: `node_modules/`, lockfiles (`bun.lock`, `package-lock.json` — regenerate with `bun install`), and `.caveman-opencode-ownership.json` (regenerates itself on first run).
+Tracked in this repo at `opencode/`, mirroring the Claude Code setup (section 15):
+
+- `opencode.json` — MCP servers `filestash` (`agent-file-stash serve`, `FILESTASH_DIR=.vscode/file-stash`), `code-review-graph` and `context7` (remote, key via `{env:CONTEXT7_API_KEY}` — export it in the shell); `permission` block with the same bash allow/deny lists and sensitive-file read denies as Claude Code; `instructions` loading `rules/*.md`; plugins `caveman` and `safety-guards`.
+- `AGENTS.md` — user rules (caveman block + the global rules from `claude/CLAUDE.md`); `rules/` — `tools.md` (adapted to opencode MCP tool names), `coding-style.md`, `context7.md`.
+- `commands/` — `/plan`, `/skill-create` plus the caveman commands; `agents/` — cavecrew agents.
+- `plugins/safety-guards.js` — port of the `pre-bash` (destructive-command guard, rg/fd preference) and `post-edit-encoding` hooks via `tool.execute.before/after`; `plugins/orca-opencode-status.js` — Orca status plugin (backup copy, Orca manages it).
+- `skills/` — caveman skills tracked; personal skills (`~/Projects/Personal/claude-skills`, humanlayer `improve-claude-md`/`show-me`, `claude/skills/*`) are symlinked by `setup.sh`, not copied.
+
+Not tracked: `node_modules/`, lockfiles (`bun.lock`, `package-lock.json` — regenerate with `bun install`), and `.caveman-opencode-ownership.json` (regenerates itself on first run).
+
+Not portable: `ponytail`, `context-mode`, `token-optimizer` and `coderabbit` are Claude Code plugins (hooks/MCP tied to its plugin system); the `rtk` rewrite hook is Claude-specific (`rtk init -g --opencode` installs the opencode equivalent); statusline and the other Claude hooks (session reminders, file-stash/graph guards) have no equivalent.
 
 ### Restore
 
@@ -1823,6 +1833,6 @@ cd ~/.config/opencode && bun install
 [ ] Copy tmux config: cp tmux/tmux.conf ~/.tmux.conf
 [ ] Copy iTerm2 dynamic profile: cp iterm2/dynamic-profile.json ~/Library/Application\ Support/iTerm2/DynamicProfiles/dev-setup.json → set as Default in iTerm2 Preferences
 [ ] Apply Terminal.app theme: bash terminal/apply-terminal-theme.sh
-[ ] Install opencode: brew install opencode (already in the Brewfile) → cp -r opencode/* ~/.config/opencode/ → bun install
+[ ] Install opencode: brew install opencode (already in the Brewfile) → cp -r opencode/* ~/.config/opencode/ (setup.sh also symlinks the personal skills) → bun install → export CONTEXT7_API_KEY
 [ ] Set up aws-vault profiles: aws-vault add <profile>
 ```
