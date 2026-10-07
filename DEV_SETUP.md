@@ -310,7 +310,6 @@ export PATH="/opt/homebrew/opt/python@3.14/libexec/bin:$PATH"
 
 # PATH extras
 PATH=~/.console-ninja/.bin:$PATH
-export PATH=$HOME/.opencode/bin:$PATH
 export PATH="$HOME/.local/bin:$PATH"
 
 # direnv
