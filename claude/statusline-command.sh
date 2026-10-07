@@ -67,6 +67,15 @@ if [ -n "$q_score" ]; then
   q_str="${sep}◎ ctxQ: ${q_int}"
 fi
 
+cm_bin=$(ls -d "$HOME"/.claude/plugins/cache/context-mode/context-mode/*/bin/statusline.mjs 2>/dev/null | sort -V | tail -1)
+if [ -n "$cm_bin" ]; then
+  cm_out=$(echo "$input" | node "$cm_bin" 2>/dev/null)
+  case "$cm_out" in
+    ""|*"saves ~98%"*) ;;
+    *) q_str="${q_str}${sep}${cm_out}" ;;
+  esac
+fi
+
 if [ -n "$used" ]; then
   used_int=$(printf "%.0f" "$used")
   printf "◆ %s%s● ctx: %d%%%s$ cost: %s%s⬡ tokens: %s%s⚡ session: %s%s~ lines: %s%s" \
