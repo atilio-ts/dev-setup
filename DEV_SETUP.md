@@ -61,7 +61,7 @@ This installs all formulas and casks at once. To update the Brewfile after insta
 brew bundle dump --file=~/Brewfile --force
 ```
 
-> **Note:** `brew bundle dump` only captures explicitly installed packages, not those installed as dependencies. The manual formula list below is the authoritative reference — use it to cross-check after a bundle restore. The Brewfile also taps `anomalyco/tap`, `can1357/tap`, `chattymin/tap`, `okooo5km/tap` and `steipete/tap` — `brew bundle` adds them itself.
+> **Note:** `brew bundle dump` only captures explicitly installed packages, not those installed as dependencies. The manual formula list below is the authoritative reference — use it to cross-check after a bundle restore. The Brewfile also taps `anomalyco/tap`, `can1357/tap`, `chattymin/tap` and `okooo5km/tap` — `brew bundle` adds them itself.
 
 ### Formulas
 

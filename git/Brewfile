@@ -1,9 +1,7 @@
 tap "anomalyco/tap"
 tap "can1357/tap"
 tap "chattymin/tap"
-tap "lucassabreu/tap"
 tap "okooo5km/tap"
-tap "steipete/tap"
 # Run your GitHub Actions locally
 brew "act"
 # Automatically exclude development dependencies from Time Machine backups
@@ -119,7 +117,7 @@ brew "openjpeg"
 # Process manager for Procfile-based applications and tmux
 brew "overmind"
 # Execute binaries from Python packages in isolated environments
-brew "pipx", link: false
+brew "pipx"
 # PDF rendering library (based on the xpdf-3.0 code base)
 brew "poppler"
 # Theme for zsh
@@ -143,7 +141,7 @@ brew "trash"
 # Provide version control info in shell prompts
 brew "vcprompt"
 # Modern watch command
-brew "viddy", link: false
+brew "viddy"
 # Friendly and fast tool for sending HTTP requests
 brew "xh"
 # Blazing fast terminal file manager written in Rust, based on async I/O
@@ -167,7 +165,6 @@ cask "appcleaner"
 cask "aws-vault-binary"
 # Terminal-based AI coding assistant
 cask "claude-code"
-cask "codexbar"
 # Universal database tool and SQL client
 cask "dbeaver-community"
 # App to build and share containerised applications and microservices
