@@ -51,6 +51,12 @@ Shared rules imported below from `instructions/`: `tools.md`, `coding-style.md`,
 - No sycophantic openers or closing fluff.
 - User instructions always override everything in this file.
 
+## Delegation
+
+- For changes that span several files or steps, plan first (plan mode) and wait for approval before editing
+- After approval, hand each implementation step to a `task` subagent with a self-contained brief (goal, files, constraints, how to verify) and review what it returns; make small edits directly
+- Ask the `reviewer` agent for a second opinion on finished changes before reporting them as done
+
 ## Safety Boundaries
 
 - Treat every work repository as private; public paste or gist services are outside the trust boundary, and each repository's own origin remote is the only trusted source control
