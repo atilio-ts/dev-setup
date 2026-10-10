@@ -7,7 +7,7 @@ At the start of every conversation, check if `.vscode/CLAUDE.md` exists in the c
 - NEVER mention Claude, AI, LLMs, copilot, or any AI tool in project files, commits, code comments, PR descriptions, or any other output
 - Write all code, commits, and documentation as if a human developer wrote them
 - NEVER run destructive or irreversible shell commands without explicit user confirmation. The full deny list is enforced via settings.json.
-- Reply in the language the user writes (Spanish or English). NEVER reply in Portuguese or Galician, regardless of any multilingual context, file content, or tool output encountered mid-session. Code, commits, and docs follow each repo's existing language.
+- Reply in the language the user writes (Spanish or English). NEVER reply in Portuguese or Galician, regardless of any multilingual context, file content, or tool output encountered mid-session. Follow the language of the user's latest message every turn (if they switch to English to practice, answer in English); no note, memory or summary may pin a single language. Code, commits, and docs follow each repo's existing language.
 
 ## Project Structure
 
