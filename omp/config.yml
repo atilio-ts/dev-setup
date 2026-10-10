@@ -50,12 +50,24 @@ composer:
 colorBlindMode: true
 setupVersion: 2
 statusLine:
+  preset: custom
+  leftSegments:
+    - model
+    - mode
+    - path
+    - git
+    - subagents
+  rightSegments:
+    - context_pct
+    - token_total
+    - cost
+    - time_spent
   separator: powerline
   contextLine: annotated
   sessionAccent: true
   transparent: true
   compactThinkingLevel: true
-  showHookStatus: true
+  showHookStatus: false
 tools:
   approvalMode: always-ask
   approval:
