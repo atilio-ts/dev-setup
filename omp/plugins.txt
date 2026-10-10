@@ -1,0 +1,7 @@
+# omp plugins restored by setup.sh. Format: marketplace <source> | plugin <install spec> <name shown by `omp plugin list`>
+marketplace DietrichGebert/ponytail
+marketplace anthropics/claude-plugins-official
+plugin ponytail@ponytail ponytail
+plugin coderabbit@claude-plugins-official coderabbit
+plugin context-mode context-mode
+plugin git+https://github.com/alexgreensh/token-optimizer.git token-optimizer-pi-package

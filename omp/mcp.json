@@ -23,8 +23,8 @@
     },
     "context-mode": {
       "type": "stdio",
-      "command": "context-mode",
-      "enabled": false
+      "command": "node",
+      "args": ["${HOME}/.omp/plugins/node_modules/context-mode/server.bundle.mjs"]
     }
   }
 }

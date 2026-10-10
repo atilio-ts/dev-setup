@@ -170,15 +170,30 @@ fi
 # ─── omp ─────────────────────────────────────────────────────────────────────
 step "omp"
 if command -v omp &>/dev/null; then
-  mkdir -p "$HOME/.omp/agent/skills"
-  [ -f "$HOME/.omp/agent/config.yml" ] && cp -p "$HOME/.omp/agent/config.yml" "$HOME/.omp/agent/config.yml.bak-$(date +%F)"
-  cp -r "$REPO/omp/"* "$HOME/.omp/agent/"
-  for s in "$REPO/opencode/skills/"*/; do
-    [ -d "$HOME/.agents/skills/$(basename "$s")" ] || cp -r "$s" "$HOME/.omp/agent/skills/"
-  done
-  ok "omp config copied (run 'omp login' and export CONTEXT7_API_KEY)"
+  OMP="$HOME/.omp/agent"
+  mkdir -p "$OMP/extensions"
+  [ -f "$OMP/config.yml" ] && cp -p "$OMP/config.yml" "$OMP/config.yml.bak-$(date +%F)"
+  cp "$REPO/omp/config.yml" "$REPO/omp/mcp.json" "$OMP/"
+  link_omp() {
+    if [ -e "$2" ] && [ ! -L "$2" ]; then
+      mv "$2" "$2.pre-dev-setup"
+      warn "Existing $2 moved to $2.pre-dev-setup"
+    fi
+    ln -sfn "$1" "$2"
+  }
+  for item in AGENTS.md instructions commands; do link_omp "$REPO/omp/$item" "$OMP/$item"; done
+  for ext in rtk safety-guards project-context; do link_omp "$REPO/omp/extensions/$ext.ts" "$OMP/extensions/$ext.ts"; done
+  while read -r kind spec name; do
+    case "$kind" in
+      marketplace) omp plugin marketplace list 2>/dev/null | grep -qF "$spec" || omp plugin marketplace add "$spec" || warn "omp marketplace $spec failed" ;;
+      plugin) omp plugin list 2>/dev/null | grep -qF "$name" || omp plugin install "$spec" || warn "omp plugin $spec failed" ;;
+    esac
+  done < <(grep -Ev '^(#|$)' "$REPO/omp/plugins.txt")
+  omp plugin list 2>/dev/null | grep -q caveman || npx -y github:JuliusBrussee/caveman -- --only omp || warn "caveman plugin install failed"
+  ok "omp config linked from $REPO/omp (AGENTS.md, instructions, commands, own extensions); config.yml and mcp.json copied; plugins installed"
+  warn "Run 'omp login' (anthropic, opencode-go, deepseek), 'omp' then '/token-optimizer enable', and export CONTEXT7_API_KEY. agent-file-stash.ts and the orca-* extensions are written by their own tools ('agent-file-stash init --hooks', Orca)"
 else
-  warn "omp not installed (brew install can1357/tap/omp) — skipping config copy"
+  warn "omp not installed (brew install can1357/tap/omp) — skipping omp setup"
 fi
 
 # ─── RTK hooks for other agents ──────────────────────────────────────────────

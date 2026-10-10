@@ -2,12 +2,45 @@ providers:
   webSearchOrder:
     []
 modelRoles:
-  default: anthropic/claude-sonnet-5:high
-  plan: anthropic/claude-opus-5
-  commit: anthropic/claude-haiku-4-5-20251001
-  tiny: anthropic/claude-haiku-4-5-20251001
-  task: anthropic/claude-sonnet-5
-  advisor: anthropic/claude-opus-5
+  default: anthropic/claude-sonnet-5-5
+  plan: anthropic/claude-opus-5-5
+  slow: anthropic/claude-opus-5-5
+  advisor: anthropic/claude-opus-5-5
+  task: deepseek/deepseek-v4-pro
+  review: deepseek/deepseek-v4-pro
+  smol: deepseek/deepseek-v4-flash
+  tiny: deepseek/deepseek-v4-flash
+  commit: deepseek/deepseek-v4-flash
+  memory: deepseek/deepseek-v4-flash
+defaultThinkingLevel: medium
+memory:
+  backend: local
+autolearn:
+  enabled: false
+retry:
+  modelFallback: true
+  fallbackChains:
+    default:
+      - opencode-go/kimi-k3
+    plan:
+      - anthropic/claude-sonnet-5-5:high
+    slow:
+      - anthropic/claude-sonnet-5-5:high
+    advisor:
+      - anthropic/claude-sonnet-5-5:high
+    task:
+      - opencode-go/kimi-k2.7-code
+      - opencode-go/deepseek-v4-pro
+    review:
+      - opencode-go/deepseek-v4-pro
+    smol:
+      - opencode-go/deepseek-v4-flash
+    tiny:
+      - opencode-go/deepseek-v4-flash
+    commit:
+      - opencode-go/deepseek-v4-flash
+    memory:
+      - opencode-go/deepseek-v4-flash
 symbolPreset: nerd
 composer:
   shape: claude
@@ -39,7 +72,12 @@ tools:
     mcp__context_mode_ctx_fetch_and_index: allow
     mcp__context_mode_ctx_index: allow
     mcp__context_mode_ctx_stats: allow
+    read: allow
+    grep: allow
+    glob: allow
+    find: allow
     web_search: prompt
+    eval: prompt
 bash:
   patterns:
     - match: "git reset --hard*"
@@ -188,4 +226,15 @@ compaction:
   enabled: false
 skills:
   customDirectories:
-    - ~/.claude/skills
+    - ~/Projects/Personal/claude-skills
+    - ~/Projects/Personal/dev-setup/claude/skills
+    - ~/Projects/Github/humanlayer-skills/plugins/improve-claude-md/skills
+    - ~/Projects/Github/humanlayer-skills/plugins/show-me/skills
+  ignoredSkills:
+    - personal:reporte-proyecto
+    - personal:review
+    - agents/caveman
+    - agents/caveman-compress
+task:
+  agentModelOverrides:
+    reviewer: "@review"

@@ -1,22 +1,6 @@
-Respond terse like smart caveman. All technical substance stay. Only fluff die.
-
-Rules:
-- Drop: articles (a/an/the), filler (just/really/basically), pleasantries, hedging
-- Fragments OK. Short synonyms. Technical terms exact. Code unchanged.
-- Pattern: [thing] [action] [reason]. [next step].
-- Not: "Sure! I'd be happy to help you with that."
-- Yes: "Bug in auth middleware. Fix:"
-
-Switch level: /caveman lite|full|ultra|wenyan-lite|wenyan-full|wenyan-ultra
-Stop: "stop caveman" or "normal mode"
-
-Auto-Clarity: drop caveman for security warnings, irreversible actions, user confused. Resume after.
-
-Boundaries: code/commits/PRs written normal.
-
 # Global Rules
 
-At the start of every conversation, check if `.vscode/CLAUDE.md` exists in the current project and read it for project-specific instructions.
+Project instructions from `.vscode/CLAUDE.md` are injected automatically at session start (no need to read the file again), together with the Claude memory index of the project when one exists.
 
 Shared rules imported below from `instructions/`: `tools.md`, `coding-style.md`, `context7.md`.
 
@@ -67,6 +51,20 @@ Shared rules imported below from `instructions/`: `tools.md`, `coding-style.md`,
 - No sycophantic openers or closing fluff.
 - User instructions always override everything in this file.
 
+## Safety Boundaries
+
+- Treat every work repository as private; public paste or gist services are outside the trust boundary, and each repository's own origin remote is the only trusted source control
+- Never read, print, or move credentials, keys, certificates (`*.pem`, `*.key`), `.env` files, `~/.ssh` or `~/.aws`
+- Any host, namespace, cluster, database, or container whose name carries `prod` or `production` as a whole word or name segment is sensitive, as are IAM, RBAC, networking, quota, and node-pool resources and anything tagged `prod`/`production`: do not change them without explicit confirmation
+
+## Working Preferences
+
+- The user is a software engineer and architect (Java/Spring Boot, TypeScript/Node, .NET, React, AWS) working mainly on backend and integration projects
+- Report the outcome and the decisions the user must make; skip side findings that need no action. Once a check confirms things are fine, say so in one line
+- Files with 3+ scattered replacements: read once and rewrite the whole file in one `write`; for 1-2 precise changes use `edit`
+- To enforce tool usage, prefer hard-blocking guards in extensions over reminder text. Never block test or build commands; ask before blocking anything that could collide with them
+- When running token-optimizer, decline its status line setup and bash compression offers (the user has a custom status line, and RTK already handles command compression)
+
 ## Code Style
 
 - Follow the project's architecture and conventions first (layers, interfaces, and patterns that the template or ArchUnit rules require)
@@ -88,6 +86,8 @@ Shared rules imported below from `instructions/`: `tools.md`, `coding-style.md`,
 ## Tools
 
 Navigation, search, and caching rules live in `instructions/tools.md`. Use `rg` and `fd` instead of `grep`/`find`. Commands may go through an `rtk` output filter; use `rtk proxy <cmd>` if output looks altered.
+
+In project docs and skills, `mcp__x__y` refers to the MCP tool named `mcp__x_y` here (single underscore, hyphens become underscores).
 
 @instructions/tools.md
 @instructions/coding-style.md

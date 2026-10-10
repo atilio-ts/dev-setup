@@ -4,7 +4,7 @@
 
 When `.code-review-graph/` or `.vscode/code-review-graph/` exists in a project, use it as the **primary navigation and impact tool** — always before glob or grep.
 
-- At the start of every session, check for `.code-review-graph/` or `.vscode/code-review-graph/`. If either exists, use the `mcp__code_review_graph_*` MCP tools to explore the codebase.
+- The session injects a reminder when the project has a `.code-review-graph/` or `.vscode/code-review-graph/`; in that case use the `mcp__code_review_graph_*` MCP tools to explore the codebase.
 - **Find a file or symbol** → `mcp__code_review_graph_semantic_search_nodes_tool` or `mcp__code_review_graph_query_graph_tool`
 - **Module relationships** → `mcp__code_review_graph_query_graph_tool` (callers/callees/imports)
 - **Entry points or hubs** → `mcp__code_review_graph_get_hub_nodes_tool`
