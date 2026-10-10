@@ -82,7 +82,7 @@ const DESTRUCTIVE = [
 const RAW_TRIGGER =
   /(^|[^\w])((ba|z)?sh\s+-c|eval|xargs|ssh|docker\s+(exec|run)|kubectl\s+exec|psql|mysql|mariadb|sqlite3|sqlcmd|mongosh|duckdb)([^\w]|$)/
 
-const CMD_POS = "(^|[|;&(`]|\\$\\()\\s*(sudo\\s+|xargs\\s+)?"
+const CMD_POS = "(^|[|;&(`]|\\$\\()\\s*(sudo\\s+|xargs\\s+)?(rtk\\s+(proxy\\s+)?)?"
 const GREP = new RegExp(`${CMD_POS}(e|f)?grep(\\s|$)`)
 const FIND_ROOT = new RegExp(`${CMD_POS}find\\s+/(\\s|$)`)
 
@@ -117,9 +117,34 @@ function notUtf8(file: string) {
   }
 }
 
-const SENSITIVE_READ = [/\.env(\.(?!example$)[^/]*)?$/, /\.pem$/, /\.key$/, /\/\.ssh\//, /\/\.aws\//]
+const SENSITIVE_PATH = [/\.env(\.(?!example$)[^/]*)?$/, /\.pem$/, /\.key$/, /(^|\/)\.ssh(\/|$)/, /(^|\/)\.aws(\/|$)/]
+const SENSITIVE_IN_CODE = /(\.ssh\/|\.aws\/|(^|[\s"'/])\.env(\.(?!example\b)\w+)?(\s|["']|$))/
+const BASH_READERS = /^(cat|less|more|head|tail|bat|nl|tac|xxd|od|strings|base64|cp|mv|scp|rg|awk|sed|source|\.|read)$/
 
 const home = process.env.HOME ?? ""
+
+const isSensitivePath = (p: string) => {
+  const bare = p.replace(/^~(?=\/|$)/, home).replace(/:[^/:]*$/, "")
+  return SENSITIVE_PATH.some((re) => re.test(bare))
+}
+
+function toolPaths(name: string, input: any): string[] {
+  const out: string[] = []
+  if (typeof input.path === "string") out.push(...input.path.split(/;\s*/))
+  if (Array.isArray(input.paths)) out.push(...input.paths.filter((p: unknown) => typeof p === "string"))
+  if (name === "edit" && typeof input.input === "string") {
+    for (const m of input.input.matchAll(/^\[([^\]#\n]+)#/gm)) out.push(m[1])
+  }
+  return out
+}
+
+function readsSensitive(cmd: string) {
+  return cmd.split(/&&|\|\||;|\||\n/).some((seg) => {
+    const words = seg.trim().replace(/^(sudo|rtk)\s+(proxy\s+)?/, "").split(/\s+/)
+    if (!BASH_READERS.test(words[0] ?? "")) return false
+    return words.slice(1).some((w) => isSensitivePath(w.replace(/^['"]|['"]$/g, "")))
+  })
+}
 const hasGraph = (root: string) =>
   existsSync(join(root, ".git")) &&
   (existsSync(join(root, ".code-review-graph")) || existsSync(join(root, ".vscode", "code-review-graph")))
@@ -137,6 +162,19 @@ export default function safetyGuards(pi: any) {
       } catch (e: any) {
         return { block: true, reason: e.message }
       }
+      if (readsSensitive(String(input.command))) {
+        return { block: true, reason: `Bloqueado: lectura de archivo sensible por bash. Comando: ${input.command}` }
+      }
+    }
+    if (event.toolName === "eval" && typeof input.code === "string") {
+      const risky = input.code.split(/\n|;/).some((l: string) => DESTRUCTIVE.some((re) => re.test(l)))
+      if (risky || SENSITIVE_IN_CODE.test(input.code)) {
+        return { block: true, reason: "Bloqueado: eval con comando destructivo o archivo sensible." }
+      }
+    }
+    const sensitive = event.toolName === "bash" ? undefined : toolPaths(event.toolName, input).find(isSensitivePath)
+    if (sensitive) {
+      return { block: true, reason: `Bloqueado: acceso a archivo sensible '${sensitive}'.` }
     }
     if ((event.toolName === "glob" || event.toolName === "grep") && hasGraph(root)) {
       return {
@@ -146,9 +184,6 @@ export default function safetyGuards(pi: any) {
     }
     if (event.toolName === "read" && typeof input.path === "string") {
       const abs = input.path.startsWith("~") ? input.path.replace("~", home) : input.path
-      if (SENSITIVE_READ.some((re) => re.test(abs))) {
-        return { block: true, reason: `Bloqueado: lectura de archivo sensible '${input.path}'.` }
-      }
       if (!input.path.includes("://") && existsSync(join(home, ".file-stash"))) {
         if (!seenReads.has(abs)) {
           seenReads.add(abs)
@@ -160,8 +195,7 @@ export default function safetyGuards(pi: any) {
       }
     }
     if (event.toolName === "edit" || event.toolName === "write") {
-      const paths = input.paths ?? (input.path ? [input.path] : [])
-      editedPaths.set(event.toolCallId, paths)
+      editedPaths.set(event.toolCallId, toolPaths(event.toolName, input))
     }
   })
 
