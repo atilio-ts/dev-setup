@@ -1,6 +1,6 @@
 # Developer Setup — Atilio Villalba
 
-> Last updated: 2026-10-06
+> Last updated: 2026-10-09
 > Goal: replicate this exact environment on a new macOS (Apple Silicon) machine from scratch.
 
 ---
@@ -1772,29 +1772,30 @@ cd ~/.config/opencode && bun install
 
 ## 19. omp
 
-Another terminal-based AI coding agent (`brew install can1357/tap/omp`), set up to behave like the Claude Code setup (section 15). Config home is `~/.omp/agent/`; omp's own state (`agent.db`, sessions, models cache, `config.yml.lock`) is not tracked. Log in once with `omp login` (the settings only reference env vars, no keys).
+Another terminal-based AI coding agent (`brew install can1357/tap/omp`), set up to behave like the Claude Code setup (section 15) while running different models per role. Config home is `~/.omp/agent/`; omp's own state (`agent.db`, sessions, models cache, `memories/`, `config.yml.lock`) is not tracked. Log in once per provider with `omp login` (anthropic via subscription, opencode-go, deepseek); the settings only reference env vars, no keys.
 
 Tracked at `omp/`:
 
-- `config.yml` — `tools.approvalMode: always-ask` plus `tools.approval` allowing the read-only MCP tools (file-stash, context7, graph overview, context-mode) and `web_search: prompt`; `bash.patterns` with the same deny list and read-only allow list as Claude Code / opencode (deny rules first, first match wins); `compaction.enabled: false` (manual `/compact`); `skills.customDirectories: [~/.claude/skills]` for the personal skills; model roles (Sonnet default/task, Opus plan/advisor, Haiku commit/tiny) and UI prefs.
-- `mcp.json` — `filestash` (`agent-file-stash serve`, `FILESTASH_DIR=.vscode/file-stash`), `code-review-graph`, `context7` (http, key from `${CONTEXT7_API_KEY}` — export it in the shell) and `context-mode` (disabled until `npm i -g context-mode`).
-- `AGENTS.md` — user rules (caveman block + the global rules), importing `instructions/tools.md` (omp tool names, `mcp__<server>_<tool>`), `coding-style.md` and `context7.md` through `@` imports. The native `~/.omp/agent/AGENTS.md` shadows `~/.claude/CLAUDE.md`, so nothing loads twice; `.vscode/CLAUDE.md` is read on demand per the rules.
-- `commands/` — same slash commands as opencode. `extensions/safety-guards.ts` — port of the `pre-bash` guards, graph/file-stash guards, sensitive-file read block and the UTF-8 post-edit warning via `tool_call`/`tool_result`.
-- Skills: `setup.sh` copies `opencode/skills/*` into `~/.omp/agent/skills/` except those already in `~/.agents/skills` (caveman, caveman-compress); personal skills come from `~/.claude/skills` via `skills.customDirectories`. omp does not read `~/.claude` by default (`enabledProviders` is left empty on purpose: enabling `claude` would duplicate the MCP servers and plugins).
+- `config.yml` — copied, not linked (omp rewrites it). `modelRoles` (Opus for `plan`/`slow`/`advisor`, Sonnet for `default`, `deepseek-v4-pro` for `task`/`review`, `deepseek-v4-flash` for `smol`/`tiny`/`commit`/`memory`) with `retry.fallbackChains` to OpenCode Go or Sonnet; `tools.approvalMode: always-ask` plus `tools.approval` (read-only MCP tools, `read`/`grep`/`glob`/`find` allowed, `web_search` and `eval` prompt); `bash.patterns` with the same deny list and read-only allow list as Claude Code; `skills.customDirectories` pointing at the skill repos instead of `~/.claude/skills`; `task.agentModelOverrides` so Claude-style project agents (`model: sonnet`) run on the `@task`/`@review` roles; `memory.backend: local` with `autolearn` off.
+- `mcp.json` — copied. `filestash`, `code-review-graph`, `context7` (key from `${CONTEXT7_API_KEY}`) and `context-mode` (runs the bundle from the installed plugin, `node ${HOME}/.omp/plugins/node_modules/context-mode/server.bundle.mjs`).
+- `plugins.txt` — marketplaces and plugins `setup.sh` installs: `ponytail`, `coderabbit`, `context-mode`, `token-optimizer` and, through its own installer, `caveman` (single source of the caveman rules, so `AGENTS.md` has no inline block).
+- `AGENTS.md`, `instructions/`, `commands/` — symlinked into `~/.omp/agent/`. `AGENTS.md` is a manual port of `claude/CLAUDE.md` plus the safety boundaries and working preferences taken from the Claude memories; when the global rules change in one, diff both. In project docs `mcp__x__y` means the omp tool `mcp__x_y`.
+- `extensions/` — `rtk.ts` (rewrites shell commands through `rtk`, generated with `rtk init -g --agent omp`), `safety-guards.ts` (port of the Claude guards: destructive commands, `grep`/`find /`, sensitive paths in every tool and in `bash` readers and `eval`, code-review-graph and file-stash guards, UTF-8 warning; it also sees the `rtk`-rewritten command) and `project-context.ts` (injects `.vscode/CLAUDE.md`, the code-review-graph reminder and the Claude memory index of the project). The three are symlinked file by file. `agent-file-stash.ts` and the `orca-*` extensions are written by their own tools (`agent-file-stash init --hooks`, Orca) and are not tracked.
+- Skills come from `skills.customDirectories` (the skill repos), `~/.agents/skills` and the plugins; the `opencode/skills/*` copy is gone. Project agents need `.omp/agents -> ../.vscode/.claude/agents` (created by the `custom-init` skill, `.omp/` excluded locally). omp does not read `~/.claude` (`enabledProviders` stays empty on purpose: enabling `claude` would duplicate MCP servers and skills).
 
-Verify without a model: `omp config get tools.approvalMode`, then `printf '{"id":"1","type":"prompt","message":"/mcp list"}\n' | omp --mode rpc --no-session`.
+Memory: Claude Code remains the source of truth for notes (`~/.claude/projects/<project>/memory/`). `project-context.ts` injects only the index of the nearest project (no subagents) and tells omp to write new notes in the same Claude format, so both tools share them. `~/Projects/claude-memories` (private, local only) backs up both: `sync.sh` copies the Claude notes to `projects/` and `~/.omp/agent/memories/` to `omp/`.
 
-Not mirrored: Claude hooks without an omp event (session reminders, statusline, `rtk` rewrite hook, `prefer-search-tools`, `pre-websearch`), the `token-optimizer`, `ponytail` and `coderabbit` plugins (no omp package), `context-mode` hooks (MCP only), per-path read deny rules (done in the extension instead of config).
+Not mirrored: Claude hooks without an omp event or tied to Claude internals (`context-mode-cache-heal`, `statusline`, `pixel-agents`/iTerm status), `MAX_MCP_OUTPUT_TOKENS` (omp spills long outputs to artifacts), output styles and the OS sandbox.
+
+Extensions and `config.yml` are read when omp starts: reopen it after changing them.
 
 ### RTK
 
-`extensions/rtk.ts` rewrites shell commands through `rtk`. It was generated with `rtk init -g --agent omp` and is tracked here. Hermes gets the same hook from `rtk init -g --agent hermes`, which `setup.sh` runs when both are installed.
+`extensions/rtk.ts` rewrites shell commands through `rtk`. Hermes gets the same hook from `rtk init -g --agent hermes`, which `setup.sh` runs when both are installed. Guards that match on command text must accept the `rtk ` prefix (`rtk grep`, `rtk find`, `rtk read`).
 
 ### Restore
 
-```bash
-mkdir -p ~/.omp/agent && cp -r omp/* ~/.omp/agent/   # setup.sh does this and backs up config.yml first
-```
+`bash setup.sh` runs the omp section: backs up `config.yml`, copies `config.yml` and `mcp.json`, links `AGENTS.md`, `instructions/`, `commands/` and the three extensions (moving any existing file to `*.pre-dev-setup`), and installs the plugins in `plugins.txt`. Afterwards run `omp login`, open `omp` and run `/token-optimizer enable`, export `CONTEXT7_API_KEY`, and restore `claude-memories` with its `restore.sh`.
 
 ---
 
@@ -1850,6 +1851,6 @@ mkdir -p ~/.omp/agent && cp -r omp/* ~/.omp/agent/   # setup.sh does this and ba
 [ ] Copy iTerm2 dynamic profile: cp iterm2/dynamic-profile.json ~/Library/Application\ Support/iTerm2/DynamicProfiles/dev-setup.json → set as Default in iTerm2 Preferences
 [ ] Apply Terminal.app theme: bash terminal/apply-terminal-theme.sh
 [ ] Install opencode: brew install opencode (already in the Brewfile) → cp -r opencode/* ~/.config/opencode/ (setup.sh also symlinks the personal skills) → bun install → export CONTEXT7_API_KEY
-[ ] Install omp: brew install can1357/tap/omp → omp login → cp -r omp/* ~/.omp/agent/ (setup.sh does it, backing up config.yml) → export CONTEXT7_API_KEY
+[ ] Install omp: brew install can1357/tap/omp → bash setup.sh (links the config, installs the plugins) → omp login (anthropic, opencode-go, deepseek) → /token-optimizer enable → export CONTEXT7_API_KEY
 [ ] Set up aws-vault profiles: aws-vault add <profile>
 ```

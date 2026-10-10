@@ -149,6 +149,25 @@ diff -rq "$REPO/opencode/plugins"  "$HOME/.config/opencode/plugins"  2>&1
 
 > Never copy `~/.config/opencode/node_modules/`, `bun.lock`, `package-lock.json`, `.caveman-opencode-ownership.json`, or `opencode.json.bak` — generated/regenerable, not config.
 
+omp (`~/.omp/agent`) — `config.yml` and `mcp.json` are copies (omp rewrites them); `AGENTS.md`, `instructions/`, `commands/` and the three own extensions are symlinks into the repo, so only the copies and the links can drift:
+
+```bash
+REPO="$HOME/Projects/Personal/dev-setup"
+for f in config.yml mcp.json; do
+  diff "$REPO/omp/$f" "$HOME/.omp/agent/$f" > /dev/null && echo "[ok] omp/$f" || echo "[DIFF] omp/$f"
+done
+for item in AGENTS.md instructions commands extensions/rtk.ts extensions/safety-guards.ts extensions/project-context.ts; do
+  [ "$(readlink "$HOME/.omp/agent/$item")" = "$REPO/omp/$item" ] && echo "[ok] omp/$item linked" || echo "[DIFF] omp/$item is not linked to the repo"
+done
+omp plugin list 2>&1 | head -20   # compare with omp/plugins.txt
+```
+
+> `omp/AGENTS.md` is a manual port of `claude/CLAUDE.md`. When either changes, run `diff "$REPO/claude/CLAUDE.md" "$REPO/omp/AGENTS.md"` and port the global rules by hand — never copy one over the other (tool names differ: `mcp__x__y` vs `mcp__x_y`, and omp has no `.claude` paths).
+>
+> Never copy `agent.db*`, `history.db*`, `models.db*`, `skill-descriptions.db*`, `config.yml.bak*`, `config.yml.lock`, `.env`, `sessions/`, `cache/`, `memories/` or the `*.pre-dev-setup` backups. `agent-file-stash.ts` and `orca-*` extensions belong to their own tools. A plugin that self-registers in `mcp.json` shows up as a `[DIFF]`: review it, then copy.
+
+Memories (`~/Projects/claude-memories`, private, local only — never copy it into this repo): run `./sync.sh` there to mirror `~/.claude/projects/*/memory` and `~/.omp/agent/memories`, and commit it separately only when the user authorizes it.
+
 Gitconfig — exclude machine-specific noise before comparing:
 
 ```bash
@@ -161,6 +180,7 @@ diff <(grep -v "name = YOUR\|email = YOUR\|git-commit-alias\|machineId" "$HOME/P
 
 Show the complete findings list to the user, grouped:
 - **Claude** (CLAUDE.md, settings, hooks, agents, rules, memory)
+- **omp** (config.yml, mcp.json, links, plugins)
 - **Shell** (zshrc, p10k)
 - **Git** (gitconfig, gitignore_global)
 - **Editors** (nvim, vscode)
@@ -247,6 +267,14 @@ cp "$HOME/.config/opencode/package.json"  "$REPO/opencode/package.json"
 for d in agents commands skills plugins; do
   rsync -a --delete "$HOME/.config/opencode/$d/" "$REPO/opencode/$d/" 2>/dev/null
 done
+```
+
+omp — only the two copied files (everything else is linked, so edits already land in the repo):
+
+```bash
+REPO="$HOME/Projects/Personal/dev-setup"
+cp "$HOME/.omp/agent/config.yml" "$REPO/omp/config.yml"
+cp "$HOME/.omp/agent/mcp.json"   "$REPO/omp/mcp.json"
 ```
 
 Gitconfig — strip machine-specific sections and restore placeholders:
