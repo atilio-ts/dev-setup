@@ -1,11 +1,14 @@
 providers:
+  cacheRetention: long
   webSearchOrder:
     []
+lsp:
+  diagnosticsOnEdit: true
 modelRoles:
   default: anthropic/claude-sonnet-5-5
-  plan: anthropic/claude-opus-5-5
-  slow: anthropic/claude-opus-5-5
-  advisor: anthropic/claude-opus-5-5
+  plan: anthropic/claude-opus-5-5:high
+  slow: anthropic/claude-opus-5-5:high
+  advisor: anthropic/claude-opus-5-5:high
   task: deepseek/deepseek-v4-pro
   review: deepseek/deepseek-v4-pro
   smol: deepseek/deepseek-v4-flash
@@ -13,6 +16,7 @@ modelRoles:
   commit: deepseek/deepseek-v4-flash
   memory: deepseek/deepseek-v4-flash
 defaultThinkingLevel: medium
+personality: pragmatic
 memory:
   backend: local
 autolearn:
@@ -21,16 +25,25 @@ advisor:
   enabled: true
   reviewMode: agent-end
 retry:
+  usageAwareFallback: true
+  waitForUsageReset: true
   modelFallback: true
   fallbackChains:
     default:
       - opencode-go/kimi-k3
+      - deepseek/deepseek-v4-pro
     plan:
       - anthropic/claude-sonnet-5-5:high
+      - opencode-go/kimi-k3
+      - deepseek/deepseek-v4-pro:high
     slow:
       - anthropic/claude-sonnet-5-5:high
+      - opencode-go/kimi-k3
+      - deepseek/deepseek-v4-pro:high
     advisor:
       - anthropic/claude-sonnet-5-5:high
+      - opencode-go/kimi-k3
+      - deepseek/deepseek-v4-pro:high
     task:
       - opencode-go/kimi-k2.7-code
       - opencode-go/deepseek-v4-pro
@@ -69,7 +82,7 @@ statusLine:
   compactThinkingLevel: true
   showHookStatus: false
 tools:
-  approvalMode: always-ask
+  approvalMode: write
   approval:
     mcp__filestash_read_file: allow
     mcp__filestash_read_files: allow
@@ -80,6 +93,11 @@ tools:
     mcp__code_review_graph_get_architecture_overview_tool: allow
     mcp__code_review_graph_get_hub_nodes_tool: allow
     mcp__code_review_graph_list_communities_tool: allow
+    mcp__code_review_graph_query_graph_tool: allow
+    mcp__code_review_graph_semantic_search_nodes_tool: allow
+    mcp__code_review_graph_get_impact_radius_tool: allow
+    mcp__code_review_graph_traverse_graph_tool: allow
+    mcp__code_review_graph_get_minimal_context_tool: allow
     mcp__context_mode_ctx_batch_execute: allow
     mcp__context_mode_ctx_execute: allow
     mcp__context_mode_ctx_execute_file: allow
@@ -94,6 +112,8 @@ tools:
     web_search: prompt
     eval: prompt
 bash:
+  gitGuard: true
+  allowCompoundCommands: true
   patterns:
     - match: "git reset --hard*"
       approval: deny
@@ -201,6 +221,14 @@ bash:
       approval: deny
     - match: "truncate *"
       approval: deny
+    - match: "git commit*"
+      approval: prompt
+    - match: "git push*"
+      approval: prompt
+    - match: "rtk git commit*"
+      approval: prompt
+    - match: "rtk git push*"
+      approval: prompt
     - match: "cat *"
       approval: allow
     - match: "head *"
@@ -238,7 +266,10 @@ bash:
     - match: "rtk *"
       approval: allow
 compaction:
-  enabled: false
+  enabled: true
+  thresholdPercent: 60
+disabledProviders:
+  - google-antigravity
 skills:
   customDirectories:
     - ~/Projects/Personal/claude-skills
@@ -248,9 +279,55 @@ skills:
   ignoredSkills:
     - personal:reporte-proyecto
     - personal:review
-    - agents/caveman
-    - agents/caveman-compress
+    - caveman
+    - caveman-compress
+    - vercel-composition-patterns
+    - vercel-react-best-practices
+    - vercel-react-native-skills
+    - token-coach
+    - token-dashboard
+    - token-optimizer
+    - fleet-auditor
+    - resume-checkpoint
+    - ctx-doctor
+    - ctx-index
+    - ctx-insight
+    - ctx-purge
+    - ctx-search
+    - ctx-stats
+    - ctx-upgrade
+    - caveman-commit
+    - caveman-help
+    - caveman-review
+    - caveman-stats
+    - megacave
+    - ultracave
+    - cavecrew
+    - personal:readme-generator
+    - personal:scaffold-feature
+    - web-design-guidelines
+    - autofix
 task:
   agentModelOverrides:
     reviewer: "@review"
     security-reviewer: "@review"
+  isolation:
+    enabled: true
+prewalk:
+  enabled: false
+secrets:
+  enabled: true
+dev:
+  autoqa: false
+plan:
+  autosave: true
+  autosaveDir: .vscode/temporary/plans
+github:
+  enabled: true
+checkpoint:
+  enabled: true
+astGrep:
+  enabled: true
+edit:
+  autoRepair:
+    enabled: true

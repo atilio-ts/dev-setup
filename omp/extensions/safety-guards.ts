@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from "node:fs"
-import { join } from "node:path"
+import { dirname, join } from "node:path"
 
 const DESTRUCTIVE = [
   "git reset --hard",
@@ -84,7 +84,7 @@ const RAW_TRIGGER =
 
 const CMD_POS = "(^|[|;&(`]|\\$\\()\\s*(sudo\\s+|xargs\\s+)?(rtk\\s+(proxy\\s+)?)?"
 const GREP = new RegExp(`${CMD_POS}(e|f)?grep(\\s|$)`)
-const FIND_ROOT = new RegExp(`${CMD_POS}find\\s+/(\\s|$)`)
+const FIND = new RegExp(`${CMD_POS}find(\\s|$)`)
 
 function stripQuoted(raw: string) {
   if (RAW_TRIGGER.test(raw)) return raw
@@ -103,8 +103,8 @@ function checkBash(cmd: string) {
   if (GREP.test(stripped)) {
     throw new Error(`Bloqueado: usa rg (ripgrep) en vez de grep. Comando: ${cmd}`)
   }
-  if (FIND_ROOT.test(stripped) && !/-maxdepth\b/.test(stripped)) {
-    throw new Error(`Bloqueado: find / sin acotar. Usa fd o agrega -maxdepth. Comando: ${cmd}`)
+  if (FIND.test(stripped)) {
+    throw new Error(`Bloqueado: usa fd en vez de find. Comando: ${cmd}`)
   }
 }
 
@@ -138,16 +138,24 @@ function toolPaths(name: string, input: any): string[] {
   return out
 }
 
+const dropPatterns = (cmd: string) =>
+  cmd.replace(/(["'])((?:(?!\1).)*)\1/g, (m, _q, body) => (/[\\|()[\]{}^+?]/.test(body) ? '""' : m))
+
 function readsSensitive(cmd: string) {
-  return cmd.split(/&&|\|\||;|\||\n/).some((seg) => {
+  return dropPatterns(cmd).split(/&&|\|\||;|\||\n/).some((seg) => {
     const words = seg.trim().replace(/^(sudo|rtk)\s+(proxy\s+)?/, "").split(/\s+/)
     if (!BASH_READERS.test(words[0] ?? "")) return false
     return words.slice(1).some((w) => isSensitivePath(w.replace(/^['"]|['"]$/g, "")))
   })
 }
-const hasGraph = (root: string) =>
-  existsSync(join(root, ".git")) &&
-  (existsSync(join(root, ".code-review-graph")) || existsSync(join(root, ".vscode", "code-review-graph")))
+const hasGraph = (start: string) => {
+  for (let dir = start; dir !== dirname(dir); dir = dirname(dir)) {
+    if (existsSync(join(dir, ".git"))) {
+      return existsSync(join(dir, ".code-review-graph")) || existsSync(join(dir, ".vscode", "code-review-graph"))
+    }
+  }
+  return false
+}
 
 export default function safetyGuards(pi: any) {
   const seenReads = new Set<string>()
@@ -183,7 +191,7 @@ export default function safetyGuards(pi: any) {
       }
     }
     if (event.toolName === "read" && typeof input.path === "string") {
-      const abs = input.path.startsWith("~") ? input.path.replace("~", home) : input.path
+      const abs = (input.path.startsWith("~") ? input.path.replace("~", home) : input.path).replace(/(?::[^/:]*)+$/, "")
       if (!input.path.includes("://") && existsSync(join(home, ".file-stash"))) {
         if (!seenReads.has(abs)) {
           seenReads.add(abs)

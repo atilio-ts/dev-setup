@@ -6,6 +6,8 @@ const FILE = join(".vscode", "CLAUDE.md")
 const CLAUDE_PROJECTS = join(homedir(), ".claude", "projects")
 const MAX_INDEX_LINES = 200
 const MAX_INDEX_CHARS = 8000
+const CAVEMAN_ACTIVE = existsSync(join(homedir(), ".omp", "caveman-plugin", "index.cjs"))
+const CAVEMAN_REMINDER = "CAVEMAN MODE ACTIVE — session ruleset applies. Answer first, no tables or recap unless asked."
 const GRAPH_REMINDER =
   "REMINDER: This project has a code-review-graph database. Use the mcp__code_review_graph_* tools (query_graph_tool, semantic_search_nodes_tool, get_impact_radius_tool, etc.) as the primary navigation/impact tool BEFORE glob or grep."
 
@@ -61,15 +63,17 @@ export default function (pi: any) {
   })
 
   pi.on("before_agent_start", async (_event: any, ctx: any) => {
-    if (injected) return
     const parts: string[] = []
-    const file = ancestors(ctx.cwd).map((d) => join(d, FILE)).find(existsSync)
-    if (file) parts.push(`Project instructions from ${file}:\n\n${readFileSync(file, "utf-8")}`)
-    if (hasGraph(ctx.cwd)) parts.push(GRAPH_REMINDER)
-    const mem = ctx.agent?.kind === "sub" ? null : memoryDir(ctx.cwd)
-    if (mem) parts.push(memoryBlock(mem))
+    if (!injected) {
+      const file = ancestors(ctx.cwd).map((d) => join(d, FILE)).find(existsSync)
+      if (file) parts.push(`Project instructions from ${file}:\n\n${readFileSync(file, "utf-8")}`)
+      if (hasGraph(ctx.cwd)) parts.push(GRAPH_REMINDER)
+      const mem = ctx.agent?.kind === "sub" ? null : memoryDir(ctx.cwd)
+      if (mem) parts.push(memoryBlock(mem))
+      if (parts.length) injected = true
+    }
+    if (CAVEMAN_ACTIVE) parts.push(CAVEMAN_REMINDER)
     if (!parts.length) return
-    injected = true
     return { message: { customType: "project-context", content: parts.join("\n\n"), display: false } }
   })
 }
