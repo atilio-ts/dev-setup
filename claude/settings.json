@@ -44,13 +44,25 @@
       "Bash(git branch*)",
       "Bash(git fetch*)",
       "Bash(git remote*)",
-      "Bash(rtk *)"
+      "Bash(rtk *)",
+      "mcp__code-review-graph__query_graph_tool",
+      "mcp__code-review-graph__semantic_search_nodes_tool",
+      "mcp__code-review-graph__get_impact_radius_tool",
+      "mcp__code-review-graph__traverse_graph_tool",
+      "mcp__code-review-graph__get_minimal_context_tool"
     ],
     "deny": [
       "Read(/Users/atilio/.ssh/**)",
       "Read(/Users/atilio/.aws/**)",
       "Read(**/.env)",
-      "Read(**/*.env.*)",
+      "Read(**/.env.local)",
+      "Read(**/.env.development)",
+      "Read(**/.env.production)",
+      "Read(**/.env.staging)",
+      "Read(**/.env.test)",
+      "Read(**/.env.dev)",
+      "Read(**/.env.prod)",
+      "Read(**/.env.*.local)",
       "Read(**/*.pem)",
       "Read(**/*.key)",
       "Bash(git reset --hard*)",
@@ -113,7 +125,10 @@
   "skillOverrides": {
     "coderabbit:autofix": "off",
     "context-mode:ctx-insight": "off",
-    "token-optimizer:quick": "off"
+    "token-optimizer:quick": "off",
+    "readme-generator": "off",
+    "scaffold-feature": "off",
+    "web-design-guidelines": "off"
   },
   "hooks": {
     "Notification": [
@@ -583,7 +598,8 @@
     "coderabbit@claude-plugins-official": true,
     "ponytail@ponytail": true,
     "token-optimizer@alexgreensh-token-optimizer": true,
-    "context-mode@context-mode": true
+    "context-mode@context-mode": true,
+    "typescript-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "alexgreensh-token-optimizer": {
@@ -637,5 +653,6 @@
       "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources, and anything tagged `prod` or `production`",
       "**Commits and pushes**: never commit or push without the user's explicit authorization for that specific commit/push, in any repository"
     ]
-  }
+  },
+  "syncClaudeAiSkills": false
 }

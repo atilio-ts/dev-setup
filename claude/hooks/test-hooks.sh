@@ -31,6 +31,14 @@ run $p pass $'cat > notes.md <<\'EOF\'\nnever run git push --force or rm -rf /\n
 run $p pass 'echo "kill -9 is dangerous" > note.txt'
 run $p pass 'git remote -v | head -1; git log -3 --format=%cs'
 run $p pass 'git status && git commit -m ok && git log --amend-test 2>/dev/null'
+run $p block 'cat .env'
+run $p block 'cat ~/.ssh/id_rsa'
+run $p block 'head -5 "$HOME/.aws/credentials" && cat key.pem'
+run $p block 'cat "~/.aws/credentials"'
+run $p pass 'cat .env.example'
+run $p pass "rg -n '\\.env|\\.ssh' claude/hooks"
+run $p pass 'git commit -m "fix .env loading"'
+run $p pass $'cat > doc.md <<\'EOF\'\ncat .env\nEOF'
 
 g=prefer-search-tools-guard.sh
 run $g block 'grep -r foo src'

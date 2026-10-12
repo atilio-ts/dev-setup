@@ -128,4 +128,24 @@ for pattern in "${destructive_patterns[@]}"; do
   fi
 done
 
+sensitive=$(printf '%s' "$cmd" | perl -0777 -ne '
+  s/<<-?\s*(["\x27]?)(\w+)\1([^\n]*)\n.*?\n[ \t]*\2[ \t]*(?:\n|\z)/$3\n/gs;
+  s/(["\x27])((?:(?!\1).)*)\1/$2 =~ m{[\\|()\[\]{}^+?]} ? q("") : $&/ge;
+  for my $seg (split /&&|\|\||;|\||\n/) {
+    $seg =~ s/^\s+//;
+    my @w = split /\s+/, $seg;
+    shift @w while @w && $w[0] =~ /^(sudo|rtk|proxy)$/;
+    next unless @w && $w[0] =~ /^(cat|less|more|head|tail|bat|nl|tac|xxd|od|strings|base64|cp|mv|scp|rg|awk|sed|source|\.|read)$/;
+    for my $a (@w[1..$#w]) {
+      (my $p = $a) =~ s/^["\x27]|["\x27]$//g;
+      $p =~ s/^~/$ENV{HOME}/;
+      $p =~ s/:[^\/:]*$//;
+      if ($p =~ m{\.env(\.(?!example$)[^/]*)?$|\.pem$|\.key$|(^|/)\.ssh(/|$)|(^|/)\.aws(/|$)}) { print "1"; exit }
+    }
+  }')
+if [ -n "$sensitive" ]; then
+  echo "Blocked: reading a sensitive file via bash: $cmd" >&2
+  exit 2
+fi
+
 exit 0
