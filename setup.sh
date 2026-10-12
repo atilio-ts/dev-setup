@@ -315,13 +315,27 @@ for skill_dir in "$CLAUDE_SKILLS_DIR"/*/; do
   fi
 done
 
-# Link dev-setup local skills
-for skill_dir in "$REPO/skills/"/*/; do
+# Link dev-setup global skills (claude/skills)
+for skill_dir in "$REPO/claude/skills/"*/; do
   skill_name="$(basename "$skill_dir")"
   if [ -f "$skill_dir/SKILL.md" ]; then
-    ln -sfn "$skill_dir" "$HOME/.claude/skills/${skill_name}"
-    ok "local skill '${skill_name}' linked"
+    ln -sfn "${skill_dir%/}" "$HOME/.claude/skills/${skill_name}"
+    ok "global skill '${skill_name}' linked"
   fi
+done
+
+# Link dev-setup project skills (repo-local only, never global)
+mkdir -p "$REPO/.claude/skills" "$REPO/.omp/skills"
+for skill_dir in "$REPO/skills/"*/; do
+  skill_name="$(basename "$skill_dir")"
+  if [ -f "$skill_dir/SKILL.md" ]; then
+    ln -sfn "../../skills/${skill_name}" "$REPO/.claude/skills/${skill_name}"
+    ln -sfn "../../skills/${skill_name}" "$REPO/.omp/skills/${skill_name}"
+    ok "project skill '${skill_name}' linked into .claude/skills and .omp/skills"
+  fi
+done
+for entry in .claude/ .omp/; do
+  grep -qxF "$entry" "$REPO/.git/info/exclude" 2>/dev/null || echo "$entry" >> "$REPO/.git/info/exclude"
 done
 
 # ─── Third-party Claude skills ────────────────────────────────────────────────

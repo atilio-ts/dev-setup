@@ -1419,6 +1419,7 @@ If a tool is not installed, its hook is a no-op.
 **dev-setup global skills** — stored in this repo under `claude/skills/`, symlinked into `~/.claude/skills/` (personal skills that don't have a home in the separate `claude-skills` repo):
 
 - `context7-mcp` — Context7 MCP usage notes
+- `llm-council` — 5-advisor council with peer review and chairman verdict (from tenfoldmarc/llm-council-skill; also loaded by omp via `skills.customDirectories`)
 - `learned` — currently empty placeholder (tracked with `.gitkeep`)
 
 #### Reinstall skills on new machine
@@ -1438,12 +1439,12 @@ for skill in commit-message custom-init estimate readme-generator timesheet user
 done
 
 # 3. dev-setup global skills (symlink from this repo — content lives only here)
-for skill in context7-mcp learned; do
+for skill in context7-mcp learned llm-council; do
   ln -sf ~/Projects/Personal/dev-setup/claude/skills/$skill ~/.claude/skills/$skill
 done
 ```
 
-> `sync-configuration` and `install-dev-setup` need no symlink step — Claude Code discovers them automatically from `skills/` when working inside this repo.
+> `sync-configuration` and `install-dev-setup` are not linked into `~/.claude/skills`: `setup.sh` links them into the repo's own `.claude/skills/` and `.omp/skills/` (both excluded locally), so Claude Code and omp only see them while working inside this repo.
 
 > The marketplace and enabledPlugins entries are already in `settings.json` — they will be applied when the file is copied.
 
