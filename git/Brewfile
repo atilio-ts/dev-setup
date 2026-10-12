@@ -66,10 +66,12 @@ brew "groovy"
 brew "gum"
 # Command-line benchmarking tool
 brew "hyperfine"
-# Lightweight and flexible command-line JSON processor
-brew "jq"
 # Java environment manager
 brew "jenv"
+# Java language server (Eclipse JDT)
+brew "jdtls"
+# Lightweight and flexible command-line JSON processor
+brew "jq"
 # Network authentication protocol
 brew "krb5"
 # Kubernetes command-line interface
@@ -138,6 +140,8 @@ brew "telnet"
 brew "tokei"
 # CLI tool that moves files or folder to the trash
 brew "trash"
+# TypeScript language server
+brew "typescript-language-server"
 # Provide version control info in shell prompts
 brew "vcprompt"
 # Modern watch command
