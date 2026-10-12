@@ -181,7 +181,7 @@ if command -v omp &>/dev/null; then
     fi
     ln -sfn "$1" "$2"
   }
-  for item in AGENTS.md instructions commands; do link_omp "$REPO/omp/$item" "$OMP/$item"; done
+  for item in AGENTS.md WATCHDOG.md instructions commands rules; do link_omp "$REPO/omp/$item" "$OMP/$item"; done
   for ext in rtk safety-guards project-context; do link_omp "$REPO/omp/extensions/$ext.ts" "$OMP/extensions/$ext.ts"; done
   while read -r kind spec name; do
     case "$kind" in
