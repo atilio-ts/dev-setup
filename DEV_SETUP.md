@@ -1409,6 +1409,7 @@ If a tool is not installed, its hook is a no-op.
 - `estimate` — technical analysis and effort estimation (Spanish/English)
 - `readme-generator` — generates README files from project context
 - `timesheet` — generates Clockify-format timesheet entries from git branch changes (English/Spanish, max 3h per task)
+- `story-comment` — writes follow-up comments for Jira tasks as short plain-language paragraphs
 - `user-story` — writes user stories and Jira tasks
 
 **dev-setup project skills** — stored in this repo under `skills/`, discovered from the repo's working directory (NOT symlinked into `~/.claude/skills` — they're project-scoped, only active while working inside this repo):
@@ -1434,7 +1435,7 @@ claude plugin install ponytail@ponytail
 
 # 2. Personal skills (clone repo and create symlinks)
 git clone https://github.com/atilio-ts/claude-skills ~/Projects/Personal/claude-skills
-for skill in commit-message custom-init estimate readme-generator timesheet user-story; do
+for skill in commit-message custom-init estimate readme-generator story-comment timesheet user-story; do
   ln -sf ~/Projects/Personal/claude-skills/$skill ~/.claude/skills/$skill
 done
 
