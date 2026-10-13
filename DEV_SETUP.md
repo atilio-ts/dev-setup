@@ -1408,7 +1408,7 @@ If a tool is not installed, its hook is a no-op.
 - `custom-init` — bootstraps a new project with file-stash + code-review-graph
 - `estimate` — technical analysis and effort estimation (Spanish/English)
 - `readme-generator` — generates README files from project context
-- `timesheet` — generates Clockify-format timesheet entries for a day/week/range from Claude Code conversations, git changes or queries (English/Spanish, max 3h per task); ships `scripts/sessions.py`, installed with the skill folder symlink
+- `timesheet` — generates Clockify-format timesheet entries for a day/week/range from Claude Code and omp conversations, git changes or queries (English/Spanish, max 3h per task); ships `scripts/sessions.py`, installed with the skill folder symlink
 - `story-comment` — writes follow-up comments for Jira tasks as short plain-language paragraphs
 - `user-story` — writes user stories and Jira tasks
 
