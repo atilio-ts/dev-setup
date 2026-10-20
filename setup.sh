@@ -324,6 +324,8 @@ for skill_dir in "$REPO/claude/skills/"*/; do
   fi
 done
 
+bash "$REPO/claude/skill-patches/apply.sh"
+
 # Link dev-setup project skills (repo-local only, never global)
 mkdir -p "$REPO/.claude/skills" "$REPO/.omp/skills"
 for skill_dir in "$REPO/skills/"*/; do

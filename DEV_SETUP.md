@@ -1445,6 +1445,14 @@ for skill in context7-mcp learned llm-council; do
 done
 ```
 
+**Skill description patches** — `claude/skill-patches/<skill>.description` holds a shortened single-line `description:` for skills whose original is long (it loads into every session): `llm-council`, `context7-mcp`, `vercel-react-best-practices`, `find-skills`. `claude/skill-patches/apply.sh` rewrites the frontmatter of the installed copy (looks in `~/.claude/skills`, then `~/.agents/skills`; skips skills not installed; idempotent). `setup.sh` runs it after linking skills. **Rerun it after every `npx skills add`/update of those skills**, since an update restores the original description:
+
+```bash
+~/Projects/Personal/dev-setup/claude/skill-patches/apply.sh
+```
+
+To patch another skill, add `<skill>.description` with the new text on one line. Skills with a multi-line (`>`/`|`) description are rejected.
+
 > `sync-configuration` and `install-dev-setup` are not linked into `~/.claude/skills`: `setup.sh` links them into the repo's own `.claude/skills/` and `.omp/skills/` (both excluded locally), so Claude Code and omp only see them while working inside this repo.
 
 > The marketplace and enabledPlugins entries are already in `settings.json` — they will be applied when the file is copied.
