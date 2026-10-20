@@ -572,6 +572,15 @@ mise install java@corretto-24
 mise use --global java@corretto-24
 ```
 
+### Gradle user properties
+
+Config lives at `~/.gradle/gradle.properties` and applies to every project, whichever JDK manager (mise or jenv) provides Java. `org.gradle.configuration-cache=true` reuses the configuration phase between builds; a project with an incompatible plugin can opt out with `org.gradle.configuration-cache=false` in its own `gradle.properties`.
+
+```bash
+mkdir -p ~/.gradle
+cp gradle/gradle.properties ~/.gradle/gradle.properties
+```
+
 ---
 
 ## 8. Neovim (LazyVim)

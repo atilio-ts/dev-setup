@@ -117,6 +117,12 @@ step "tmux"
 cp "$REPO/tmux/tmux.conf" "$HOME/.tmux.conf"
 ok "tmux config copied"
 
+# ─── Gradle ──────────────────────────────────────────────────────────────────
+step "Gradle"
+mkdir -p "$HOME/.gradle"
+cp "$REPO/gradle/gradle.properties" "$HOME/.gradle/gradle.properties"
+ok "Gradle user properties copied"
+
 # ─── Atuin ───────────────────────────────────────────────────────────────────
 step "Atuin"
 mkdir -p "$HOME/.config/atuin"
