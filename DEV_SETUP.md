@@ -1443,19 +1443,28 @@ for skill in context7-mcp learned llm-council; do
   ln -sf ~/Projects/Personal/dev-setup/claude/skills/$skill ~/.claude/skills/$skill
 done
 
-# 4. Optional, install only when needed (each linked skill adds its description to every session)
-#    Team skills: setup.sh already clones fintechworks/claude-skills (needs repo access)
+# 4. Shorten long descriptions
+~/Projects/Personal/dev-setup/claude/skill-patches/apply.sh
+```
+
+#### Optional skills (install on demand)
+
+Not installed by `setup.sh` or the block above: each linked skill adds its description to every session. `setup.sh` only clones `fintechworks/claude-skills` (needs repo access). Run only the lines you need, then rerun `apply.sh`:
+
+```bash
+# Team skills
 ln -sfn ~/Projects/Institucional/claude-skills/dev-workflow/tdd ~/.claude/skills/tdd
 ln -sfn ~/Projects/Institucional/claude-skills/dev-workflow/sec-audit ~/.claude/skills/sec-audit
 ln -sfn ~/Projects/Institucional/claude-skills/oca/contract-repo-sync ~/.claude/skills/contract-repo-sync
-#    Skills CLI skills (installed to ~/.agents/skills, recorded in ~/.agents/.skill-lock.json)
+
+# Skills CLI skills (installed to ~/.agents/skills, recorded in ~/.agents/.skill-lock.json)
 npx -y skills add vercel-labs/agent-skills -g -y -s vercel-react-best-practices
 npx -y skills add vercel-labs/skills -g -y -s find-skills
 npx -y skills add 0xbigboss/claude-code -g -y -s typescript-best-practices
-#    Remove again with: rm ~/.claude/skills/<name>   |   npx -y skills remove -g -y -s <name>
 
-# 5. Shorten long descriptions again (after any install above)
-~/Projects/Personal/dev-setup/claude/skill-patches/apply.sh
+# Remove again
+rm ~/.claude/skills/<name>
+npx -y skills remove -g -y -s <name>
 ```
 
 **Skill description patches** — `claude/skill-patches/<skill>.description` holds a shortened single-line `description:` for skills whose original is long (it loads into every session): `llm-council`, `context7-mcp`, `vercel-react-best-practices`, `find-skills`. `claude/skill-patches/apply.sh` rewrites the frontmatter of the installed copy (looks in `~/.claude/skills`, then `~/.agents/skills`; skips skills not installed; idempotent). `setup.sh` runs it after linking skills. **Rerun it after every `npx skills add`/update of those skills**, since an update restores the original description:
