@@ -1368,7 +1368,6 @@ Shows model, context usage, session cost, total tokens, session duration and lin
 
 `settings.json` also wires most hook events to tools installed independently of `setup.sh`:
 
-- `~/.orca/agent-hooks/claude-hook.sh` — Orca agent orchestration (one short line per event that calls Orca's own script)
 - `~/.pixel-agents/hooks/claude-hook.js` — Pixel Agents visualizer
 - `~/.config/iterm2/cc-status` — iTerm2 session status
 
@@ -1443,6 +1442,20 @@ done
 for skill in context7-mcp learned llm-council; do
   ln -sf ~/Projects/Personal/dev-setup/claude/skills/$skill ~/.claude/skills/$skill
 done
+
+# 4. Optional, install only when needed (each linked skill adds its description to every session)
+#    Team skills: setup.sh already clones fintechworks/claude-skills (needs repo access)
+ln -sfn ~/Projects/Institucional/claude-skills/dev-workflow/tdd ~/.claude/skills/tdd
+ln -sfn ~/Projects/Institucional/claude-skills/dev-workflow/sec-audit ~/.claude/skills/sec-audit
+ln -sfn ~/Projects/Institucional/claude-skills/oca/contract-repo-sync ~/.claude/skills/contract-repo-sync
+#    Skills CLI skills (installed to ~/.agents/skills, recorded in ~/.agents/.skill-lock.json)
+npx -y skills add vercel-labs/agent-skills -g -y -s vercel-react-best-practices
+npx -y skills add vercel-labs/skills -g -y -s find-skills
+npx -y skills add 0xbigboss/claude-code -g -y -s typescript-best-practices
+#    Remove again with: rm ~/.claude/skills/<name>   |   npx -y skills remove -g -y -s <name>
+
+# 5. Shorten long descriptions again (after any install above)
+~/Projects/Personal/dev-setup/claude/skill-patches/apply.sh
 ```
 
 **Skill description patches** — `claude/skill-patches/<skill>.description` holds a shortened single-line `description:` for skills whose original is long (it loads into every session): `llm-council`, `context7-mcp`, `vercel-react-best-practices`, `find-skills`. `claude/skill-patches/apply.sh` rewrites the frontmatter of the installed copy (looks in `~/.claude/skills`, then `~/.agents/skills`; skips skills not installed; idempotent). `setup.sh` runs it after linking skills. **Rerun it after every `npx skills add`/update of those skills**, since an update restores the original description:
@@ -1759,7 +1772,7 @@ Tracked in this repo at `opencode/`, mirroring the Claude Code setup (section 15
 - `opencode.json` — MCP servers `filestash` (`agent-file-stash serve`, `FILESTASH_DIR=.vscode/file-stash`), `code-review-graph` and `context7` (remote, key via `{env:CONTEXT7_API_KEY}` — export it in the shell); `permission` block with the same bash allow/deny lists and sensitive-file read denies as Claude Code; `instructions` loading `rules/*.md`; plugins `caveman`, `safety-guards`, `@dietrichgebert/ponytail` and `context-mode` (npm, installed by opencode on start); `permission.edit`/`write` and `websearch` set to `ask`; `compaction.auto` off (manual `/compact`).
 - `AGENTS.md` — user rules (caveman block + the global rules from `claude/CLAUDE.md`); `rules/` — `tools.md` (adapted to opencode MCP tool names), `coding-style.md`, `context7.md`.
 - `commands/` — `/plan`, `/skill-create`, `/coderabbit-review` plus the caveman commands; `agents/` — cavecrew agents.
-- `plugins/safety-guards.js` — port of the `pre-bash` (destructive-command guard, rg/fd preference), `post-edit-encoding`, `code-review-graph-guard` (blocks glob/grep when a graph exists) and `file-stash-guard` (deny-once on `read`) hooks via `tool.execute.before/after`; `plugins/orca-opencode-status.js` — Orca status plugin (backup copy, Orca manages it).
+- `plugins/safety-guards.js` — port of the `pre-bash` (destructive-command guard, rg/fd preference), `post-edit-encoding`, `code-review-graph-guard` (blocks glob/grep when a graph exists) and `file-stash-guard` (deny-once on `read`) hooks via `tool.execute.before/after`.
 - `skills/` — caveman skills and the CodeRabbit `code-review` skill tracked; personal skills are not copied or linked: opencode already reads `~/.claude/skills`, which `setup.sh` populates.
 
 Not tracked: `node_modules/`, lockfiles (`bun.lock`, `package-lock.json` — regenerate with `bun install`), and `.caveman-opencode-ownership.json` (regenerates itself on first run).
@@ -1790,7 +1803,7 @@ Tracked at `omp/`:
 - `mcp.json` — copied. `filestash`, `code-review-graph`, `context7` (key from `${CONTEXT7_API_KEY}`) and `context-mode` (runs the bundle from the installed plugin, `node ${HOME}/.omp/plugins/node_modules/context-mode/server.bundle.mjs`).
 - `plugins.txt` — marketplaces and plugins `setup.sh` installs: `ponytail`, `coderabbit`, `context-mode`, `token-optimizer` and, through its own installer, `caveman` (single source of the caveman rules, so `AGENTS.md` has no inline block).
 - `AGENTS.md`, `WATCHDOG.md`, `instructions/`, `commands/`, `rules/` — symlinked into `~/.omp/agent/`. `AGENTS.md` is a manual port of `claude/CLAUDE.md` plus the safety boundaries and working preferences taken from the Claude memories; when the global rules change in one, diff both. In project docs `mcp__x__y` means the omp tool `mcp__x_y`. `rules/` holds omp rules that fire on the model's output (`no-ai-mentions`, `no-broken-accents`, `no-step-comments`); `WATCHDOG.md` lists what the watchdog should flag.
-- `extensions/` — `rtk.ts` (rewrites shell commands through `rtk`, generated with `rtk init -g --agent omp`), `safety-guards.ts` (port of the Claude guards: destructive commands, `grep`/`find /`, sensitive paths in every tool and in `bash` readers and `eval`, code-review-graph and file-stash guards, UTF-8 warning; it also sees the `rtk`-rewritten command) and `project-context.ts` (injects `.vscode/CLAUDE.md`, the code-review-graph reminder and the Claude memory index of the project). The three are symlinked file by file. `agent-file-stash.ts` and the `orca-*` extensions are written by their own tools (`agent-file-stash init --hooks`, Orca) and are not tracked.
+- `extensions/` — `rtk.ts` (rewrites shell commands through `rtk`, generated with `rtk init -g --agent omp`), `safety-guards.ts` (port of the Claude guards: destructive commands, `grep`/`find /`, sensitive paths in every tool and in `bash` readers and `eval`, code-review-graph and file-stash guards, UTF-8 warning; it also sees the `rtk`-rewritten command) and `project-context.ts` (injects `.vscode/CLAUDE.md`, the code-review-graph reminder and the Claude memory index of the project). The three are symlinked file by file. `agent-file-stash.ts` is written by its own tool (`agent-file-stash init --hooks`) and is not tracked.
 - Skills come from `skills.customDirectories` (the skill repos), `~/.agents/skills` and the plugins; the `opencode/skills/*` copy is gone. Project agents need `.omp/agents -> ../.vscode/.claude/agents` (created by the `custom-init` skill, `.omp/` excluded locally). omp does not read `~/.claude` (`enabledProviders` stays empty on purpose: enabling `claude` would duplicate MCP servers and skills).
 
 Memory: Claude Code remains the source of truth for notes (`~/.claude/projects/<project>/memory/`). `project-context.ts` injects only the index of the nearest project (no subagents) and tells omp to write new notes in the same Claude format, so both tools share them. `~/Projects/claude-memories` (private, local only) backs up both: `sync.sh` copies the Claude notes to `projects/` and `~/.omp/agent/memories/` to `omp/`.

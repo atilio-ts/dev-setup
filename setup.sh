@@ -73,7 +73,7 @@ clone_repo() {
   fi
 }
 
-mkdir -p "$HOME/Projects/Github" "$HOME/Projects/Personal"
+mkdir -p "$HOME/Projects/Github" "$HOME/Projects/Personal" "$HOME/Projects/Institucional"
 
 clone_repo Github/agent-skills       https://github.com/vercel-labs/agent-skills
 clone_repo Github/claude-code-stats  https://github.com/AeternaLabsHQ/claude-code-stats
@@ -82,6 +82,7 @@ clone_repo Github/gstack             https://github.com/garrytan/gstack
 clone_repo Github/humanlayer-skills  https://github.com/humanlayer/skills
 clone_repo Github/pixijs-skills      https://github.com/pixijs/pixijs-skills
 
+clone_repo Institucional/claude-skills    git@github.com:fintechworks/claude-skills.git
 clone_repo Personal/agent-file-stash          https://github.com/atilio-ts/agent-file-stash
 clone_repo Personal/claude-skills             https://github.com/atilio-ts/claude-skills
 clone_repo Personal/dev-setup                 https://github.com/atilio-ts/dev-setup
@@ -191,7 +192,7 @@ if command -v omp &>/dev/null; then
   done < <(grep -Ev '^(#|$)' "$REPO/omp/plugins.txt")
   omp plugin list 2>/dev/null | grep -q caveman || npx -y github:JuliusBrussee/caveman -- --only omp || warn "caveman plugin install failed"
   ok "omp config linked from $REPO/omp (AGENTS.md, instructions, commands, own extensions); config.yml and mcp.json copied; plugins installed"
-  warn "Run 'omp login' (anthropic, opencode-go, deepseek), 'omp' then '/token-optimizer enable', and export CONTEXT7_API_KEY. agent-file-stash.ts and the orca-* extensions are written by their own tools ('agent-file-stash init --hooks', Orca)"
+  warn "Run 'omp login' (anthropic, opencode-go, deepseek), 'omp' then '/token-optimizer enable', and export CONTEXT7_API_KEY. agent-file-stash.ts is written by its own tool ('agent-file-stash init --hooks')"
 else
   warn "omp not installed (brew install can1357/tap/omp) — skipping omp setup"
 fi
@@ -323,6 +324,7 @@ for skill_dir in "$REPO/claude/skills/"*/; do
     ok "global skill '${skill_name}' linked"
   fi
 done
+
 
 bash "$REPO/claude/skill-patches/apply.sh"
 

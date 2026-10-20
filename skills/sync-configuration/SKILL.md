@@ -164,7 +164,7 @@ omp plugin list 2>&1 | head -20   # compare with omp/plugins.txt
 
 > `omp/AGENTS.md` is a manual port of `claude/CLAUDE.md`. When either changes, run `diff "$REPO/claude/CLAUDE.md" "$REPO/omp/AGENTS.md"` and port the global rules by hand — never copy one over the other (tool names differ: `mcp__x__y` vs `mcp__x_y`, and omp has no `.claude` paths).
 >
-> Never copy `agent.db*`, `history.db*`, `models.db*`, `skill-descriptions.db*`, `config.yml.bak*`, `config.yml.lock`, `.env`, `sessions/`, `cache/`, `memories/` or the `*.pre-dev-setup` backups. `agent-file-stash.ts` and `orca-*` extensions belong to their own tools. A plugin that self-registers in `mcp.json` shows up as a `[DIFF]`: review it, then copy.
+> Never copy `agent.db*`, `history.db*`, `models.db*`, `skill-descriptions.db*`, `config.yml.bak*`, `config.yml.lock`, `.env`, `sessions/`, `cache/`, `memories/` or the `*.pre-dev-setup` backups. `agent-file-stash.ts` belongs to its own tool. A plugin that self-registers in `mcp.json` shows up as a `[DIFF]`: review it, then copy.
 
 Memories (`~/Projects/claude-memories`, private, local only — never copy it into this repo): run `./sync.sh` there to mirror `~/.claude/projects/*/memory` and `~/.omp/agent/memories`, and commit it separately only when the user authorizes it.
 
@@ -339,4 +339,4 @@ Ask the user if they want to push to the remote before running `git push`.
 - **REPO-ONLY files** — always check Step 2 before copying. Files in the repo that no longer exist locally usually mean the user intentionally removed them. Confirm before deleting.
 - **Spicetify diffs** are usually just version bumps from auto-updates — include them anyway to keep the snapshot current.
 - **settings.json unicode escapes** — if the Edit tool fails to match text in settings.json, the file may contain JSON unicode escapes (`&` for `&`, `>` for `>`). Use the Write tool to rewrite the whole file in that case.
-- **Third-party tool hooks in settings.json** (e.g. `~/.pixel-agents/...`, `~/.orca/...`) — copy as-is, they're a faithful machine snapshot and both are written to no-op safely when their server/registry is absent. Note in DEV_SETUP.md that these are optional integrations tied to tools this repo's `setup.sh` doesn't install — a new machine's owner decides independently whether to set them up.
+- **Third-party tool hooks in settings.json** (e.g. `~/.pixel-agents/...`) — copy as-is, it's a faithful machine snapshot and is written to no-op safely when its server/registry is absent. Note in DEV_SETUP.md that these are optional integrations tied to tools this repo's `setup.sh` doesn't install — a new machine's owner decides independently whether to set them up.

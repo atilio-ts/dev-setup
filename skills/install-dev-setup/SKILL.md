@@ -196,7 +196,7 @@ ls -la ~/.claude/hooks/
 
 There should be 8 hooks: `pre-bash.sh`, `pre-websearch.sh`, `post-edit-encoding.sh`, `context-mode-cache-heal.mjs`, `code-review-graph-guard.sh`, `file-stash-guard.sh`, `prefer-search-tools-guard.sh`, `session-start-tool-reminders.sh`.
 
-`settings.json` also wires most events (Notification, PermissionRequest, PostToolUse, Stop, etc.) to two third-party local tools — `~/.pixel-agents/hooks/claude-hook.js` and `~/.orca/agent-hooks/claude-hook.sh` — plus an iTerm2 status script. These aren't installed by this repo's `setup.sh`; both hook scripts no-op safely (`exit 0`) if the tool isn't present, so leaving them in `settings.json` is harmless on a machine that doesn't have `pixel-agents`/`orca`/iTerm2 installed. Install those tools separately only if you want the integration.
+`settings.json` also wires most events (Notification, PermissionRequest, PostToolUse, Stop, etc.) to a third-party local tool — `~/.pixel-agents/hooks/claude-hook.js` — plus an iTerm2 status script. These aren't installed by this repo's `setup.sh`; the hook script no-ops safely (`exit 0`) if the tool isn't present, so leaving it in `settings.json` is harmless on a machine that doesn't have `pixel-agents`/iTerm2 installed. Install those tools separately only if you want the integration.
 
 ### Verify skills are linked
 
@@ -283,7 +283,7 @@ Present a final summary: what's configured, what still needs manual attention.
 - **mise**: Used for all runtime version management — Node, Java, and Python. No jenv or fnm on this machine.
 - **Agents**: No custom agents are installed. The `~/.claude/agents/` directory should be empty.
 - **Plugins**: 5 active plugins: `coderabbit`, `context-mode`, `token-optimizer`, `caveman`, `ponytail`. No ECC or fullstack-dev-skills.
-- **Hooks**: 8 hooks total — `pre-bash.sh` (safety guards), `pre-websearch.sh` (search guard), `post-edit-encoding.sh` (encoding check), `context-mode-cache-heal.mjs` (SessionStart, fixes plugin cache path bug), `code-review-graph-guard.sh` (nudges toward code-review-graph over Glob/Grep), `file-stash-guard.sh` (nudges toward file-stash reads), `prefer-search-tools-guard.sh` (nudges toward rg/fd over grep/find), `session-start-tool-reminders.sh` (SessionStart, prints tool-priority reminders). `settings.json` additionally wires `pixel-agents`/`orca`/iTerm2 integrations — see "Verify hooks are executable" above.
+- **Hooks**: 8 hooks total — `pre-bash.sh` (safety guards), `pre-websearch.sh` (search guard), `post-edit-encoding.sh` (encoding check), `context-mode-cache-heal.mjs` (SessionStart, fixes plugin cache path bug), `code-review-graph-guard.sh` (nudges toward code-review-graph over Glob/Grep), `file-stash-guard.sh` (nudges toward file-stash reads), `prefer-search-tools-guard.sh` (nudges toward rg/fd over grep/find), `session-start-tool-reminders.sh` (SessionStart, prints tool-priority reminders). `settings.json` additionally wires `pixel-agents`/iTerm2 integrations — see "Verify hooks are executable" above.
 - **Spicetify**: Requires Spotify to be installed first. Theme (Comfy) needs to be installed via Spicetify Marketplace after first launch.
 - **claude-code-stats**: Config file at `~/Projects/Github/claude-code-stats/config.json` — update `display_name` and `plan_history` after install.
 - **CONTEXT7_API_KEY**: Needed only to register the context7 MCP. Without it, `setup.sh` skips context7 and prints a warning.
