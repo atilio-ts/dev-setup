@@ -1,6 +1,6 @@
 # Global Claude Code Rules
 
-At the start of every conversation, check if `.vscode/CLAUDE.md` exists in the current project and read it for project-specific instructions.
+At the start of every conversation, if the project has no `.claude/CLAUDE.md` (that symlink loads automatically), check if `.vscode/CLAUDE.md` exists and read it for project-specific instructions.
 
 ## General Rules
 
@@ -11,9 +11,12 @@ At the start of every conversation, check if `.vscode/CLAUDE.md` exists in the c
 
 ## Project Structure
 
-- The `CLAUDE.md` for a project always lives at `.vscode/CLAUDE.md`
+- The `CLAUDE.md` for a project always lives at `.vscode/CLAUDE.md`; `.claude/CLAUDE.md` is a symlink to it so it loads automatically
+- Deep-dive docs live in `.vscode/docs/`; read them on demand from the docs index in `CLAUDE.md`, not at session start
 - The `.claude/` folder with settings also lives inside `.vscode/`
 - Project agents and skills live in `.vscode/.claude/{agents,skills}`; the repo-root `.claude/agents` and `.claude/skills` are symlinks to them so they can be invoked by name, and `.claude/` is listed in `.git/info/exclude` so nothing shows up in git
+- omp reads skills, commands and `CLAUDE.md` from `.claude/`; only agents need their own `.omp/agents` symlink
+- Nothing AI- or agent-related may be visible in a committed repo: `.vscode/`, `.claude/`, `.omp/`, `.mcp.json` and tool output go in `.git/info/exclude`, never in `.gitignore`. Never create a root `CLAUDE.md` or `AGENTS.md`
 
 ## Memory
 

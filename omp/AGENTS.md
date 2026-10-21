@@ -1,6 +1,6 @@
 # Global Rules
 
-Project instructions from `.vscode/CLAUDE.md` are injected automatically at session start (no need to read the file again), together with the Claude memory index of the project when one exists.
+Project instructions from `.vscode/CLAUDE.md` load automatically at session start, through the `.claude/CLAUDE.md` symlink or the `project-context` extension (no need to read the file again), together with the Claude memory index of the project when one exists.
 
 Shared rules imported below from `instructions/`: `tools.md`, `coding-style.md`, `context7.md`.
 
@@ -13,9 +13,12 @@ Shared rules imported below from `instructions/`: `tools.md`, `coding-style.md`,
 
 ## Project Structure
 
-- The project instruction file always lives at `.vscode/CLAUDE.md`
+- The project instruction file always lives at `.vscode/CLAUDE.md`; `.claude/CLAUDE.md` is a symlink to it
+- Deep-dive docs live in `.vscode/docs/`; read them on demand from the docs index in `CLAUDE.md`, not at session start
 - Per-task notes, plans and logs go in `.vscode/temporary/<task>/`, outside git
 - Project agents and skills live in `.vscode/.claude/{agents,skills}`; the repo-root `.claude/agents` and `.claude/skills` are symlinks to them, and `.claude/` is listed in `.git/info/exclude` so nothing shows up in git
+- omp reads skills, commands and `CLAUDE.md` from `.claude/`; only agents need their own `.omp/agents` symlink
+- Nothing AI- or agent-related may be visible in a committed repo: `.vscode/`, `.claude/`, `.omp/`, `.mcp.json` and tool output go in `.git/info/exclude`, never in `.gitignore`. Never create a root `CLAUDE.md` or `AGENTS.md`
 
 ## Scope Discipline
 

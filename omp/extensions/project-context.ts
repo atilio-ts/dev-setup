@@ -66,7 +66,9 @@ export default function (pi: any) {
     const parts: string[] = []
     if (!injected) {
       const file = ancestors(ctx.cwd).map((d) => join(d, FILE)).find(existsSync)
-      if (file) parts.push(`Project instructions from ${file}:\n\n${readFileSync(file, "utf-8")}`)
+      // omp already loads it natively through the .claude/CLAUDE.md symlink
+      if (file && !existsSync(join(dirname(dirname(file)), ".claude", "CLAUDE.md")))
+        parts.push(`Project instructions from ${file}:\n\n${readFileSync(file, "utf-8")}`)
       if (hasGraph(ctx.cwd)) parts.push(GRAPH_REMINDER)
       const mem = ctx.agent?.kind === "sub" ? null : memoryDir(ctx.cwd)
       if (mem) parts.push(memoryBlock(mem))
