@@ -1365,13 +1365,15 @@ Shows model, context usage, session cost, total tokens, session duration and lin
 | `pre-bash.sh` | PreToolUse — Bash | Blocks destructive commands (history rewrites, `rm -rf`, `sudo`, destructive SQL, `curl \| sh`) and shell readers (`cat`, `rg`, `cp`, ...) on `.env`, keys, `~/.ssh` and `~/.aws` |
 | `prefer-search-tools-guard.sh` | PreToolUse — Bash | Blocks `grep` and unbounded `find /`, pushing toward `rg` / `fd` |
 | `strip-quoted.sh` | helper | Removes quoted text and heredoc bodies, and splits chained commands, so the two guards above only check what actually runs |
-| `code-review-graph-guard.sh` | PreToolUse — Glob/Grep | Blocks text search when the repo has a code-review-graph database |
+| `code-review-graph-guard.sh` | PreToolUse — Glob/Grep/Bash | Blocks Glob/Grep when the repo has a code-review-graph database; blocks Bash `rg`/`fd`/`find` until a graph tool has been used in the session, except when every absolute/`~` path in the command points outside the repo |
+| `code-review-graph-mark.sh` | PostToolUse — `mcp__code-review-graph__*` | Records that the graph was consulted, which unlocks Bash `rg`/`fd`/`find` for the session |
+| `context7-reminder.sh` | UserPromptSubmit | Injects a Context7 reminder when the prompt names a library/framework/SDK and asks a how-to/config/migration/version/API question |
 | `file-stash-guard.sh` | PreToolUse — Read | Denies the first Read of each file to force file-stash; the retry passes (needed before Edit) |
 | `pre-websearch.sh` | PreToolUse — WebSearch | Asks for approval showing the query |
 | `post-edit-encoding.sh` | PostToolUse — Edit/Write | Warns if a file stops being UTF-8 (protects accents) |
 | `context-mode-cache-heal.mjs` | SessionStart | Re-links a broken context-mode plugin cache path |
 | `session-start-tool-reminders.sh` | SessionStart | code-review-graph reminder when the repo has a graph |
-| `test-hooks.sh` | manual | Self-check for the two Bash guards: `bash ~/.claude/hooks/test-hooks.sh` |
+| `test-hooks.sh` | manual | Self-check for the Bash guards, the graph guard and the Context7 reminder: `bash ~/.claude/hooks/test-hooks.sh` |
 
 #### Third-party tool hooks (not provisioned by this repo)
 
@@ -1428,7 +1430,7 @@ If a tool is not installed, its hook is a no-op.
 **dev-setup global skills** — stored in this repo under `claude/skills/`, symlinked into `~/.claude/skills/` (personal skills that don't have a home in the separate `claude-skills` repo):
 
 - `context7-mcp` — Context7 MCP usage notes
-- `llm-council` — 5-advisor council with peer review and chairman verdict (from tenfoldmarc/llm-council-skill; also loaded by omp via `skills.customDirectories`)
+- `llm-council` — 5-advisor council with peer review and chairman verdict (from tenfoldmarc/llm-council-skill; kept in the repo and loaded by omp via `skills.customDirectories`, but NOT linked into `~/.claude/skills` by `setup.sh` so it stays out of every Claude Code session; link it by hand when needed)
 - `learned` — currently empty placeholder (tracked with `.gitkeep`)
 
 #### Reinstall skills on new machine
@@ -1448,7 +1450,7 @@ for skill in commit-message custom-init estimate readme-generator comment-story 
 done
 
 # 3. dev-setup global skills (symlink from this repo — content lives only here)
-for skill in context7-mcp learned llm-council; do
+for skill in context7-mcp learned; do
   ln -sf ~/Projects/Personal/dev-setup/claude/skills/$skill ~/.claude/skills/$skill
 done
 
@@ -1790,7 +1792,7 @@ Tracked in this repo at `opencode/`, mirroring the Claude Code setup (section 15
 - `opencode.json` — MCP servers `filestash` (`agent-file-stash serve`, `FILESTASH_DIR=.vscode/file-stash`), `code-review-graph` and `context7` (remote, key via `{env:CONTEXT7_API_KEY}` — export it in the shell); `permission` block with the same bash allow/deny lists and sensitive-file read denies as Claude Code; `instructions` loading `rules/*.md`; plugins `caveman`, `safety-guards`, `@dietrichgebert/ponytail` and `context-mode` (npm, installed by opencode on start); `permission.edit`/`write` and `websearch` set to `ask`; `compaction.auto` off (manual `/compact`).
 - `AGENTS.md` — user rules (caveman block + the global rules from `claude/CLAUDE.md`); `rules/` — `tools.md` (adapted to opencode MCP tool names), `coding-style.md`, `context7.md`.
 - `commands/` — `/plan`, `/skill-create`, `/coderabbit-review` plus the caveman commands; `agents/` — cavecrew agents.
-- `plugins/safety-guards.js` — port of the `pre-bash` (destructive-command guard, rg/fd preference), `post-edit-encoding`, `code-review-graph-guard` (blocks glob/grep when a graph exists) and `file-stash-guard` (deny-once on `read`) hooks via `tool.execute.before/after`.
+- `plugins/safety-guards.js` — port of the `pre-bash` (destructive-command guard, rg/fd preference), `post-edit-encoding`, `code-review-graph-guard` (blocks glob/grep when a graph exists, and bash `rg`/`fd`/`find` until a `code-review-graph_*` tool has been used in the session, unless the command targets paths outside the repo) and `file-stash-guard` (deny-once on `read`) hooks via `tool.execute.before/after`.
 - `skills/` — caveman skills and the CodeRabbit `code-review` skill tracked; personal skills are not copied or linked: opencode already reads `~/.claude/skills`, which `setup.sh` populates.
 
 Not tracked: `node_modules/`, lockfiles (`bun.lock`, `package-lock.json` — regenerate with `bun install`), and `.caveman-opencode-ownership.json` (regenerates itself on first run).
@@ -1821,7 +1823,7 @@ Tracked at `omp/`:
 - `mcp.json` — copied. `filestash`, `code-review-graph`, `context7` (key from `${CONTEXT7_API_KEY}`) and `context-mode` (runs the bundle from the installed plugin, `node ${HOME}/.omp/plugins/node_modules/context-mode/server.bundle.mjs`).
 - `plugins.txt` — marketplaces and plugins `setup.sh` installs: `ponytail`, `coderabbit`, `context-mode`, `token-optimizer` and, through its own installer, `caveman` (single source of the caveman rules, so `AGENTS.md` has no inline block).
 - `AGENTS.md`, `WATCHDOG.md`, `instructions/`, `commands/`, `rules/` — symlinked into `~/.omp/agent/`. `AGENTS.md` is a manual port of `claude/CLAUDE.md` plus the safety boundaries and working preferences taken from the Claude memories; when the global rules change in one, diff both. In project docs `mcp__x__y` means the omp tool `mcp__x_y`. `rules/` holds omp rules that fire on the model's output (`no-ai-mentions`, `no-broken-accents`, `no-step-comments`); `WATCHDOG.md` lists what the watchdog should flag.
-- `extensions/` — `rtk.ts` (rewrites shell commands through `rtk`, generated with `rtk init -g --agent omp`), `safety-guards.ts` (port of the Claude guards: destructive commands, `grep`/`find /`, sensitive paths in every tool and in `bash` readers and `eval`, code-review-graph and file-stash guards, UTF-8 warning; it also sees the `rtk`-rewritten command) and `project-context.ts` (injects `.vscode/CLAUDE.md`, the code-review-graph reminder and the Claude memory index of the project). The three are symlinked file by file. `agent-file-stash.ts` is written by its own tool (`agent-file-stash init --hooks`) and is not tracked.
+- `extensions/` — `rtk.ts` (rewrites shell commands through `rtk`, generated with `rtk init -g --agent omp`), `safety-guards.ts` (port of the Claude guards: destructive commands, `grep`/`find /`, sensitive paths in every tool and in `bash` readers and `eval`, code-review-graph guards (Glob/Grep always, Bash `rg`/`fd`/`find` until the graph is used) and file-stash guard, UTF-8 warning; it also sees the `rtk`-rewritten command) and `project-context.ts` (injects `.vscode/CLAUDE.md`, the code-review-graph and Context7 reminders and the Claude memory index of the project). The three are symlinked file by file. `agent-file-stash.ts` is written by its own tool (`agent-file-stash init --hooks`) and is not tracked.
 - Skills come from `skills.customDirectories` (the skill repos), `~/.agents/skills` and the plugins; the `opencode/skills/*` copy is gone. Project agents need `.omp/agents -> ../.vscode/.claude/agents` (created by the `custom-init` skill, `.omp/` excluded locally). omp does not read `~/.claude` (`enabledProviders` stays empty on purpose: enabling `claude` would duplicate MCP servers and skills).
 
 Memory: Claude Code remains the source of truth for notes (`~/.claude/projects/<project>/memory/`). `project-context.ts` injects only the index of the nearest project (no subagents) and tells omp to write new notes in the same Claude format, so both tools share them. `~/Projects/claude-memories` (private, local only) backs up both: `sync.sh` copies the Claude notes to `projects/` and `~/.omp/agent/memories/` to `omp/`.

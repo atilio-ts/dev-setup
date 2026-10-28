@@ -274,7 +274,6 @@ skills:
   customDirectories:
     - ~/Projects/Personal/claude-skills
     - ~/Projects/Personal/dev-setup/claude/skills
-    - ~/Projects/Github/humanlayer-skills/plugins/improve-claude-md/skills
     - ~/Projects/Github/humanlayer-skills/plugins/show-me/skills
   ignoredSkills:
     - personal:reporte-proyecto

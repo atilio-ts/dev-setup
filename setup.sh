@@ -325,6 +325,7 @@ done
 # Link dev-setup global skills (claude/skills)
 for skill_dir in "$REPO/claude/skills/"*/; do
   skill_name="$(basename "$skill_dir")"
+  [ "$skill_name" = "llm-council" ] && continue
   if [ -f "$skill_dir/SKILL.md" ]; then
     ln -sfn "${skill_dir%/}" "$HOME/.claude/skills/${skill_name}"
     ok "global skill '${skill_name}' linked"
@@ -355,10 +356,8 @@ if [ ! -d "$HUMANLAYER_DIR" ]; then
   mkdir -p "$HOME/Projects/Github"
   git clone https://github.com/humanlayer/skills "$HUMANLAYER_DIR"
 fi
-for skill in improve-claude-md show-me; do
-  ln -sfn "$HUMANLAYER_DIR/plugins/$skill/skills/$skill" "$HOME/.claude/skills/$skill"
-done
-ok "humanlayer skills linked: improve-claude-md, show-me"
+ln -sfn "$HUMANLAYER_DIR/plugins/show-me/skills/show-me" "$HOME/.claude/skills/show-me"
+ok "humanlayer skill linked: show-me"
 
 # ─── MCP servers (user scope, stored in ~/.claude.json) ───────────────────────
 step "MCP servers"
