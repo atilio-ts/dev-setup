@@ -118,7 +118,8 @@
       "Bash(wipe *)",
       "Bash(mkfs*)",
       "Bash(truncate *)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
   "model": "sonnet",
   "enableAllProjectMcpServers": false,
@@ -199,6 +200,16 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "mcp__code-review-graph__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/atilio/.claude/hooks/code-review-graph-mark.sh",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "PostToolUseFailure": [
@@ -225,7 +236,7 @@
         ]
       },
       {
-        "matcher": "Glob|Grep",
+        "matcher": "Glob|Grep|Bash",
         "hooks": [
           {
             "type": "command",
@@ -463,6 +474,15 @@
             "command": "/Users/atilio/.config/iterm2/cc-status"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/atilio/.claude/hooks/context7-reminder.sh",
+            "timeout": 5
+          }
+        ]
       }
     ]
   },
@@ -476,7 +496,9 @@
     "ponytail@ponytail": true,
     "token-optimizer@alexgreensh-token-optimizer": true,
     "context-mode@context-mode": true,
-    "typescript-lsp@claude-plugins-official": true
+    "typescript-lsp@claude-plugins-official": true,
+    "jdtls-lsp@claude-plugins-official": true,
+    "postman@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "alexgreensh-token-optimizer": {

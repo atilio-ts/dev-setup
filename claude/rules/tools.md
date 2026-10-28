@@ -37,3 +37,15 @@ code-review-graph, file-stash, and context-mode each claim "use me first" for ov
 - Neither of the above fits (fuzzy keyword search, unclear location) → Explore agent.
 
 Do not re-derive this priority per call — follow the list above.
+
+## Search order
+
+When the repo has a code-review-graph database, search in this order:
+
+1. code-review-graph (`semantic_search_nodes_tool`, `query_graph_tool`, `get_impact_radius_tool`). `code-review-graph-guard.sh` blocks Glob/Grep, and blocks Bash `rg`/`fd`/`find` until a graph tool has been used in the session.
+2. `rg` / `fd` / `find` for text, config and non-code files. The `rtk hook claude` hook rewrites `rg` and `find` to `rtk rg` and `rtk find` automatically, so output is already compacted; `fd` is not rewritten. Measured on this repo: `rtk rg` output is ~60% smaller than raw `rg`, `rtk find` ~65% smaller than raw `find` and ~70% smaller than `fd`, so prefer `rg`/`find` (rewritten) over `fd` unless plain paths are needed for piping.
+3. `mcp__filestash__read_file(s)` for reading, native Read only right before an Edit.
+
+## Context7
+
+`context7-reminder.sh` (UserPromptSubmit) injects a reminder when the prompt names a library, framework or SDK and asks a how-to, config, migration, version or API question. Follow it: `resolve-library-id`, then `query-docs`, before answering from memory.

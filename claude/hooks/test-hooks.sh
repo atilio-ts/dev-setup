@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Self-check for pre-bash.sh and prefer-search-tools-guard.sh. Run: bash ~/.claude/hooks/test-hooks.sh
+# Self-check for pre-bash.sh, prefer-search-tools-guard.sh, code-review-graph-guard.sh and context7-reminder.sh. Run: bash ~/.claude/hooks/test-hooks.sh
 
 dir="$(cd "$(dirname "$0")" && pwd)"
 fail=0
@@ -51,6 +51,49 @@ run $g pass 'find / -maxdepth 2 -name x'
 run $g pass 'git commit -m "replace grep with rg in scripts"'
 run $g pass $'cat > doc.md <<\'EOF\'\nuse grep or find / carefully\nEOF'
 run $g pass 'echo "no uses grep"'
+
+# code-review-graph-guard.sh: Bash search blocked until the graph was used (needs a repo with a graph)
+repo="$(cd "$(mktemp -d)" && pwd -P)"; git -C "$repo" init -q && mkdir "$repo/.code-review-graph"
+if true; then
+  sid="test-$$"; rm -f "/tmp/claude-crg-used-$sid"
+  crg() {
+    local expect="$1" cmd="$2" code
+    jq -n --arg c "$cmd" --arg cwd "$repo" --arg s "$sid" '{cwd:$cwd,tool_name:"Bash",session_id:$s,tool_input:{command:$c}}' | bash "$dir/code-review-graph-guard.sh" >/dev/null 2>&1
+    code=$?
+    if { [ "$expect" = block ] && [ "$code" -ne 2 ]; } || { [ "$expect" = pass ] && [ "$code" -ne 0 ]; }; then
+      echo "FAIL (code-review-graph-guard.sh): expected $expect -> $cmd"; fail=1
+    fi
+  }
+  crg block 'rg foo src'
+  crg block 'fd Controller'
+  crg pass 'git log | rg fix'
+  crg pass 'rg foo ~/Projects/other-repo'
+  crg pass 'rg foo /tmp/x'
+  crg pass 'cd ~/.claude && rg foo'
+  crg block "rg foo $repo/backend"
+  crg pass 'git commit -m "use rg here"'
+  echo "{\"session_id\":\"$sid\"}" | bash "$dir/code-review-graph-mark.sh"
+  crg pass 'rg foo src'
+  rm -f "/tmp/claude-crg-used-$sid"
+fi
+rm -rf "$repo"
+
+# context7-reminder.sh
+c7() {
+  local expect="$1" prompt="$2" out
+  out=$(jq -n --arg p "$prompt" '{prompt:$p}' | bash "$dir/context7-reminder.sh")
+  if { [ "$expect" = hint ] && [ -z "$out" ]; } || { [ "$expect" = none ] && [ -n "$out" ]; }; then
+    echo "FAIL (context7-reminder.sh): expected $expect -> $prompt"; fail=1
+  fi
+}
+c7 hint 'how do I configure Flyway with Spring Boot?'
+c7 hint 'upgrade tailwind to the latest version'
+c7 none 'rename this variable'
+c7 none '/doctor react'
+c7 none 'esta todo bien con dev setup, cargaste los plugins y skills?'
+c7 none 'arregla el bug de este controller de spring'
+c7 hint 'como migro de jest a vitest?'
+c7 hint 'cómo configuro keycloak con traefik'
 
 [ "$fail" -eq 0 ] && echo "todas las pruebas pasaron"
 exit "$fail"
