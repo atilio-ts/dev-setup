@@ -2,7 +2,7 @@
 
 ## code-review-graph
 
-When `.code-review-graph/` or `.vscode/code-review-graph/` exists in a project, use it as the **primary navigation and impact tool** — always before glob or grep.
+When `.code-review-graph/` or `.vscode/code-review-graph/` exists in a project, use it as the **primary navigation and impact tool** — always before glob or grep. Newer setups (via `--data-dir`) keep the database at `.vscode/code-review-graph/` instead of the repo root — check both.
 
 - The session injects a reminder when the project has a `.code-review-graph/` or `.vscode/code-review-graph/`; in that case use the `mcp__code_review_graph_*` MCP tools to explore the codebase.
 - **Find a file or symbol** → `mcp__code_review_graph_semantic_search_nodes_tool` or `mcp__code_review_graph_query_graph_tool`
@@ -34,4 +34,16 @@ Default subagents to a small/fast model unless the task needs multi-file reasoni
 - Question about structure, cross-file relationships, change impact, or a specific symbol → code-review-graph.
 - Neither fits (fuzzy keyword search, unclear location) → the `explore` task agent.
 - Use `rg` and `fd`, never `grep`/`find` (enforced by the safety-guards extension).
-- The `safety-guards` extension enforces this: `glob`/`grep` are blocked when the repo has a code-review-graph, and the first `read` of each file is denied once so exploration goes through file-stash (retry to edit).
+- The `safety-guards` extension enforces this: `glob`/`grep` are blocked when the repo has a code-review-graph, `rg`/`fd`/`find` in `bash` are blocked until a code-review-graph tool has been used in the session (unless the command targets paths outside the repo), and the first `read` of each file is denied once so exploration goes through file-stash (retry to edit).
+
+## Search order
+
+When the repo has a code-review-graph database, search in this order:
+
+1. code-review-graph (`semantic_search_nodes_tool`, `query_graph_tool`, `get_impact_radius_tool`).
+2. `rg` / `fd` for text, config and non-code files; `rtk` compacts their output.
+3. `mcp__filestash_read_file(s)` for reading, built-in `read` only right before an edit.
+
+## Context7
+
+`project-context` injects a reminder when the prompt names a library, framework or SDK and asks a how-to, config, migration, version or API question. Follow it: `mcp__context7_resolve_library_id`, then `mcp__context7_query_docs`, before answering from memory.

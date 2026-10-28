@@ -157,9 +157,31 @@ const hasGraph = (start: string) => {
   return false
 }
 
+const SEARCH_CMD = new RegExp("(^|[(`]|\\$\\()\\s*(rtk\\s+)?(rg|fd|fdfind|find|ag|ack)(\\s|$)")
+
+function targetsOutside(cmd: string, root: string) {
+  const paths = cmd
+    .replace(/['"]/g, "")
+    .split(/\s+/)
+    .filter((t) => /^(\/|~|\$HOME)/.test(t))
+    .map((t) => t.replace(/^~/, home).replace(/^\$HOME/, home))
+  if (paths.length === 0) return false
+  return !paths.some((p) => p === root || p.startsWith(`${root}/`))
+}
+
+function checkGraphFirst(cmd: string, root: string) {
+  const lines = stripQuoted(cmd).split(/&&|\|\||;/).flatMap((l: string) => l.split("\n"))
+  if (lines.some((l: string) => SEARCH_CMD.test(l)) && !targetsOutside(cmd, root)) {
+    throw new Error(
+      "Bloqueado: este repo tiene code-review-graph. Consulta primero mcp__code_review_graph_semantic_search_nodes_tool / query_graph_tool / get_impact_radius_tool; despues rg/fd/find quedan permitidos en esta sesion.",
+    )
+  }
+}
+
 export default function safetyGuards(pi: any) {
   const seenReads = new Set<string>()
   const editedPaths = new Map<string, string[]>()
+  let graphUsed = false
 
   pi.on("tool_call", async (event: any, ctx: any) => {
     const input = event.input ?? {}
@@ -169,6 +191,13 @@ export default function safetyGuards(pi: any) {
         checkBash(String(input.command))
       } catch (e: any) {
         return { block: true, reason: e.message }
+      }
+      if (!graphUsed && hasGraph(root)) {
+        try {
+          checkGraphFirst(String(input.command), root)
+        } catch (e: any) {
+          return { block: true, reason: e.message }
+        }
       }
       if (readsSensitive(String(input.command))) {
         return { block: true, reason: `Bloqueado: lectura de archivo sensible por bash. Comando: ${input.command}` }
@@ -208,6 +237,7 @@ export default function safetyGuards(pi: any) {
   })
 
   pi.on("tool_result", async (event: any) => {
+    if (String(event.toolName ?? "").startsWith("mcp__code_review_graph_")) graphUsed = true
     const paths = editedPaths.get(event.toolCallId)
     if (!paths) return
     editedPaths.delete(event.toolCallId)

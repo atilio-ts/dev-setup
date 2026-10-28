@@ -117,6 +117,28 @@ function notUtf8(file) {
   }
 }
 
+const SEARCH_CMD = new RegExp("(^|[(`]|\\$\\()\\s*(rtk\\s+)?(rg|fd|fdfind|find|ag|ack)(\\s|$)")
+
+function targetsOutside(cmd, root) {
+  const home = process.env.HOME ?? ""
+  const paths = cmd
+    .replace(/['"]/g, "")
+    .split(/\s+/)
+    .filter((t) => /^(\/|~|\$HOME)/.test(t))
+    .map((t) => t.replace(/^~/, home).replace(/^\$HOME/, home))
+  if (paths.length === 0) return false
+  return !paths.some((p) => p === root || p.startsWith(`${root}/`))
+}
+
+function checkGraphFirst(cmd, root) {
+  const lines = stripQuoted(cmd).split(/&&|\|\||;/).flatMap((l) => l.split("\n"))
+  if (lines.some((l) => SEARCH_CMD.test(l)) && !targetsOutside(cmd, root)) {
+    throw new Error(
+      "Bloqueado: este repo tiene code-review-graph. Consulta primero code-review-graph_semantic_search_nodes_tool / query_graph_tool / get_impact_radius_tool; despues rg/fd/find quedan permitidos en esta sesion.",
+    )
+  }
+}
+
 const hasGraph = (root) =>
   existsSync(join(root, ".git")) &&
   (existsSync(join(root, ".code-review-graph")) || existsSync(join(root, ".vscode", "code-review-graph")))
@@ -124,9 +146,13 @@ const hasGraph = (root) =>
 export const SafetyGuards = async ({ directory, worktree }) => {
   const root = worktree && worktree !== "/" ? worktree : directory
   const seenReads = new Set()
+  const graphUsed = new Set()
   return {
   "tool.execute.before": async (input, output) => {
-    if (input.tool === "bash" && output.args?.command) checkBash(output.args.command)
+    if (input.tool === "bash" && output.args?.command) {
+      checkBash(output.args.command)
+      if (hasGraph(root) && !graphUsed.has(input.sessionID)) checkGraphFirst(output.args.command, root)
+    }
     if ((input.tool === "glob" || input.tool === "grep") && hasGraph(root)) {
       throw new Error(
         `Bloqueado: este repo tiene code-review-graph. Usa code-review-graph_query_graph_tool / semantic_search_nodes_tool / get_impact_radius_tool en vez de ${input.tool}.`,
@@ -144,6 +170,7 @@ export const SafetyGuards = async ({ directory, worktree }) => {
     }
   },
   "tool.execute.after": async (input, output) => {
+    if (input.tool.startsWith("code-review-graph_")) graphUsed.add(input.sessionID)
     if (input.tool !== "edit" && input.tool !== "write") return
     const file = input.args?.filePath ?? output.metadata?.filepath
     if (file && notUtf8(file)) {

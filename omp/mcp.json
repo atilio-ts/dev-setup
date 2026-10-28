@@ -4,7 +4,9 @@
     "filestash": {
       "type": "stdio",
       "command": "agent-file-stash",
-      "args": ["serve"],
+      "args": [
+        "serve"
+      ],
       "env": {
         "FILESTASH_DIR": ".vscode/file-stash"
       }
@@ -12,7 +14,9 @@
     "code-review-graph": {
       "type": "stdio",
       "command": "code-review-graph",
-      "args": ["serve"]
+      "args": [
+        "serve"
+      ]
     },
     "context7": {
       "type": "http",
@@ -24,7 +28,9 @@
     "context-mode": {
       "type": "stdio",
       "command": "node",
-      "args": ["${HOME}/.omp/plugins/node_modules/context-mode/server.bundle.mjs"]
+      "args": [
+        "${HOME}/.omp/plugins/node_modules/context-mode/server.bundle.mjs"
+      ]
     }
   }
 }

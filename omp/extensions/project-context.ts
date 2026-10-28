@@ -10,6 +10,12 @@ const CAVEMAN_ACTIVE = existsSync(join(homedir(), ".omp", "caveman-plugin", "ind
 const CAVEMAN_REMINDER = "CAVEMAN MODE ACTIVE — session ruleset applies. Answer first, no tables or recap unless asked."
 const GRAPH_REMINDER =
   "REMINDER: This project has a code-review-graph database. Use the mcp__code_review_graph_* tools (query_graph_tool, semantic_search_nodes_tool, get_impact_radius_tool, etc.) as the primary navigation/impact tool BEFORE glob or grep."
+const CONTEXT7_REMINDER =
+  "CONTEXT7: this prompt asks about a library, framework, SDK or CLI. Before answering from memory, call mcp__context7_resolve_library_id and then mcp__context7_query_docs (one query per concept) and answer from the fetched docs. Skip only for pure refactors, business-logic debugging or code review."
+const CONTEXT7_LIBS =
+  /\b(react|next\.?js|vue|angular|svelte|vite|tailwind|prisma|drizzle|nest\.?js|django|flask|fastapi|spring( ?boot)?|hibernate|jpa|flyway|liquibase|gradle|maven|testcontainers|archunit|jacoco|spotless|nullaway|keycloak|traefik|postgres(ql)?|docker( compose)?|kubernetes|terraform|supabase|firebase|stripe|openapi|springdoc|swagger|typescript|node\.?js|deno|zod|tanstack|redux|jest|vitest|playwright|cypress|langchain|anthropic sdk|aws sdk)\b/i
+const CONTEXT7_INTENT =
+  /(how|c[oó]mo|configur|instal|migra|upgrad|actualiz|version|versi[oó]n|deprecat|sintaxis|syntax|api|docs|documentaci|set ?up|usar|use|error|no funciona|compatib)/i
 
 function ancestors(start: string) {
   const home = homedir()
@@ -62,8 +68,12 @@ export default function (pi: any) {
     injected = false
   })
 
-  pi.on("before_agent_start", async (_event: any, ctx: any) => {
+  pi.on("before_agent_start", async (event: any, ctx: any) => {
     const parts: string[] = []
+    const prompt = String(event?.prompt ?? "")
+    if (prompt && !prompt.startsWith("/") && CONTEXT7_LIBS.test(prompt) && CONTEXT7_INTENT.test(prompt)) {
+      parts.push(CONTEXT7_REMINDER)
+    }
     if (!injected) {
       const file = ancestors(ctx.cwd).map((d) => join(d, FILE)).find(existsSync)
       // omp already loads it natively through the .claude/CLAUDE.md symlink
