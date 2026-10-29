@@ -23,7 +23,7 @@ See [DEV_SETUP.md](DEV_SETUP.md) for the full setup guide.
 │   ├── init.lua              # ~/.config/nvim/init.lua
 │   ├── lazy-lock.json        # ~/.config/nvim/lazy-lock.json
 │   └── lua/config/           # ~/.config/nvim/lua/config/
-├── .env.example              # API keys the setup and skills expect (CONTEXT7_API_KEY, CLOCKIFY_API_KEY)
+├── .env.example              # API keys the setup expects (CONTEXT7_API_KEY)
 ├── gradle/gradle.properties  # ~/.gradle/gradle.properties
 ├── nano/                     # ~/.nanorc and ~/.nano/typescript.nanorc
 ├── vim/vimrc                 # ~/.vimrc

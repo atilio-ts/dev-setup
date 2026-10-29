@@ -59,7 +59,7 @@ cd ~/Projects/Personal/dev-setup
 
 ## Step 2 — Run setup.sh
 
-Run the automated setup script. This handles Homebrew, brew packages, shell, git, Neovim, nano, vim, atuin, gh, VS Code settings, Claude Code config, Spicetify, LaunchAgents, navi, macOS Dock, Claude plugins and skills, MCP servers (filestash, code-review-graph, context7, clockify-mcp, teams), and claude-code-stats.
+Run the automated setup script. This handles Homebrew, brew packages, shell, git, Neovim, nano, vim, atuin, gh, VS Code settings, Claude Code config, Spicetify, LaunchAgents, navi, macOS Dock, Claude plugins and skills, MCP servers (filestash, code-review-graph, context7, teams), and claude-code-stats.
 
 ```bash
 cd ~/Projects/Personal/dev-setup && bash setup.sh
@@ -186,14 +186,6 @@ export CONTEXT7_API_KEY="ctx7sk-your-key-here"
 ```
 
 Get a key at: context7.com/dashboard
-
-### Set CLOCKIFY_API_KEY before running setup.sh
-
-Same for the clockify-mcp server (key from Clockify > Preferences > Advanced):
-
-```bash
-export CLOCKIFY_API_KEY="your-key-here"
-```
 
 ### Sign in to Teams once
 
