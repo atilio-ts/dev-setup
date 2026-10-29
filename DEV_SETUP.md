@@ -1,6 +1,6 @@
 # Developer Setup — Atilio Villalba
 
-> Last updated: 2026-10-09
+> Last updated: 2026-10-29
 > Goal: replicate this exact environment on a new macOS (Apple Silicon) machine from scratch.
 
 ---
@@ -1800,6 +1800,7 @@ Tracked in this repo at `opencode/`, mirroring the Claude Code setup (section 15
 - `opencode.json` — MCP servers `filestash` (`agent-file-stash serve`, `FILESTASH_DIR=.vscode/file-stash`), `code-review-graph` and `context7` (remote, key via `{env:CONTEXT7_API_KEY}` — export it in the shell); `permission` block with the same bash allow/deny lists and sensitive-file read denies as Claude Code; `instructions` loading `rules/*.md`; plugins `caveman`, `safety-guards`, `@dietrichgebert/ponytail` and `context-mode` (npm, installed by opencode on start); `permission.edit`/`write` and `websearch` set to `ask`; `compaction.auto` off (manual `/compact`).
 - `AGENTS.md` — user rules (caveman block + the global rules from `claude/CLAUDE.md`); `rules/` — `tools.md` (adapted to opencode MCP tool names), `coding-style.md`, `context7.md`.
 - `commands/` — `/plan`, `/skill-create`, `/coderabbit-review` plus the caveman commands; `agents/` — cavecrew agents.
+- `plugins/postman.ts` — re-exports the Postman plugin cloned at `~/.config/opencode/postman-plugin` (`setup.sh` clones `postmanlabs/postman-plugin` when missing).
 - `plugins/safety-guards.js` — port of the `pre-bash` (destructive-command guard, rg/fd preference), `post-edit-encoding`, `code-review-graph-guard` (blocks glob/grep when a graph exists, and bash `rg`/`fd`/`find` until a `code-review-graph_*` tool has been used in the session, unless the command targets paths outside the repo) and `file-stash-guard` (deny-once on `read`) hooks via `tool.execute.before/after`.
 - `skills/` — caveman skills and the CodeRabbit `code-review` skill tracked; personal skills are not copied or linked: opencode already reads `~/.claude/skills`, which `setup.sh` populates.
 

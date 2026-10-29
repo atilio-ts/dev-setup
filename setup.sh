@@ -165,6 +165,7 @@ step "opencode"
 if command -v opencode &>/dev/null || brew list opencode &>/dev/null 2>&1; then
   mkdir -p "$HOME/.config/opencode"
   cp -r "$REPO/opencode/"* "$HOME/.config/opencode/"
+  [ -d "$HOME/.config/opencode/postman-plugin" ] || git clone https://github.com/postmanlabs/postman-plugin.git "$HOME/.config/opencode/postman-plugin"
   if command -v bun &>/dev/null; then
     (cd "$HOME/.config/opencode" && bun install) && ok "opencode config copied and dependencies installed"
   else
