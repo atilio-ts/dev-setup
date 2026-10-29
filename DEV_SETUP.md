@@ -722,6 +722,46 @@ cp vim/vimrc ~/.vimrc
 
 ---
 
+## 9b. Firefox Developer Edition
+
+Installed with the `firefox@developer-edition` cask. Settings come from [Betterfox](https://github.com/yokoffing/Betterfox) (`user.js`, version 154) plus a few personal overrides.
+
+### user.js
+
+`firefox/user.js` is the Betterfox file with these overrides under `MY OVERRIDES`:
+
+| Pref | Value | Why |
+|---|---|---|
+| `security.enterprise_roots.enabled` | `true` | trust root certificates installed in macOS (VPN / corporate proxy CA) |
+| `browser.startup.page` | `3` | restore tabs on startup |
+| `dom.security.https_only_mode_pbm` | `true` | HTTPS-only in private windows too |
+
+`setup.sh` copies it into the `*.dev-edition-default` profile. Open Firefox once first so the profile exists, then close it before copying, otherwise Firefox rewrites `prefs.js` on exit.
+
+```bash
+cp firefox/user.js ~/Library/Application\ Support/Firefox/Profiles/<id>.dev-edition-default/user.js
+```
+
+To update: replace the Betterfox section with the newest upstream `user.js`, keep the overrides block, and verify with `about:config`.
+
+### uBlock Origin
+
+Install it from addons.mozilla.org, then add the yokoffing filter list: uBlock Origin → Dashboard → Filter lists → Import, paste and click Apply changes:
+
+```
+https://raw.githubusercontent.com/yokoffing/filterlists/main/privacy_essentials.txt
+```
+
+The guidelines are at [yokoffing/filterlists](https://github.com/yokoffing/filterlists#guidelines); keep the number of enabled lists low.
+
+### Manual steps
+
+- Set a Primary Password: Settings → Privacy & Security → Use a Primary Password. Store it outside Firefox; if it is lost, saved logins cannot be recovered.
+- Enable "Require device sign in to manage passwords".
+- Secure DNS (DoH) is not configured; it can conflict with the OpenVPN DNS.
+
+---
+
 ## 10. Docker
 
 **Docker Desktop** is used (not Docker Engine standalone).
@@ -1894,6 +1934,7 @@ Extensions and `config.yml` are read when omp starts: reopen it after changing t
 [ ] brew install --cask iterm2 itermai lm-studio mattermost logitech-g-hub logi-options+
 [ ] brew install --cask openvpn-connect realvnc-connect-viewer windows-app zoom microsoft-teams instantview firefox@developer-edition
 [ ] Import .ovpn profile into OpenVPN Connect after install
+[ ] Firefox Developer Edition: open it once, close it, then bash setup.sh (or cp firefox/user.js into the profile); install uBlock Origin + import the yokoffing Privacy Essentials list; set a Primary Password (see section 9b)
 [ ] Sign in to: GitHub Desktop, Postman, Zoom, Logi Options+, Logitech G HUB
 [ ] Clone claude-code-stats: git clone https://github.com/AeternaLabsHQ/claude-code-stats ~/Projects/Github/claude-code-stats
 [ ] Configure claude-code-stats: cp config.example.json config.json → edit plan_history

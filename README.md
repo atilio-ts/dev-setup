@@ -35,6 +35,7 @@ See [DEV_SETUP.md](DEV_SETUP.md) for the full setup guide.
 │   └── skills/context7-mcp/SKILL.md # symlinked to ~/.claude/skills/context7-mcp
 ├── opencode/                 # ~/.config/opencode/ (config, caveman plugin)
 ├── omp/                      # ~/.omp/agent/ (config.yml, mcp.json, AGENTS.md, extensions)
+├── firefox/user.js           # Betterfox user.js + overrides, copied into the Dev Edition profile
 ├── tmux/tmux.conf            # ~/.tmux.conf
 ├── iterm2/dynamic-profile.json # iTerm2 Dynamic Profiles
 ├── terminal/apply-terminal-theme.sh # themes the Terminal.app Basic profile

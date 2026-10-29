@@ -112,6 +112,17 @@ step "vim"
 cp "$REPO/vim/vimrc" "$HOME/.vimrc"
 ok "vim config copied"
 
+# ─── Firefox ─────────────────────────────────────────────────────────────────
+step "Firefox"
+FF_PROFILE=$(ls -d "$HOME/Library/Application Support/Firefox/Profiles/"*.dev-edition-default 2>/dev/null | head -1)
+if [ -n "$FF_PROFILE" ]; then
+  cp "$REPO/firefox/user.js" "$FF_PROFILE/user.js"
+  ok "Firefox user.js copied — restart Firefox"
+  warn "Manual: install uBlock Origin and import https://raw.githubusercontent.com/yokoffing/filterlists/main/privacy_essentials.txt; set a Primary Password"
+else
+  warn "Firefox Developer Edition profile not found — open it once, then copy firefox/user.js into its profile folder"
+fi
+
 # ─── tmux ────────────────────────────────────────────────────────────────────
 step "tmux"
 cp "$REPO/tmux/tmux.conf" "$HOME/.tmux.conf"
