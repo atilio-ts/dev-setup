@@ -165,6 +165,8 @@ brew "anomalyco/tap/opencode", trusted: true
 brew "tmux"
 # Application uninstaller
 cask "appcleaner"
+# Android SDK command-line tools
+cask "android-commandlinetools"
 # Securely stores and accesses AWS credentials in a development environment
 cask "aws-vault-binary"
 # Terminal-based AI coding assistant
@@ -228,6 +230,8 @@ cask "spotify"
 cask "stats"
 # Text editor for code, markup and prose
 cask "sublime-text"
+# Temurin OpenJDK distribution
+cask "temurin"
 # Open-source code editor
 cask "visual-studio-code"
 # Multimedia player
@@ -240,6 +244,7 @@ cask "windows-app"
 cask "zoom"
 vscode "aaron-bond.better-comments"
 vscode "alefragnani.bookmarks"
+vscode "alexgreensh.token-optimizer-statusline"
 vscode "alfredbirk.tailwind-documentation"
 vscode "anseki.vscode-color"
 vscode "antfu.vite"
@@ -347,6 +352,7 @@ vscode "orta.vscode-jest"
 vscode "pablodelucca.pixel-agents"
 vscode "pawelgrzybek.gatito-theme"
 vscode "pkief.material-icon-theme"
+vscode "plohnensoftware.git-graph-libre"
 vscode "prisma.prisma"
 vscode "redhat.java"
 vscode "redhat.vscode-xml"

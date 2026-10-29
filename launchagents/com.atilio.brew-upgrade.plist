@@ -9,8 +9,13 @@
         <string>/opt/homebrew/bin/brew</string>
         <string>upgrade</string>
     </array>
-    <key>RunAtLoad</key>
-    <true/>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>13</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
     <key>StandardOutPath</key>
     <string>/tmp/brew-upgrade.log</string>
     <key>StandardErrorPath</key>

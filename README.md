@@ -45,7 +45,7 @@ See [DEV_SETUP.md](DEV_SETUP.md) for the full setup guide.
 ├── atuin/
 │   └── config.toml           # ~/.config/atuin/config.toml
 ├── launchagents/
-│   ├── com.atilio.brew-upgrade.plist  # ~/Library/LaunchAgents/ (weekly brew upgrade)
+│   ├── com.atilio.brew-upgrade.plist  # ~/Library/LaunchAgents/ (daily brew upgrade)
 │   └── homebrew.asimov.plist          # ~/Library/LaunchAgents/ (exclude brew from Time Machine)
 ├── skills/
 │   ├── install-dev-setup/    # Claude skill: interactive full dev environment installation guide

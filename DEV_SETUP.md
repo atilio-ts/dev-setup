@@ -522,7 +522,7 @@ The config also contains **Conventional Commits git aliases** (`feat`, `fix`, `r
 
 ## 6. Node.js — mise + pnpm + bun
 
-mise stays the standing choice for Node/Java version management on this machine — do not replace it with jenv/fnm. (An experimental jenv addition briefly replaced the mise `activate` line in `~/.zshrc`; reverted during this sync.)
+mise is the standard choice for Node/Java version management on every machine except the primary one, which uses jenv (Java, JDKs under `~/Library/Java/JavaVirtualMachines`, global Corretto 25) and fnm (Node) instead. On that machine `~/.zshrc` activates jenv rather than mise.
 
 ### Current versions
 
@@ -1276,9 +1276,9 @@ launchctl load ~/Library/LaunchAgents/homebrew.asimov.plist
 
 > `sudo brew services start asimov` fails on macOS Sequoia (bootstrap domain error). The user-level LaunchAgent approach works without sudo.
 
-### brew upgrade on login
+### Daily brew upgrade
 
-A second user-level LaunchAgent runs `brew upgrade` at every login (log in `/tmp/brew-upgrade.log`):
+A second user-level LaunchAgent runs `brew upgrade` daily at 13:00 (log in `/tmp/brew-upgrade.log`):
 
 ```bash
 cp launchagents/com.atilio.brew-upgrade.plist ~/Library/LaunchAgents/com.atilio.brew-upgrade.plist
