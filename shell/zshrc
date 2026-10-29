@@ -107,3 +107,9 @@ export PATH="$PATH:$HOME/.lmstudio/bin"
 # End of LM Studio CLI section
 
 export PATH=$PATH:$HOME/.spicetify
+
+# Added by the Postman CLI installer
+export PATH='/usr/local/bin':"$PATH"
+
+# Added by sonarqube-cli installer
+export PATH="$HOME/.local/share/sonarqube-cli/bin:$PATH"

@@ -1152,6 +1152,14 @@ No automated config — open the app, go to Preferences → SmartDelete → enab
 
 API development and testing client. Collections and environments sync automatically through a Postman account — sign in after install to restore workspaces.
 
+#### Postman CLI `v1.74.0` — `curl -o- "https://dl-cli.pstmn.io/install/unix.sh" | sh`
+
+Command-line runner for collections. Installs to `/usr/local/bin/postman`; `setup.sh` installs it when missing.
+
+#### SonarQube CLI `v1.10.0` — `curl -o- https://raw.githubusercontent.com/SonarSource/sonarqube-cli/refs/heads/master/user-scripts/install.sh | bash`
+
+Installs the `sonar` binary in `~/.local/share/sonarqube-cli/bin`, added to `PATH` in `~/.zshrc`. Authenticate with `sonar auth login`.
+
 #### DBeaver Community `v26.2.2` — `brew install --cask dbeaver-community`
 
 Universal database GUI. Supports PostgreSQL, MySQL, SQLite, Oracle, SQL Server, and more.

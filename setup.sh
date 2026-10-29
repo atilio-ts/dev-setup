@@ -409,6 +409,24 @@ else
   ok "cron job already installed"
 fi
 
+# ─── Postman CLI ─────────────────────────────────────────────────────────────
+step "Postman CLI"
+if ! command -v postman &>/dev/null; then
+  curl -o- "https://dl-cli.pstmn.io/install/unix.sh" | sh
+  ok "Postman CLI installed"
+else
+  ok "Postman CLI already installed"
+fi
+
+# ─── SonarQube CLI ───────────────────────────────────────────────────────────
+step "SonarQube CLI"
+if [ ! -x "$HOME/.local/share/sonarqube-cli/bin/sonar" ]; then
+  curl -o- https://raw.githubusercontent.com/SonarSource/sonarqube-cli/refs/heads/master/user-scripts/install.sh | bash
+  ok "SonarQube CLI installed"
+else
+  ok "SonarQube CLI already installed"
+fi
+
 # ─── Done ────────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${GREEN}Setup complete.${NC} Remaining manual steps:"
