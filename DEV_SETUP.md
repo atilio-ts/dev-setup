@@ -1514,7 +1514,6 @@ Not installed by `setup.sh` or the block above: each linked skill adds its descr
 # Team skills
 ln -sfn ~/Projects/Institucional/claude-skills/dev-workflow/tdd ~/.claude/skills/tdd
 ln -sfn ~/Projects/Institucional/claude-skills/dev-workflow/sec-audit ~/.claude/skills/sec-audit
-ln -sfn ~/Projects/Institucional/claude-skills/oca/contract-repo-sync ~/.claude/skills/contract-repo-sync
 
 # Skills CLI skills (installed to ~/.agents/skills, recorded in ~/.agents/.skill-lock.json)
 npx -y skills add vercel-labs/agent-skills -g -y -s vercel-react-best-practices
